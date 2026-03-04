@@ -1,0 +1,59 @@
+{
+  "version": "1.0",
+  "types": [
+    {
+      "type_id": "T_BOUNDARY",
+      "name": "Boundary",
+      "aliases": ["граница", "рамки", "boundary"],
+      "description": "Case boundary and inclusion/exclusion scope."
+    },
+    {
+      "type_id": "T_OBJECTIVE",
+      "name": "Objective",
+      "aliases": ["ціль", "цель", "objective", "беззбитковості", "точка беззбитковості"],
+      "description": "Target state or success criterion."
+    },
+    {
+      "type_id": "T_PROCESS",
+      "name": "Process",
+      "aliases": ["процес", "комплекс", "ділянка", "участок", "виробництво", "синхронізація"],
+      "description": "Operational process or production flow."
+    },
+    {
+      "type_id": "T_RESOURCE",
+      "name": "Resource",
+      "aliases": ["сировина", "ресурс", "деревина", "кругляк", "трудових ресурсів"],
+      "description": "Input resources, capacity, workforce."
+    },
+    {
+      "type_id": "T_METRIC",
+      "name": "Metric",
+      "aliases": ["кВт", "м куб", "продуктивність", "якість", "маржа", "ebitda", "kpi"],
+      "description": "Measurable indicator."
+    },
+    {
+      "type_id": "T_ARTIFACT",
+      "name": "Artifact",
+      "aliases": ["план", "стратегічного плану", "проект від руки", "бізнес-план"],
+      "description": "Descriptive artifact or plan document."
+    },
+    {
+      "type_id": "T_RISK",
+      "name": "Risk",
+      "aliases": ["ризик", "втрата довіри", "не спрацювала", "труднощі", "нестабільність"],
+      "description": "Risk or uncertainty source."
+    },
+    {
+      "type_id": "T_ROLE",
+      "name": "Role",
+      "aliases": ["правління", "команда", "інвестор", "членами"],
+      "description": "Actor role or governance participant."
+    },
+    {
+      "type_id": "T_TECHNOLOGY",
+      "name": "Technology",
+      "aliases": ["газогенерації", "газогенераційна", "електрогенерації", "реактор", "вузол управління"],
+      "description": "Technology/system component."
+    }
+  ]
+}

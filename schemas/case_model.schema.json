@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "required": ["workspace_id", "entities", "claims", "relations"],
+  "properties": {
+    "workspace_id": {"type": "string"},
+    "entities": {"type": "array", "items": {"type": "object"}},
+    "claims": {"type": "array", "items": {"type": "object"}},
+    "relations": {"type": "array", "items": {"type": "object"}}
+  },
+  "additionalProperties": true
+}

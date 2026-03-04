@@ -1,0 +1,654 @@
+{
+  "version": "1.0",
+  "candidates": [
+    {
+      "candidate_id": "CAND_проект",
+      "label": "Проект",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_початок",
+      "label": "Початок",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_коротко",
+      "label": "КОРОТКО",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_основні",
+      "label": "ОСНОВНІ",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_частини",
+      "label": "частини",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_розподіленний",
+      "label": "Розподіленний",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_участки",
+      "label": "участки",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_додаткові",
+      "label": "ДОДАТКОВІ",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_площадки",
+      "label": "площадки",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_розміщення",
+      "label": "розміщення",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_підбір",
+      "label": "Підбір",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_обладнання",
+      "label": "обладнання",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_закупка",
+      "label": "Закупка",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_доставка",
+      "label": "Доставка",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_монтаж",
+      "label": "монтаж",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_тестовий",
+      "label": "тестовий",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_участків",
+      "label": "участків",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_гібридному",
+      "label": "гібридному",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_форматі",
+      "label": "форматі",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_використання",
+      "label": "використання",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_електроенергії",
+      "label": "електроенергії",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_робота",
+      "label": "Робота",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_продуктивністю",
+      "label": "продуктивністю",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_якістю",
+      "label": "якістю",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_оптимізація",
+      "label": "Оптимізація",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_відходів",
+      "label": "відходів",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_виходу",
+      "label": "виходу",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_готової",
+      "label": "готової",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_продукції",
+      "label": "продукції",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_стабілізація",
+      "label": "Стабілізація",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_виробництва",
+      "label": "виробництва",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_контрольований",
+      "label": "Контрольований",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_контроль",
+      "label": "контроль",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_якості",
+      "label": "якості",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_продуктивністі",
+      "label": "продуктивністі",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_масштабування",
+      "label": "Масштабування",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_розвиток",
+      "label": "розвиток",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_фактично",
+      "label": "ФАКТИЧНО",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_сьогодні",
+      "label": "СЬОГОДНІ",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_знаходиться",
+      "label": "знаходиться",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_стадії",
+      "label": "стадії",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_запуск",
+      "label": "запуск",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_участка",
+      "label": "участка",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_фактична",
+      "label": "ФАКТИЧНА",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_ситуація",
+      "label": "СИТУАЦІЯ",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_порушення",
+      "label": "Порушення",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_внутрішньої",
+      "label": "внутрішньої",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_комунікації",
+      "label": "комунікації",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_фінансова",
+      "label": "фінансова",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_стабільність",
+      "label": "стабільність",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_виконання",
+      "label": "Виконання",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_домовленостей",
+      "label": "домовленостей",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_пріоритеті",
+      "label": "пріоритеті",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "AUTO_CAND_комплекс",
+      "label": "комплекс",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Auto-demoted by FPF compliance rule A.7",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "AUTO_CAND_процес",
+      "label": "процес",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Auto-demoted by FPF compliance rule A.7",
+      "status": "CANDIDATE"
+    },
+    {
+      "candidate_id": "CAND_невелика",
+      "label": "невелика",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_виробнича",
+      "label": "виробнича",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_компанія",
+      "label": "компанія",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_менеджер",
+      "label": "менеджер",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "PROMOTE_TO_KNOWN"
+    },
+    {
+      "candidate_id": "CAND_продажів",
+      "label": "продажів",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "PROMOTE_TO_KNOWN"
+    },
+    {
+      "candidate_id": "CAND_знаходить",
+      "label": "знаходить",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_клієнта",
+      "label": "клієнта",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_приймає",
+      "label": "приймає",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_заявку",
+      "label": "заявку",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "PROMOTE_TO_KNOWN"
+    },
+    {
+      "candidate_id": "CAND_виготовлення",
+      "label": "виготовлення",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_передає",
+      "label": "передає",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_технічному",
+      "label": "технічному",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_директору",
+      "label": "директору",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_проблема",
+      "label": "Проблема",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_значна",
+      "label": "Значна",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_частина",
+      "label": "частина",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "PROMOTE_TO_KNOWN"
+    },
+    {
+      "candidate_id": "CAND_оцінок",
+      "label": "оцінок",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_переходить",
+      "label": "переходить",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "PROMOTE_TO_KNOWN"
+    },
+    {
+      "candidate_id": "CAND_реальні",
+      "label": "реальні",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_замовлення",
+      "label": "замовлення",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "PROMOTE_TO_KNOWN"
+    },
+    {
+      "candidate_id": "CAND_клієнту",
+      "label": "клієнту",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "PROMOTE_TO_KNOWN"
+    },
+    {
+      "candidate_id": "CAND_можуть",
+      "label": "можуть",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_підійти",
+      "label": "підійти",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_терміни",
+      "label": "терміни",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "PROMOTE_TO_KNOWN"
+    },
+    {
+      "candidate_id": "CAND_скасовується",
+      "label": "скасовується",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_наслідки",
+      "label": "Наслідки",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_затримки",
+      "label": "затримки",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_клієнти",
+      "label": "клієнти",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_незадоволені",
+      "label": "незадоволені",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_конкурентів",
+      "label": "конкурентів",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_репутація",
+      "label": "репутація",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    },
+    {
+      "candidate_id": "CAND_компанії",
+      "label": "компанії",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "PROMOTE_TO_KNOWN"
+    },
+    {
+      "candidate_id": "CAND_погіршується",
+      "label": "погіршується",
+      "proposed_type_family": "UNCLASSIFIED_DOMAIN_TERM",
+      "rationale": "Unmatched frequent term in parsed claim",
+      "status": "CANDIDATE",
+      "normalization_status": "DEPRECATE"
+    }
+  ]
+}

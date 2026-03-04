@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "required": ["workspace_id", "problem_id", "title", "acceptance_criteria"],
+  "properties": {
+    "workspace_id": {"type": "string"},
+    "problem_id": {"type": "string"},
+    "title": {"type": "string"},
+    "acceptance_criteria": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

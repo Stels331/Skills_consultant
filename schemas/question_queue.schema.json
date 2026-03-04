@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "required": ["workspace_id", "questions"],
+  "properties": {
+    "workspace_id": {"type": "string"},
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["unknown_id", "question", "score"],
+        "properties": {
+          "unknown_id": {"type": "string"},
+          "question": {"type": "string"},
+          "score": {"type": "number"}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

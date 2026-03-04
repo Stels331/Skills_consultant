@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "required": ["workspace_id", "state", "created_at", "updated_at", "lifecycle"],
+  "properties": {
+    "workspace_id": {"type": "string"},
+    "state": {"type": "string", "enum": ["CREATE", "ACTIVE", "SUSPENDED", "ARCHIVED"]},
+    "created_at": {"type": "string"},
+    "updated_at": {"type": "string"},
+    "context_budget": {
+      "type": "object",
+      "required": ["max_context_tokens", "warning_threshold"],
+      "properties": {
+        "max_context_tokens": {"type": "integer"},
+        "warning_threshold": {"type": "integer"}
+      },
+      "additionalProperties": false
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": ["allowed_states", "allowed_transitions"],
+      "properties": {
+        "allowed_states": {"type": "array", "items": {"type": "string"}},
+        "allowed_transitions": {"type": "object"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

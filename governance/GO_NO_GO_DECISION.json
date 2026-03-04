@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-03-03T18:45:19.961510+00:00",
+  "go_no_go": "GO",
+  "criteria": {
+    "no_silent_failures": true,
+    "hard_fail_detection_ge_90": true,
+    "integration_cases_ge_10": true,
+    "no_open_blockers": true
+  },
+  "evidence": {
+    "integration_quality_report": "reports/integration_quality_report.json",
+    "pilot_gap_register": "governance/pilot_gap_register.json",
+    "risk_register": "governance/risk_register.json"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Artifact Frontmatter Contract",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "id",
+    "artifact_type",
+    "stage",
+    "state",
+    "parent_refs",
+    "source_refs",
+    "evidence_refs",
+    "viewpoints",
+    "epistemic_status",
+    "assurance_level",
+    "valid_until",
+    "owner_role",
+    "gate_status",
+    "violated_principles",
+    "next_expected_artifacts",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "artifact_type": { "type": "string", "minLength": 1 },
+    "stage": { "type": "string", "minLength": 1 },
+    "state": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "shaped",
+        "evidence_linked",
+        "accepted_for_next_stage",
+        "rework_required",
+        "waived",
+        "deprecated",
+        "expired"
+      ]
+    },
+    "parent_refs": { "type": "array", "items": { "type": "string" } },
+    "source_refs": { "type": "array", "items": { "type": "string" } },
+    "evidence_refs": { "type": "array", "items": { "type": "string" } },
+    "viewpoints": { "type": "array", "items": { "type": "string" } },
+    "epistemic_status": {
+      "type": "string",
+      "enum": [
+        "stated_by_user",
+        "observed",
+        "inferred",
+        "hypothesis",
+        "tested",
+        "decision_grade",
+        "operationally_confirmed"
+      ]
+    },
+    "assurance_level": { "type": "string", "enum": ["low", "medium", "high"] },
+    "valid_until": { "type": "string", "minLength": 1 },
+    "owner_role": { "type": "string", "minLength": 1 },
+    "gate_status": { "type": "string", "minLength": 1 },
+    "violated_principles": { "type": "array", "items": { "type": "string" } },
+    "next_expected_artifacts": { "type": "array", "items": { "type": "string" } },
+    "created_at": { "type": "string", "minLength": 1 },
+    "updated_at": { "type": "string", "minLength": 1 }
+  }
+}

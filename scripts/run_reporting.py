@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import argparse
+import json
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from app.pipeline.reporting import run_reporting
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Run reporting stage")
+    parser.add_argument("workspace_id")
+    parser.add_argument("--mode", default=None, choices=["local", "openai", "antigravity"])
+    args = parser.parse_args()
+
+    project_root = Path(__file__).resolve().parents[1]
+    out = run_reporting(project_root=project_root, workspace_id=args.workspace_id, llm_mode=args.mode)
+    print(json.dumps(out, ensure_ascii=False, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

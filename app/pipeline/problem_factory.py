@@ -1,0 +1,157 @@
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+from typing import Dict, List
+
+from app.llm.client import generate_markdown_with_skill
+from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
+
+
+LINE_BULLET = re.compile(r"^\s*-\s+(.+)$")
+
+
+def _read(path: Path) -> str:
+    if not path.exists():
+        return ""
+    return path.read_text(encoding="utf-8")
+
+
+def _load_skill_prompt(project_root: Path) -> str:
+    path = project_root / ".agent" / "skills" / "ec-problem-factory" / "SKILL.md"
+    if path.is_file():
+        return path.read_text(encoding="utf-8")
+    return "name: ec-problem-factory\ndescription: problem factory"
+
+
+def _extract_indicator_ids(indicator_set_text: str) -> List[str]:
+    ids: List[str] = []
+    for ln in indicator_set_text.splitlines():
+        m = LINE_BULLET.match(ln)
+        if not m:
+            continue
+        token = m.group(1).split("|")[0].strip()
+        if token:
+            ids.append(token)
+    return ids
+
+
+def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "local") -> Dict[str, object]:
+    workspace = project_root / "cases" / workspace_id
+    out_dir = workspace / "problems"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    char_passport = _read(workspace / "characterization" / "CharacterizationPassport.md")
+    indicator_set = _read(workspace / "characterization" / "IndicatorSet.md")
+    conflicts = _read(workspace / "viewpoints" / "conflicts_index.md")
+
+    skill_prompt = _load_skill_prompt(project_root)
+
+    archive_body = generate_markdown_with_skill(
+        system_skill_prompt=skill_prompt,
+        user_payload={
+            "task_type": "build_problem_bundle",
+            "problem_output": "archive",
+            "workspace_id": workspace_id,
+            "characterization_passport": char_passport,
+            "indicator_set": indicator_set,
+            "conflicts_index": conflicts,
+        },
+        mode=llm_mode,
+    )
+    archive_fm = build_frontmatter(
+        artifact_id=f"{workspace_id}__problem_archive",
+        artifact_type="problem_archive",
+        stage="problem_factory",
+        parent_refs=[
+            "characterization/CharacterizationPassport.md",
+            "characterization/IndicatorSet.md",
+            "viewpoints/conflicts_index.md",
+        ],
+        source_refs=["characterization/CharacterizationPassport.md:L1"],
+        next_expected_artifacts=["problems/ProblemPortfolio.md"],
+    )
+    write_markdown_artifact(out_dir / "ProblemArchive.md", archive_fm, archive_body)
+
+    portfolio_body = generate_markdown_with_skill(
+        system_skill_prompt=skill_prompt,
+        user_payload={
+            "task_type": "build_problem_bundle",
+            "problem_output": "portfolio",
+            "workspace_id": workspace_id,
+            "characterization_passport": char_passport,
+            "indicator_set": indicator_set,
+            "conflicts_index": conflicts,
+        },
+        mode=llm_mode,
+    )
+    portfolio_fm = build_frontmatter(
+        artifact_id=f"{workspace_id}__problem_portfolio",
+        artifact_type="problem_portfolio",
+        stage="problem_factory",
+        parent_refs=["problems/ProblemArchive.md"],
+        source_refs=["problems/ProblemArchive.md:L1"],
+        next_expected_artifacts=["problems/SelectedProblemCard.md"],
+    )
+    write_markdown_artifact(out_dir / "ProblemPortfolio.md", portfolio_fm, portfolio_body)
+
+    card_body = generate_markdown_with_skill(
+        system_skill_prompt=skill_prompt,
+        user_payload={
+            "task_type": "build_problem_bundle",
+            "problem_output": "selected_card",
+            "workspace_id": workspace_id,
+            "characterization_passport": char_passport,
+            "indicator_set": indicator_set,
+            "conflicts_index": conflicts,
+        },
+        mode=llm_mode,
+    )
+    card_fm = build_frontmatter(
+        artifact_id=f"{workspace_id}__selected_problem_card",
+        artifact_type="selected_problem_card",
+        stage="problem_factory",
+        parent_refs=["problems/ProblemPortfolio.md"],
+        source_refs=["problems/ProblemPortfolio.md:L1"],
+        evidence_refs=["viewpoints/conflicts_index.md:L1"],
+        next_expected_artifacts=["problems/ComparisonAcceptanceSpec.md"],
+    )
+    write_markdown_artifact(out_dir / "SelectedProblemCard.md", card_fm, card_body)
+
+    indicators = _extract_indicator_ids(indicator_set)
+    spec_body = generate_markdown_with_skill(
+        system_skill_prompt=skill_prompt,
+        user_payload={
+            "task_type": "build_problem_bundle",
+            "problem_output": "acceptance_spec",
+            "workspace_id": workspace_id,
+            "indicator_ids": indicators,
+            "selected_problem_card": card_body,
+        },
+        mode=llm_mode,
+    )
+    spec_fm = build_frontmatter(
+        artifact_id=f"{workspace_id}__comparison_acceptance_spec",
+        artifact_type="comparison_acceptance_spec",
+        stage="problem_factory",
+        parent_refs=["problems/SelectedProblemCard.md", "characterization/IndicatorSet.md"],
+        source_refs=["problems/SelectedProblemCard.md:L1"],
+        evidence_refs=["characterization/IndicatorSet.md:L1"],
+        next_expected_artifacts=["solutions/SolutionPortfolio.md"],
+    )
+    write_markdown_artifact(out_dir / "ComparisonAcceptanceSpec.md", spec_fm, spec_body)
+
+    summary = {
+        "workspace_id": workspace_id,
+        "archive": "problems/ProblemArchive.md",
+        "portfolio": "problems/ProblemPortfolio.md",
+        "selected_problem_card": "problems/SelectedProblemCard.md",
+        "comparison_acceptance_spec": "problems/ComparisonAcceptanceSpec.md",
+        "llm_mode": llm_mode,
+    }
+    (out_dir / "problem_factory_summary.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return summary
