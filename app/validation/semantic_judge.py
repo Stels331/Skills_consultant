@@ -70,6 +70,20 @@ def _local_rule_judge(
         if not any(h in body.lower() for h in hints):
             issues.append(SemanticIssue("ANTI_GOODHART_MISSING", "Anti-Goodhart risk section is missing", "medium"))
 
+    if "UNCERTAINTY_ROUTING" in principle_ids and stage in {"characterization", "problem_factory", "solution_factory", "reporting"}:
+        uncertainty_hints = ["gap", "unknown", "not provided", "не указ", "неизвест", "не хватает", "missing"]
+        routing_hints = ["clarif", "collect", "defer", "уточ", "сбор данных", "data collection", "повторно", "next step"]
+        if any(h in body.lower() for h in uncertainty_hints) and not any(h in body.lower() for h in routing_hints):
+            issues.append(SemanticIssue("UNCERTAINTY_NOT_ROUTED", "Known uncertainty is not routed into clarification or deferral", "medium"))
+
+    if "EPISTEMIC_SEPARATION" in principle_ids and stage in {"problem_factory", "solution_factory", "reporting"}:
+        certainty_hints = ["единствен", "неизбеж", "математически", "guaranteed", "must", "only"]
+        uncertainty_hints = ["gap", "unknown", "not provided", "не указ", "неизвест", "не хватает", "missing", "гипотез"]
+        separation_hints = ["hypothesis", "гипотез", "интерпрет", "факт", "предполож"]
+        if any(h in body.lower() for h in certainty_hints) and any(h in body.lower() for h in uncertainty_hints):
+            if not any(h in body.lower() for h in separation_hints):
+                issues.append(SemanticIssue("EPISTEMIC_LAYERS_BLURRED", "Facts and hypotheses are not clearly separated", "medium"))
+
     high_count = sum(1 for i in issues if i.severity == "high")
     med_count = sum(1 for i in issues if i.severity == "medium")
 

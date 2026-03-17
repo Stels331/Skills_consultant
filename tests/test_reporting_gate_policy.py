@@ -7,7 +7,7 @@ from app.pipeline.characterization import run_characterization
 from app.pipeline.intake_parser import run_intake_parser
 from app.pipeline.layer_builder import build_layers
 from app.pipeline.problem_factory import run_problem_factory
-from app.pipeline.reporting import run_reporting
+from app.pipeline.reporting import _augment_analytical_report, run_reporting
 from app.pipeline.solution_factory import run_solution_factory
 from app.pipeline.viewpoint_runner import run_viewpoints
 from app.router.orchestrator import StageOrchestrator
@@ -80,6 +80,16 @@ class ReportingGatePolicyTests(unittest.TestCase):
             self.assertNotIn(token, a_body.lower())
             self.assertNotIn(token, e_body.lower())
 
+        self.assertNotIn("artifact_type:", a_body)
+        self.assertNotIn("```markdown", a_body)
+        self.assertNotIn("[truncated]", e_body)
+        self.assertNotIn("```markdown", e_body)
+        self.assertNotIn("artifact_type:", e_body)
+        self.assertIn("**Факты:**", a_body)
+        self.assertIn("**Интерпретации:**", a_body)
+        self.assertIn("**Гипотезы / следующий шаг:**", a_body)
+        self.assertTrue("Подтвержденное действие" in e_body or "Гипотеза пилота" in e_body)
+
         self.assertTrue(validate_artifact_contract(self.root, analytical, self.ref.path).is_valid)
         self.assertTrue(validate_artifact_contract(self.root, executive, self.ref.path).is_valid)
 
@@ -91,6 +101,94 @@ class ReportingGatePolicyTests(unittest.TestCase):
         run_reporting(self.root, self.ref.workspace_id)
         a_body = read_frontmatter_document(self.ref.path / "reports" / "Analytical_Full_Report.md").body
         self.assertIn("GAP: source artifact missing or empty", a_body)
+
+    def test_s6_t1_parity_section_expands_short_solution_ids(self):
+        body = """# Аналитический полный отчет
+
+## 13. Parity Plan/Report
+- source: `solutions/ParityReport.md`
+
+Оценка решений показала:
+* `sol_00` проваливает все целевые метрики.
+* `sol_02` сходится с ограничениями.
+
+## 14. Tradeoff Resolution
+- source: `solutions/ConflictRecords.md`
+"""
+        artifacts = {
+            "solutions/ParityReport.md": """## sol_00_status_quo
+Text
+
+## sol_02_it_historical_exploit_cpq
+Text
+"""
+        }
+
+        augmented = _augment_analytical_report(body, artifacts)
+
+        self.assertIn("`sol_00` (`sol_00_status_quo`)", augmented)
+        self.assertIn("`sol_02` (`sol_02_it_historical_exploit_cpq`)", augmented)
+        self.assertIn("## 14. Tradeoff Resolution", augmented)
+
+    def test_s6_t1_reporting_marks_deferred_decision(self):
+        (self.ref.path / "solutions" / "SelectedSolutions.md").write_text(
+            """---
+id: deferred_selected
+artifact_type: selected_solutions
+stage: solution_factory
+state: draft
+parent_refs: []
+source_refs: ["solutions/ParityReport.md:L1"]
+evidence_refs: ["solutions/ConflictRecords.md:L1"]
+viewpoints: []
+epistemic_status: hypothesis
+assurance_level: medium
+valid_until: 2026-12-31
+owner_role: analyst
+gate_status: pending
+violated_principles: []
+next_expected_artifacts: []
+created_at: 2026-03-03T12:00:00+00:00
+updated_at: 2026-03-03T12:00:00+00:00
+---
+## Decision Status
+
+- deferred_pending_data_collection
+""",
+            encoding="utf-8",
+        )
+        (self.ref.path / "decisions" / "ADR-001.md").write_text(
+            """---
+id: deferred_adr
+artifact_type: adr_record
+stage: solution_factory
+state: draft
+parent_refs: []
+source_refs: ["solutions/SelectedSolutions.md:L1"]
+evidence_refs: ["solutions/ConflictRecords.md:L1"]
+viewpoints: []
+epistemic_status: hypothesis
+assurance_level: medium
+valid_until: 2026-12-31
+owner_role: analyst
+gate_status: pending
+violated_principles: []
+next_expected_artifacts: []
+created_at: 2026-03-03T12:00:00+00:00
+updated_at: 2026-03-03T12:00:00+00:00
+---
+# ADR-001: Decision Deferred Pending Clarification
+""",
+            encoding="utf-8",
+        )
+        run_reporting(self.root, self.ref.workspace_id)
+
+        analytical = read_frontmatter_document(self.ref.path / "reports" / "Analytical_Full_Report.md").body
+        executive = read_frontmatter_document(self.ref.path / "reports" / "Executive_Summary.md").body
+
+        self.assertIn("controlled deferral", analytical.lower())
+        self.assertIn("Гипотеза пилота", executive)
+        self.assertIn("Гипотеза пилота", executive)
 
     def test_s6_t3_validation_matrix_hard_fail(self):
         workspace_id = "case_20260303_602"
