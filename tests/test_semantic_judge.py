@@ -46,6 +46,22 @@ class SemanticJudgeTests(unittest.TestCase):
         )
         self.assertEqual(result.recommendation, "pass")
 
+    def test_viewpoint_blocks_unanchored_numeric_claims(self):
+        result = run_semantic_judge(
+            stage_name="viewpoints",
+            artifact_path=Path("/tmp/viewpoint.md"),
+            frontmatter={
+                "epistemic_status": "inferred",
+                "source_refs": ["layers/layer_1_business_model.md:L1"],
+                "evidence_refs": [],
+            },
+            body_text="Бункеры переполнятся за 3-5 дней, а банкротство наступит через несколько недель.",
+            principles=[],
+            mode="local",
+        )
+        self.assertEqual(result.recommendation, "block")
+        self.assertTrue(any(i.code == "UNANCHORED_NUMERIC_CLAIMS" for i in result.issues))
+
 
 if __name__ == "__main__":
     unittest.main()

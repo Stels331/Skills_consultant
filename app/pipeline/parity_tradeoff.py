@@ -5,6 +5,7 @@ from typing import Dict
 
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
+from app.pipeline.epistemic_sanitizer import soften_unanchored_claims
 
 
 def _load_skill(project_root: Path) -> str:
@@ -37,6 +38,7 @@ def run_parity_tradeoff(project_root: Path, workspace_id: str, llm_mode: str = "
         },
         mode=llm_mode,
     )
+    parity_plan = soften_unanchored_claims(parity_plan)
     parity_report = generate_markdown_with_skill(
         system_skill_prompt=skill_prompt,
         user_payload={
@@ -48,6 +50,7 @@ def run_parity_tradeoff(project_root: Path, workspace_id: str, llm_mode: str = "
         },
         mode=llm_mode,
     )
+    parity_report = soften_unanchored_claims(parity_report)
     tradeoff = generate_markdown_with_skill(
         system_skill_prompt=skill_prompt,
         user_payload={
@@ -59,6 +62,7 @@ def run_parity_tradeoff(project_root: Path, workspace_id: str, llm_mode: str = "
         },
         mode=llm_mode,
     )
+    tradeoff = soften_unanchored_claims(tradeoff)
 
     for name, body, art_type in [
         ("ParityPlan.md", parity_plan, "solution_parity_plan"),

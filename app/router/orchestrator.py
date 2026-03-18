@@ -26,6 +26,15 @@ def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _has_complete_waive(signals: Dict[str, object]) -> bool:
+    return bool(
+        signals.get("force_waive")
+        and str(signals.get("waive_policy_id") or "").strip()
+        and str(signals.get("waive_owner") or "").strip()
+        and str(signals.get("waive_rationale") or "").strip()
+    )
+
+
 def _is_valid_until_expired(raw: str) -> bool:
     if not raw:
         return False
@@ -281,6 +290,7 @@ class StageOrchestrator:
         inherited_epistemic_status = ""
         freshness_expired = False
         refresh_info: Dict[str, str] = {}
+        waive_ready = _has_complete_waive(signals)
         if doc is not None and validation.is_valid:
             graph = build_and_persist_evidence_graph(
                 workspace_path=workspace_path,
@@ -309,9 +319,10 @@ class StageOrchestrator:
 
             if _is_valid_until_expired(str(doc.frontmatter.get("valid_until") or "")):
                 freshness_expired = True
-                doc.frontmatter["state"] = "expired"
-                doc.frontmatter["updated_at"] = _utc_now_iso()
-                doc.frontmatter["gate_status"] = "block"
+                if not waive_ready:
+                    doc.frontmatter["state"] = "expired"
+                    doc.frontmatter["updated_at"] = _utc_now_iso()
+                    doc.frontmatter["gate_status"] = "block"
 
             if freshness_expired or bool(signals.get("recheck_trigger")):
                 refresh_info = register_refresh_event(
@@ -391,19 +402,22 @@ class StageOrchestrator:
                 trigger=matrix.reentry_trigger,
             )
 
-        gate_result = self._run_gate(
-            contract_ok=contract_ok,
-            semantic_result=semantic_result,
-            assurance_result=assurance_result,
-            matrix_outcome=matrix.outcome,
-            freshness_expired=freshness_expired,
-            has_recheck_trigger=bool(signals.get("recheck_trigger")),
-            signals=signals,
-            rationale=rationale,
-        )
-
         artifact = dict(doc.frontmatter) if doc is not None else {}
         prev_state = str(artifact.get("state") or "draft")
+
+        if matrix.waive_used:
+            gate_result = "pass"
+        else:
+            gate_result = self._run_gate(
+                contract_ok=contract_ok,
+                semantic_result=semantic_result,
+                assurance_result=assurance_result,
+                matrix_outcome=matrix.outcome,
+                freshness_expired=freshness_expired,
+                has_recheck_trigger=bool(signals.get("recheck_trigger")),
+                signals=signals,
+                rationale=rationale,
+            )
 
         if validation.is_valid:
             next_state = suggest_next_state(prev_state, gate_result)
@@ -412,15 +426,16 @@ class StageOrchestrator:
             next_state = prev_state
 
         if validation.is_valid and doc is not None and matrix.waive_used:
-            apply_transition(
-                artifact,
-                "waived",
-                context={
-                    "policy_id": str(signals.get("waive_policy_id") or ""),
-                    "owner": str(signals.get("waive_owner") or ""),
-                    "rationale": str(signals.get("waive_rationale") or matrix.waive_note),
-                },
-            )
+            waive_context = {
+                "policy_id": str(signals.get("waive_policy_id") or ""),
+                "owner": str(signals.get("waive_owner") or ""),
+                "rationale": str(signals.get("waive_rationale") or matrix.waive_note),
+            }
+            if prev_state == "expired":
+                artifact["state"] = "waived"
+                artifact["updated_at"] = _utc_now_iso()
+            else:
+                apply_transition(artifact, "waived", context=waive_context)
             artifact["gate_status"] = "waived"
             doc = FrontmatterDocument(frontmatter=artifact, body=doc.body)
             write_frontmatter_document(artifact_path, doc)

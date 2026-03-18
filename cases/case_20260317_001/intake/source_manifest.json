@@ -1,0 +1,15 @@
+{
+  "workspace_id": "case_20260317_001",
+  "sources": [
+    {
+      "doc_id": "doc_001",
+      "path": "raw/Технический директор_input.md",
+      "source_ref": "raw/Технический директор_input.md:L1",
+      "chars": 1452,
+      "statements": 12,
+      "language": "uk/ru",
+      "sha256_16": "45a675ba02c62f74"
+    }
+  ],
+  "total_sources": 1
+}

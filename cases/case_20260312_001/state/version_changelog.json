@@ -1,0 +1,13 @@
+{
+  "workspace_id": "case_20260312_001",
+  "updated_at": "2026-03-12T10:10:50.176710+00:00",
+  "events": [
+    {
+      "event_type": "WORKSPACE_CREATED",
+      "timestamp": "2026-03-12T10:10:50.176710+00:00",
+      "details": {
+        "state": "CREATE"
+      }
+    }
+  ]
+}

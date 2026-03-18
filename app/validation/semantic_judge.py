@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
@@ -32,6 +33,40 @@ def _contains_placeholder(text: str) -> bool:
     return any(m in low for m in markers)
 
 
+def _has_unanchored_numeric_claims(body: str) -> bool:
+    low = body.lower()
+    numeric_claim = bool(re.search(r"\b\d+(?:[.,]\d+)?\s*(?:%|квт|м³|м3|дн|дней|дня|недель|тиж|months?)\b", low))
+    hard_claim_markers = [
+        "верифиц",
+        "математическ",
+        "guaranteed",
+        "неминуем",
+        "гарантирован",
+        "банкрот",
+        "останов",
+        "строго =",
+        ">15%",
+    ]
+    if not numeric_claim and not any(marker in low for marker in hard_claim_markers):
+        return False
+    softeners = [
+        "hypothesis",
+        "гипотез",
+        "estimate",
+        "оценоч",
+        "scenario",
+        "сценар",
+        "rough",
+        "предполож",
+        "requires verification",
+        "требует проверки",
+        "source:",
+        "source_ref",
+        "evidence_ref",
+    ]
+    return not any(marker in low for marker in softeners)
+
+
 def _local_rule_judge(
     stage_name: str,
     body_text: str,
@@ -57,6 +92,16 @@ def _local_rule_judge(
 
     if epi == "decision_grade" and not evidence_refs:
         issues.append(SemanticIssue("MISSING_EVIDENCE_REFS", "decision_grade artifact must include evidence_refs", "high"))
+
+    if stage in {"viewpoints", "characterization", "problem_factory", "solution_factory", "reporting"}:
+        if _has_unanchored_numeric_claims(body):
+            issues.append(
+                SemanticIssue(
+                    "UNANCHORED_NUMERIC_CLAIMS",
+                    "Numeric or hard factual claims appear without explicit source anchoring or hypothesis marking",
+                    "high" if stage == "viewpoints" else "medium",
+                )
+            )
 
     principle_ids = {p.principle_id for p in principles}
 

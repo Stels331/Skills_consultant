@@ -6,6 +6,7 @@ from typing import Dict, List
 
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
+from app.pipeline.epistemic_sanitizer import soften_unanchored_claims
 
 
 def _read_text(path: Path) -> str:
@@ -31,7 +32,7 @@ def run_characterization(project_root: Path, workspace_id: str, llm_mode: str = 
     for p in sorted(viewpoints_dir.glob("*.md")):
         if p.name == "conflicts_index.md":
             continue
-        vp_texts.append(_read_text(p))
+        vp_texts.append(soften_unanchored_claims(_read_text(p)))
 
     layer_texts: List[str] = []
     layers_dir = workspace / "layers"
@@ -70,6 +71,7 @@ def run_characterization(project_root: Path, workspace_id: str, llm_mode: str = 
         source_refs=["viewpoints/conflicts_index.md:L1"],
         next_expected_artifacts=["problems/ProblemArchive.md"],
     )
+    passport_body = soften_unanchored_claims(passport_body)
     write_markdown_artifact(out_dir / "CharacterizationPassport.md", passport_fm, passport_body)
 
     indicator_set_body = generate_markdown_with_skill(
@@ -90,6 +92,7 @@ def run_characterization(project_root: Path, workspace_id: str, llm_mode: str = 
         source_refs=["characterization/CharacterizationPassport.md:L1"],
         next_expected_artifacts=["problems/ProblemArchive.md"],
     )
+    indicator_set_body = soften_unanchored_claims(indicator_set_body)
     write_markdown_artifact(out_dir / "IndicatorSet.md", indicator_fm, indicator_set_body)
 
     parity_plan_body = generate_markdown_with_skill(
@@ -110,6 +113,7 @@ def run_characterization(project_root: Path, workspace_id: str, llm_mode: str = 
         source_refs=["characterization/IndicatorSet.md:L1"],
         next_expected_artifacts=["problems/ProblemArchive.md"],
     )
+    parity_plan_body = soften_unanchored_claims(parity_plan_body)
     write_markdown_artifact(out_dir / "ParityPlan.md", parity_fm, parity_plan_body)
 
     card_paths = []
@@ -141,6 +145,7 @@ def run_characterization(project_root: Path, workspace_id: str, llm_mode: str = 
             next_expected_artifacts=["problems/ProblemArchive.md"],
         )
         target = cards_dir / f"{key}.md"
+        body = soften_unanchored_claims(body)
         write_markdown_artifact(target, fm, body)
         card_paths.append(str(target.relative_to(workspace)))
 

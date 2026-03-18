@@ -7,9 +7,11 @@ from typing import Dict, List
 
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
+from app.pipeline.epistemic_sanitizer import soften_unanchored_claims
 
 
 LINE_BULLET = re.compile(r"^\s*-\s+(.+)$")
+MARKDOWN_FENCE_RE = re.compile(r"(?is)```markdown\s*(.*?)```")
 
 
 def _read(path: Path) -> str:
@@ -23,6 +25,23 @@ def _load_skill_prompt(project_root: Path) -> str:
     if path.is_file():
         return path.read_text(encoding="utf-8")
     return "name: ec-problem-factory\ndescription: problem factory"
+
+
+def _sanitize_problem_artifact_body(text: str) -> str:
+    raw = str(text or "").strip()
+    if not raw:
+        return raw
+
+    fenced = MARKDOWN_FENCE_RE.search(raw)
+    if fenced:
+        inner = fenced.group(1).strip()
+        if inner:
+            return inner + ("\n" if not inner.endswith("\n") else "")
+
+    if raw.startswith("```") and raw.endswith("```"):
+        raw = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", raw)
+        raw = re.sub(r"\s*```$", "", raw)
+    return raw.strip() + ("\n" if raw.strip() else "")
 
 
 def _extract_indicator_ids(indicator_set_text: str) -> List[str]:
@@ -60,6 +79,8 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         },
         mode=llm_mode,
     )
+    archive_body = _sanitize_problem_artifact_body(archive_body)
+    archive_body = soften_unanchored_claims(archive_body)
     archive_fm = build_frontmatter(
         artifact_id=f"{workspace_id}__problem_archive",
         artifact_type="problem_archive",
@@ -86,6 +107,8 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         },
         mode=llm_mode,
     )
+    portfolio_body = _sanitize_problem_artifact_body(portfolio_body)
+    portfolio_body = soften_unanchored_claims(portfolio_body)
     portfolio_fm = build_frontmatter(
         artifact_id=f"{workspace_id}__problem_portfolio",
         artifact_type="problem_portfolio",
@@ -108,6 +131,8 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         },
         mode=llm_mode,
     )
+    card_body = _sanitize_problem_artifact_body(card_body)
+    card_body = soften_unanchored_claims(card_body)
     card_fm = build_frontmatter(
         artifact_id=f"{workspace_id}__selected_problem_card",
         artifact_type="selected_problem_card",
@@ -131,6 +156,8 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         },
         mode=llm_mode,
     )
+    spec_body = _sanitize_problem_artifact_body(spec_body)
+    spec_body = soften_unanchored_claims(spec_body)
     spec_fm = build_frontmatter(
         artifact_id=f"{workspace_id}__comparison_acceptance_spec",
         artifact_type="comparison_acceptance_spec",

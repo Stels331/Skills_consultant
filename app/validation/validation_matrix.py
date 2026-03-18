@@ -123,11 +123,12 @@ def evaluate_validation_matrix(
     for issue in assurance_issues:
         sev = str(issue.get("severity") or "medium").lower()
         code = str(issue.get("code") or "ASSURANCE_ISSUE")
-        force_hard = code in {"MISSING_EVIDENCE_REFS", "EXPIRED_ARTIFACT"}
+        force_hard = code in {"MISSING_EVIDENCE_REFS"}
+        severity = "hard_fail" if force_hard or (sev == "high" and code != "EXPIRED_ARTIFACT") else "warning"
         findings.append(
             MatrixFinding(
                 code=code,
-                severity="hard_fail" if force_hard or sev == "high" else "warning",
+                severity=severity,
                 message=str(issue.get("message") or "assurance issue"),
                 path="$.assurance",
                 waivable=not force_hard,

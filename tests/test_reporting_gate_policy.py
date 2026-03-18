@@ -189,6 +189,7 @@ updated_at: 2026-03-03T12:00:00+00:00
         self.assertIn("controlled deferral", analytical.lower())
         self.assertIn("Гипотеза пилота", executive)
         self.assertIn("Гипотеза пилота", executive)
+        self.assertIn("требуется добавить следующие данные", analytical.lower())
 
     def test_s6_t3_validation_matrix_hard_fail(self):
         workspace_id = "case_20260303_602"
@@ -283,6 +284,159 @@ updated_at: 2026-03-03T12:00:00+00:00
         )
         self.assertEqual(payload["validation_matrix"]["reentry_trigger"], "impact_target_not_achieved")
         self.assertEqual(payload["recheck_trigger"], "impact_target_not_achieved")
+
+    def test_reporting_surfaces_rejected_alternative_classes(self):
+        selected = self.ref.path / "solutions" / "SelectedSolutions.md"
+        selected.write_text(
+            """---
+id: selected
+artifact_type: selected_solutions
+stage: solution_factory
+state: draft
+parent_refs: []
+source_refs: ["solutions/ParityReport.md:L1"]
+evidence_refs: ["solutions/ConflictRecords.md:L1"]
+viewpoints: []
+epistemic_status: decision_grade
+assurance_level: medium
+valid_until: 2026-12-31
+owner_role: analyst
+gate_status: pending
+violated_principles: []
+next_expected_artifacts: []
+created_at: 2026-03-03T12:00:00+00:00
+updated_at: 2026-03-03T12:00:00+00:00
+---
+## Selected Solutions
+
+- sol_03_architecture_slice
+
+## Recommendation Status
+
+- confirmed_action: sol_03_architecture_slice
+
+## Rejected Alternatives
+
+- sol_01_local_gatekeeping: rollout_relevant_not_primary
+- reason: sol_01_local_gatekeeping (kept as rollout-relevant fallback, but weaker than the selected pair)
+- sol_04_policy_reset: dominated_or_constraint_failing
+- reason: sol_04_policy_reset (higher risk exposure under current horizon)
+""",
+            encoding="utf-8",
+        )
+        run_reporting(self.root, self.ref.workspace_id)
+        analytical = read_frontmatter_document(self.ref.path / "reports" / "Analytical_Full_Report.md").body
+        executive = read_frontmatter_document(self.ref.path / "reports" / "Executive_Summary.md").body
+        self.assertIn("rollout-relevant but not primary", analytical)
+        self.assertIn("dominated", executive.lower())
+
+    def test_reporting_expands_weak_and_medium_interventions(self):
+        (self.ref.path / "solutions" / "SolutionPortfolio.md").write_text(
+            """---
+id: portfolio
+artifact_type: solution_portfolio
+stage: solution_factory
+state: draft
+parent_refs: []
+source_refs: ["problems/ComparisonAcceptanceSpec.md:L1"]
+evidence_refs: ["problems/SelectedProblemCard.md:L1"]
+viewpoints: []
+epistemic_status: observed
+assurance_level: medium
+valid_until: 2026-12-31
+owner_role: analyst
+gate_status: pending
+violated_principles: []
+next_expected_artifacts: []
+created_at: 2026-03-03T12:00:00+00:00
+updated_at: 2026-03-03T12:00:00+00:00
+---
+## sol_01_intake_brief_and_triage
+- type: process
+- assurance_level: high
+- intervention_force: weak
+- expected_effects: removes noisy requests before expert escalation
+
+## sol_02_shadow_mode_matrix
+- type: process
+- assurance_level: medium
+- intervention_force: medium
+- expected_effects: externalizes part of expert knowledge into a controlled matrix
+
+## sol_03_cpq_portal
+- type: architecture
+- assurance_level: low
+- intervention_force: strong
+- expected_effects: automates standard pricing through a portal
+""",
+            encoding="utf-8",
+        )
+        run_reporting(self.root, self.ref.workspace_id)
+        analytical = read_frontmatter_document(self.ref.path / "reports" / "Analytical_Full_Report.md").body
+        self.assertIn("Weak interventions", analytical)
+        self.assertIn("Medium interventions", analytical)
+        self.assertIn("Это слабое решение", analytical)
+        self.assertIn("Это среднее решение", analytical)
+
+    def test_reporting_marks_unconfirmed_constraints_as_assumptions(self):
+        (self.ref.path / "problems" / "ComparisonAcceptanceSpec.md").write_text(
+            """---
+id: spec
+artifact_type: comparison_acceptance_spec
+stage: problem_factory
+state: draft
+parent_refs: []
+source_refs: ["problems/SelectedProblemCard.md:L1"]
+evidence_refs: []
+viewpoints: []
+epistemic_status: observed
+assurance_level: medium
+valid_until: 2026-12-31
+owner_role: analyst
+gate_status: pending
+violated_principles: []
+next_expected_artifacts: []
+created_at: 2026-03-03T12:00:00+00:00
+updated_at: 2026-03-03T12:00:00+00:00
+---
+# Comparison & Acceptance Spec
+
+## hard_constraints
+- budget_limit: fixed
+- time_horizon_days: 30
+""",
+            encoding="utf-8",
+        )
+        (self.ref.path / "solutions" / "ParityReport.md").write_text(
+            """---
+id: parity
+artifact_type: parity_report
+stage: solution_factory
+state: draft
+parent_refs: []
+source_refs: ["solutions/SolutionPortfolio.md:L1"]
+evidence_refs: []
+viewpoints: []
+epistemic_status: observed
+assurance_level: medium
+valid_until: 2026-12-31
+owner_role: analyst
+gate_status: pending
+violated_principles: []
+next_expected_artifacts: []
+created_at: 2026-03-03T12:00:00+00:00
+updated_at: 2026-03-03T12:00:00+00:00
+---
+# Parity Report
+
+- comparison frame: same budget, same 30-day window
+""",
+            encoding="utf-8",
+        )
+        run_reporting(self.root, self.ref.workspace_id)
+        analytical = read_frontmatter_document(self.ref.path / "reports" / "Analytical_Full_Report.md").body
+        self.assertIn("рабочие предположения", analytical)
+        self.assertIn("подтвержденные входные данные", analytical)
 
 
 if __name__ == "__main__":

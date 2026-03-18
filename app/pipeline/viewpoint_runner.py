@@ -31,6 +31,18 @@ def _load_viewpoint_skill(project_root: Path, viewpoint: str) -> str:
     return f"name: ec-vp-{viewpoint}\ndescription: viewpoint analyzer"
 
 
+VIEWPOINT_EPISTEMIC_GUARD = """
+
+## Epistemic Guard
+- Не подавайте расчетные реконструкции как наблюденные факты.
+- Любые числа, проценты, сроки, объемы, маржа, ROI, сроки банкротства и физические пределы должны либо:
+  - прямо присутствовать во входных слоях;
+  - либо быть явно помечены как estimate / hypothesis / scenario / rough calculation.
+- Запрещены формулировки уровня "верифицировано", "математический факт", "гарантированно", "неминуемо", если исходный кейс не содержит достаточной опоры.
+- Если вы делаете инженерную или экономическую прикидку, добавьте явный маркер, что это расчетная гипотеза, требующая проверки на данных.
+"""
+
+
 def run_viewpoints(project_root: Path, workspace_id: str, llm_mode: str = "local") -> Dict[str, object]:
     workspace = project_root / "cases" / workspace_id
     layers_dir = workspace / "layers"
@@ -48,7 +60,7 @@ def run_viewpoints(project_root: Path, workspace_id: str, llm_mode: str = "local
     conflicts: List[str] = []
 
     for viewpoint, focus in VIEWPOINTS:
-        skill_prompt = _load_viewpoint_skill(project_root, viewpoint)
+        skill_prompt = _load_viewpoint_skill(project_root, viewpoint) + VIEWPOINT_EPISTEMIC_GUARD
         body = generate_markdown_with_skill(
             system_skill_prompt=skill_prompt,
             user_payload={
@@ -73,6 +85,7 @@ def run_viewpoints(project_root: Path, workspace_id: str, llm_mode: str = "local
             ],
             source_refs=["layers/layer_1_business_model.md:L1"],
             viewpoints=[viewpoint],
+            epistemic_status="inferred",
             next_expected_artifacts=["characterization/CharacterizationPassport.md"],
         )
 

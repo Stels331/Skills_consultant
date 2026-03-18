@@ -1,0 +1,12 @@
+{
+  "workspace_id": "case_20260318_003",
+  "passport": "characterization/CharacterizationPassport.md",
+  "indicator_set": "characterization/IndicatorSet.md",
+  "parity_plan": "characterization/ParityPlan.md",
+  "characteristic_cards": [
+    "characterization/CharacteristicCards/decision_confidence_score.md",
+    "characterization/CharacteristicCards/unresolved_critical_gaps.md",
+    "characterization/CharacteristicCards/stakeholder_alignment_risk.md"
+  ],
+  "llm_mode": "gemini"
+}

@@ -101,14 +101,20 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
 ### Option: sol_01_process_rewire
 - Solution Type = process
 - Assurance Level = medium
+- Intervention Force = weak
+- Relevance Basis = rollout_relevant
 
 ### Option: sol_02_architecture_slice
 - Type = architectural
 - Assurance Level = high
+- Intervention Force = medium
+- Relevance Basis = pareto_relevant
 
 ### Option: sol_03_policy_reset
 - Type = governance
 - Assurance Level = medium
+- Intervention Force = strong
+- Relevance Basis = pareto_relevant
 """
         with patch("app.pipeline.solution_portfolio.generate_markdown_with_skill", return_value=loose_md):
             out = run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
@@ -134,14 +140,20 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
 ## sol-01-shadow-mode
 **type:** process
 **assurance_level:** medium
+**intervention_force:** weak
+**relevance_basis:** rollout_relevant
 
 ## sol-02-l1-gate
 **type:** architectural
 **assurance_level:** high
+**intervention_force:** medium
+**relevance_basis:** pareto_relevant
 
 ## sol-03-policy-reset
 **type:** governance
 **assurance_level:** medium
+**intervention_force:** strong
+**relevance_basis:** pareto_relevant
 """
         with patch("app.pipeline.solution_portfolio.generate_markdown_with_skill", return_value=loose_md):
             run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
@@ -154,6 +166,83 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
         self.assertIn("## sol_03_policy_reset", txt)
         self.assertIn("- type: policy", txt)
         self.assertNotIn("## sol_01_fix1", txt)
+
+    def test_solution_portfolio_recovers_localized_attributes_and_values(self):
+        loose_md = """
+# Портфель решений
+
+## sol_00_status_quo
+- тип: статус-кво
+- уровень уверенности: низкий
+
+## sol_01_heuristic_triage
+- тип решения: процесс
+- уровень уверенности: высокий
+- сила вмешательства: слабое
+- основание релевантности: релевантно для раскатки
+
+## sol_02_shadow_matrix
+- тип: процесс
+- уровень уверенности: средний
+- сила вмешательства: среднее
+- основание релевантности: парето-релевантно
+
+## sol_03_cpq_portal
+- тип: архитектура
+- уровень уверенности: низкий
+- сила вмешательства: сильное
+- основание релевантности: pareto relevant
+"""
+        with patch("app.pipeline.solution_portfolio.generate_markdown_with_skill", return_value=loose_md):
+            run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
+
+        txt = (self.ref.path / "solutions" / "SolutionPortfolio.md").read_text(encoding="utf-8")
+        self.assertIn("## sol_01_heuristic_triage", txt)
+        self.assertIn("- type: process", txt)
+        self.assertIn("- assurance_level: high", txt)
+        self.assertIn("- intervention_force: weak", txt)
+        self.assertIn("- relevance_basis: rollout_relevant", txt)
+        self.assertIn("## sol_03_cpq_portal", txt)
+        self.assertIn("- type: architecture", txt)
+
+    def test_solution_portfolio_fallback_replaces_invalid_body_instead_of_appending(self):
+        invalid_md = """
+# Solution Portfolio
+
+## sol_00_status_quo
+- some prose without mandatory attrs
+
+## sol_01_heuristic_triage
+- some prose without mandatory attrs
+
+## sol_02_shadow_matrix
+- some prose without mandatory attrs
+
+## sol_03_cpq_portal
+- some prose without mandatory attrs
+"""
+        with patch("app.pipeline.solution_portfolio.generate_markdown_with_skill", return_value=invalid_md):
+            run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
+
+        txt = read_frontmatter_document(self.ref.path / "solutions" / "SolutionPortfolio.md").body
+        self.assertIn("## sol_01_fix1", txt)
+        self.assertNotIn("## sol_01_heuristic_triage", txt)
+        self.assertIn("- assurance_level: medium", txt)
+
+    def test_solution_portfolio_contains_intervention_ladder_metadata(self):
+        out = run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
+        txt = read_frontmatter_document(self.ref.path / "solutions" / "SolutionPortfolio.md").body
+        self.assertIn("# Solution Space Meta-Model", txt)
+        self.assertIn("## Weak Intervention Class", txt)
+        self.assertIn("## Medium Intervention Class", txt)
+        self.assertIn("## Strong Intervention Class", txt)
+        self.assertIn("represent a reusable intervention class", txt)
+        self.assertIn("intervention_force: weak", txt)
+        self.assertIn("intervention_force: medium", txt)
+        self.assertIn("intervention_force: strong", txt)
+        self.assertIn("relevance_basis: pareto_relevant", txt)
+        self.assertIn("relevance_basis: rollout_relevant", txt)
+        self.assertIn("solution_portfolio", out)
 
     def test_s4_t2_parity_outputs_are_deterministic(self):
         run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
@@ -198,7 +287,7 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
 
         portfolio = self.ref.path / "solutions" / "SolutionPortfolio.md"
         txt = portfolio.read_text(encoding="utf-8")
-        txt = txt.replace("- assurance_level: medium\n", "", 1)
+        txt = txt.replace("## sol_02_process_rewire\n- type: process\n- assurance_level: medium\n", "## sol_02_process_rewire\n- type: process\n", 1)
         portfolio.write_text(txt, encoding="utf-8")
 
         run_parity_tradeoff(self.root, self.ref.workspace_id, llm_mode="local")
@@ -248,10 +337,11 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
         self.assertIn("## Recommendation Status", txt)
         self.assertIn("confirmed_action", txt)
         self.assertIn("## Selection Rationale", txt)
+        self.assertIn("## Rejected Alternatives", txt)
         self.assertIn("## traceability", txt)
         self.assertIn("selected_solutions", out)
 
-    def test_s4_t4_selection_defers_when_decision_readiness_is_low(self):
+    def test_s4_t4_selection_stays_provisional_when_decision_readiness_is_low(self):
         with patch(
             "app.pipeline.selection_engine.assess_decision_readiness",
             return_value={
@@ -265,10 +355,14 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
         selected_txt = read_frontmatter_document(self.ref.path / "solutions" / "SelectedSolutions.md").body
         adr_txt = read_frontmatter_document(self.ref.path / "decisions" / "ADR-001.md").body
 
-        self.assertIn("deferred_pending_data_collection", selected_txt)
-        self.assertIn("pilot_hypothesis", selected_txt)
-        self.assertEqual(len(_extract_selected_ids(selected_txt)), 0)
-        self.assertIn("Decision Deferred", adr_txt)
+        self.assertIn("provisional_pending_revalidation", selected_txt)
+        self.assertIn("provisional_recommendation", selected_txt)
+        self.assertIn("missing_input", selected_txt)
+        self.assertGreaterEqual(len(_extract_selected_ids(selected_txt)), 1)
+        self.assertTrue("## Assumptions Register" in selected_txt)
+        self.assertTrue("## Hypotheses to Validate" in selected_txt)
+        self.assertIn("## Revalidation Trigger", selected_txt)
+        self.assertIn("## Decision", adr_txt)
         self.assertIn("selected_solutions", out)
 
     def test_s4_end_to_end_solution_factory_outputs(self):

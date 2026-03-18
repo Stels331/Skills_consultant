@@ -1,0 +1,1181 @@
+---
+id: case_20260318_001__evidence_graph
+artifact_type: evidence_graph
+stage: evidence
+state: evidence_linked
+parent_refs: ["reports/Analytical_Full_Report.md"]
+source_refs: ["reports/Analytical_Full_Report.md:L1"]
+evidence_refs: ["solutions/SelectedSolutions.md:L1", "decisions/ADR-001.md:L1", "evidence/evidence_graph.md:L1"]
+viewpoints: []
+epistemic_status: observed
+assurance_level: medium
+valid_until: 2026-12-31
+owner_role: analyst
+gate_status: pending
+violated_principles: []
+next_expected_artifacts: []
+created_at: 2026-03-18T12:32:03.152882+00:00
+updated_at: 2026-03-18T12:32:03.152882+00:00
+---
+# Evidence Graph
+
+- updated_at: 2026-03-18T12:32:03.140207+00:00
+- claims_count: 367
+- edges_count: 785
+
+## Claims
+- claim::intake/normalized_case.md::c001 | class=observed | artifact=intake/normalized_case.md | text=*Кейс: невелика виробнича компанія*
+- claim::intake/normalized_case.md::c002 | class=observed | artifact=intake/normalized_case.md | text=*Процес продажів включає підпроцес оцінювання обсягу робіт, вартості та термінів виконання замовлення:*
+- claim::intake/normalized_case.md::c003 | class=observed | artifact=intake/normalized_case.md | text=*Менеджер із продажів знаходить клієнта та приймає від нього заявку на виготовлення продукції.*
+- claim::intake/normalized_case.md::c004 | class=observed | artifact=intake/normalized_case.md | text=*Далі менеджер передає заявку технічному директору.*
+- claim::intake/normalized_case.md::c005 | class=observed | artifact=intake/normalized_case.md | text=*Технічний директор має оцінити замовлення: виконуваність, обсяги, ціну та терміни, після чого повернути оцінку менеджер
+- claim::intake/normalized_case.md::c006 | class=observed | artifact=intake/normalized_case.md | text=*Проблема* *Значна частина таких оцінок не переходить у реальні замовлення: клієнту можуть не підійти ціна, терміни або 
+- claim::intake/normalized_case.md::c007 | class=observed | artifact=intake/normalized_case.md | text=*Технічний директор часто висловлює невдоволення цією роботою, він завантажений виробництвом, терміновими задачами, пост
+- claim::intake/normalized_case.md::c008 | class=observed | artifact=intake/normalized_case.md | text=*Наслідки*
+- claim::intake/normalized_case.md::c009 | class=observed | artifact=intake/normalized_case.md | text=*Через затримки клієнти незадоволені, частина з них переходить до конкурентів, а репутація компанії погіршується.*
+- claim::intake/normalized_case.md::c010 | class=observed | artifact=intake/normalized_case.md | text=*Довідка:* *у техничного директора в* *KPI* *показники повязані з обсягу виробництва та якості продукції. Водночас у ком
+- claim::layers/layer_1_business_model.md::c001 | class=observed | artifact=layers/layer_1_business_model.md | text=```markdown
+- claim::layers/layer_1_business_model.md::c002 | class=observed | artifact=layers/layer_1_business_model.md | text=---
+- claim::layers/layer_1_business_model.md::c003 | class=observed | artifact=layers/layer_1_business_model.md | text=id: layer_1_business_model__case_20260318_001
+- claim::layers/layer_1_business_model.md::c004 | class=observed | artifact=layers/layer_1_business_model.md | text=artifact_type: layer_1_business_model
+- claim::layers/layer_1_business_model.md::c005 | class=observed | artifact=layers/layer_1_business_model.md | text=stage: analysis
+- claim::layers/layer_1_business_model.md::c006 | class=observed | artifact=layers/layer_1_business_model.md | text=state: draft
+- claim::layers/layer_1_business_model.md::c007 | class=observed | artifact=layers/layer_1_business_model.md | text=parent_refs: ["case_20260318_001__normalized_case"]
+- claim::layers/layer_1_business_model.md::c008 | class=observed | artifact=layers/layer_1_business_model.md | text=source_refs: ["raw/Технический директор_input.md"]
+- claim::layers/layer_1_business_model.md::c009 | class=observed | artifact=layers/layer_1_business_model.md | text=---
+- claim::layers/layer_1_business_model.md::c010 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **Organization Type:** Small manufacturing company [Source: Технический директор_input.md].
+- claim::layers/layer_1_business_model.md::c011 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **Core Activity:** Custom manufacturing based on client requests, requiring upfront estimation of feasibility, volum
+- claim::layers/layer_1_business_model.md::c012 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **Client (Клієнт):** Submits requests for manufacturing, negotiates contracts, and accepts or rejects estimates.
+- claim::layers/layer_1_business_model.md::c013 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **Sales Manager (Менеджер із продажів):** Finds clients, receives requests, acts as an intermediary for estimates, n
+- claim::layers/layer_1_business_model.md::c014 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **Technical Director (Технічний директор):** Responsible for production, urgent tasks, supply, and equipment setup. 
+- claim::layers/layer_1_business_model.md::c015 | class=observed | artifact=layers/layer_1_business_model.md | text=1.  **Request Intake:** Sales Manager finds a client and receives a manufacturing request.
+- claim::layers/layer_1_business_model.md::c016 | class=observed | artifact=layers/layer_1_business_model.md | text=2.  **Handoff for Estimation:** Sales Manager passes the request to the Technical Director.
+- claim::layers/layer_1_business_model.md::c017 | class=observed | artifact=layers/layer_1_business_model.md | text=3.  **Estimation:** Technical Director evaluates the order for feasibility, work volume, price, and deadlines.
+- claim::layers/layer_1_business_model.md::c018 | class=observed | artifact=layers/layer_1_business_model.md | text=4.  **Return Estimate:** Technical Director returns the evaluation to the Sales Manager.
+- claim::layers/layer_1_business_model.md::c019 | class=observed | artifact=layers/layer_1_business_model.md | text=5.  **Negotiation & Launch:** Sales Manager negotiates the contract with the Client based on the estimate. If agreed, th
+- claim::layers/layer_1_business_model.md::c020 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **Technical Director KPIs:** Tied strictly to production volume and product quality [Source: Технический директор_in
+- claim::layers/layer_1_business_model.md::c021 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **Internal Regulations:** Internal standards and the Technical Director's job description explicitly mandate their p
+- claim::layers/layer_1_business_model.md::c022 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **Conflict of Interest:** The Technical Director's KPIs (production focus) conflict with their regulatory duties (sa
+- claim::layers/layer_1_business_model.md::c023 | class=inferred | artifact=layers/layer_1_business_model.md | text=*   **Low Conversion:** A significant portion of estimates do not convert into real orders because clients reject the pr
+- claim::layers/layer_1_business_model.md::c024 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **Resource Bottleneck:** The Technical Director is overloaded with operational production tasks, causing frustration
+- claim::layers/layer_1_business_model.md::c025 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **Severe Delays:** Responses to clients are delayed by 7–10 days, and some requests are completely ignored.
+- claim::layers/layer_1_business_model.md::c026 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **Business Impact:** Client dissatisfaction, loss of clients to competitors, and deterioration of the company's repu
+- claim::layers/layer_1_business_model.md::c027 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **GAP 1 (Metrics):** Missing data on the exact volume of incoming requests per week/month.
+- claim::layers/layer_1_business_model.md::c028 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **GAP 2 (Metrics):** Missing the current conversion rate from request to signed contract.
+- claim::layers/layer_1_business_model.md::c029 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **GAP 3 (Financials):** Missing the financial impact (lost revenue) caused by the 7-10 day delays and abandoned requ
+- claim::layers/layer_1_business_model.md::c030 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **GAP 4 (Process):** Missing details on the tools or methodologies the Technical Director currently uses to calculat
+- claim::layers/layer_1_business_model.md::c031 | class=observed | artifact=layers/layer_1_business_model.md | text=*   **GAP 5 (Process):** Missing information on whether the Sales Manager does any preliminary filtering or qualificatio
+- claim::layers/layer_1_business_model.md::c032 | class=observed | artifact=layers/layer_1_business_model.md | text=```
+- claim::viewpoints/strategist.md::c001 | class=observed | artifact=viewpoints/strategist.md | text=```markdown
+- claim::viewpoints/strategist.md::c002 | class=observed | artifact=viewpoints/strategist.md | text=**Кейс:** case_20260318_001 (Кастомное производство: конфликт продаж и производства)
+- claim::viewpoints/strategist.md::c003 | class=observed | artifact=viewpoints/strategist.md | text=**Фокус:** Бизнес-модель, Ценностное предложение (Value Proposition), Market Fit, Узлы неопределенности.
+- claim::viewpoints/strategist.md::c004 | class=observed | artifact=viewpoints/strategist.md | text=---
+- claim::viewpoints/strategist.md::c005 | class=observed | artifact=viewpoints/strategist.md | text=Проблема задержки оценок на 7–10 дней — это не операционный сбой и не вопрос тайм-менеджмента Технического директора (ТД
+- claim::viewpoints/strategist.md::c006 | class=observed | artifact=viewpoints/strategist.md | text=*   **Шизофрения операционной модели (Engineer-to-Order vs. Mass Production):**
+- claim::viewpoints/strategist.md::c007 | class=decision_grade | artifact=viewpoints/strategist.md | text=Бизнес пытается продавать на рынке ценностное предложение формата *Engineer-to-Order / Custom Manufacturing* (гибкость, 
+- claim::viewpoints/strategist.md::c008 | class=observed | artifact=viewpoints/strategist.md | text=*   **Паралич управления через асимметрию стимулов (Governance Paralysis):**
+- claim::viewpoints/strategist.md::c009 | class=observed | artifact=viewpoints/strategist.md | text=В одной точке (роль ТД) сведены две конфликтующие функции: **Генерация выручки** (оценка/пресейл) и **Контроль издержек/
+- claim::viewpoints/strategist.md::c010 | class=observed | artifact=viewpoints/strategist.md | text=Разрыв между тем, как бизнес задумывался, и тем, как он функционирует сейчас, достиг критической отметки:
+- claim::viewpoints/strategist.md::c011 | class=observed | artifact=viewpoints/strategist.md | text=*   **Деградация Ценностного предложения (Value Proposition Decay):** В кастомном производстве скорость и предсказуемост
+- claim::viewpoints/strategist.md::c012 | class=observed | artifact=viewpoints/strategist.md | text=*   **Иллюзия клиентоориентированности:** Менеджер по продажам работает как "почтовый ящик", не создавая добавленной сто
+- claim::viewpoints/strategist.md::c013 | class=observed | artifact=viewpoints/strategist.md | text=Чего мы *на самом деле* не знаем, и что может разрушить любой план трансформации:
+- claim::viewpoints/strategist.md::c014 | class=hypothesis | artifact=viewpoints/strategist.md | text=*   **Узел 1: "Скрытый фильтр рентабельности" (The Garbage Filter Hypothesis).**
+- claim::viewpoints/strategist.md::c015 | class=inferred | artifact=viewpoints/strategist.md | text=Мы не знаем, *какие именно* заказы отваливаются. Существует высокая вероятность, что ТД интуитивно (или сознательно) игн
+- claim::viewpoints/strategist.md::c016 | class=observed | artifact=viewpoints/strategist.md | text=*   **Узел 2: Степень уникальности запросов (Custom vs. Standard Ratio).**
+- claim::viewpoints/strategist.md::c017 | class=observed | artifact=viewpoints/strategist.md | text=Бизнес-модель опирается на допущение, что *каждый* заказ требует инженерной оценки ТД. Мы не знаем, какая доля запросов 
+- claim::viewpoints/strategist.md::c018 | class=observed | artifact=viewpoints/strategist.md | text=*   **Узел 3: Эластичность спроса по времени (Time-to-Quote Elasticity).**
+- claim::viewpoints/strategist.md::c019 | class=observed | artifact=viewpoints/strategist.md | text=Мы не знаем, готовы ли клиенты платить премию за скорость. Если оценка будет занимать 1 день вместо 10, позволит ли это 
+- claim::viewpoints/strategist.md::c020 | class=observed | artifact=viewpoints/strategist.md | text=Любые стратегические и архитектурные решения по данному кейсу обязаны соблюдать следующие константы. Нарушение любой из 
+- claim::viewpoints/strategist.md::c021 | class=observed | artifact=viewpoints/strategist.md | text=1.  **Неприкосновенность производственного ядра (Core Production Protection):**
+- claim::viewpoints/strategist.md::c022 | class=decision_grade | artifact=viewpoints/strategist.md | text=Решение проблемы пресейла не должно снижать текущие показатели объема и качества производства. ТД не может быть "оторван
+- claim::viewpoints/strategist.md::c023 | class=observed | artifact=viewpoints/strategist.md | text=2.  **Положительная юнит-экономика этапа оценки (Positive Pre-sales Unit Economics):**
+- claim::viewpoints/strategist.md::c024 | class=observed | artifact=viewpoints/strategist.md | text=Стоимость привлечения клиента (CAC), в которую входит дорогое время инженера/ТД на расчет сметы, должна быть строго мень
+- claim::viewpoints/strategist.md::c025 | class=observed | artifact=viewpoints/strategist.md | text=3.  **Разделение архитектуры и исполнения (Decoupling Architecture from Execution):**
+- claim::viewpoints/strategist.md::c026 | class=observed | artifact=viewpoints/strategist.md | text=Функция "Обещания" (оценка сроков, стоимости, технологической возможности) должна быть концептуально отделена от функции
+- claim::viewpoints/strategist.md::c027 | class=observed | artifact=viewpoints/strategist.md | text=```
+- claim::characterization/CharacterizationPassport.md::c001 | class=observed | artifact=characterization/CharacterizationPassport.md | text=Основываясь на предоставленных аналитических отчетах (Viewpoints) и послойном анализе (Layers), я подготовил артефакты э
+- claim::characterization/CharacterizationPassport.md::c002 | class=observed | artifact=characterization/CharacterizationPassport.md | text=Главный вывод из анализа: **Текущая система находится в состоянии структурного коллапса из-за конфликта потоков (продажи
+- claim::characterization/CharacterizationPassport.md::c003 | class=observed | artifact=characterization/CharacterizationPassport.md | text=Ниже представлены 3 обязательных артефакта в формате JSON.
+- claim::characterization/CharacterizationPassport.md::c004 | class=observed | artifact=characterization/CharacterizationPassport.md | text=Здесь собраны все измеримые размерности проблемы (CHR-SPACE).
+- claim::characterization/CharacterizationPassport.md::c005 | class=observed | artifact=characterization/CharacterizationPassport.md | text=```json
+- claim::characterization/CharacterizationPassport.md::c006 | class=observed | artifact=characterization/CharacterizationPassport.md | text="id": "case_20260318_001__characteristics_catalog",
+- claim::characterization/CharacterizationPassport.md::c007 | class=observed | artifact=characterization/CharacterizationPassport.md | text="type": "characteristics_catalog",
+- claim::characterization/CharacterizationPassport.md::c008 | class=observed | artifact=characterization/CharacterizationPassport.md | text="valid_until": "2026-12-31",
+- claim::characterization/CharacterizationPassport.md::c009 | class=observed | artifact=characterization/CharacterizationPassport.md | text="characteristics": [
+- claim::characterization/CharacterizationPassport.md::c010 | class=observed | artifact=characterization/CharacterizationPassport.md | text="id": "CHR-01",
+- claim::characterization/CharacterizationPassport.md::c011 | class=observed | artifact=characterization/CharacterizationPassport.md | text="name": "Time-to-Quote (TTQ) / Время выдачи оценки",
+- claim::characterization/CharacterizationPassport.md::c012 | class=observed | artifact=characterization/CharacterizationPassport.md | text="description": "Время от момента поступления заявки Менеджеру до выдачи коммерческого предложения Клиенту.",
+- claim::characterization/CharacterizationPassport.md::c013 | class=observed | artifact=characterization/CharacterizationPassport.md | text="scale": "Рабочие часы",
+- claim::characterization/CharacterizationPassport.md::c014 | class=observed | artifact=characterization/CharacterizationPassport.md | text="polarity": "Чем меньше, тем лучше (Minimization)",
+- claim::characterization/CharacterizationPassport.md::c015 | class=observed | artifact=characterization/CharacterizationPassport.md | text="measurement_procedure": "Замер дельты времени между созданием лида в CRM/учетной системе и отправкой КП клиенту."
+- claim::characterization/CharacterizationPassport.md::c016 | class=observed | artifact=characterization/CharacterizationPassport.md | text="id": "CHR-02",
+- claim::characterization/CharacterizationPassport.md::c017 | class=observed | artifact=characterization/CharacterizationPassport.md | text="name": "Доля автономных расчетов (Self-Service Rate)",
+- claim::characterization/CharacterizationPassport.md::c018 | class=observed | artifact=characterization/CharacterizationPassport.md | text="description": "Процент заявок, стоимость и сроки которых рассчитаны Менеджером по продажам (или калькулятором) без прив
+- claim::characterization/CharacterizationPassport.md::c019 | class=observed | artifact=characterization/CharacterizationPassport.md | text="scale": "Проценты (%)",
+- claim::characterization/CharacterizationPassport.md::c020 | class=observed | artifact=characterization/CharacterizationPassport.md | text="polarity": "Чем больше, тем лучше (Maximization)",
+- claim::characterization/CharacterizationPassport.md::c021 | class=observed | artifact=characterization/CharacterizationPassport.md | text="measurement_procedure": "Количество заявок, оцененных без ТД / Общее количество оцененных заявок * 100."
+- claim::characterization/CharacterizationPassport.md::c022 | class=observed | artifact=characterization/CharacterizationPassport.md | text="id": "CHR-03",
+- claim::characterization/CharacterizationPassport.md::c023 | class=observed | artifact=characterization/CharacterizationPassport.md | text="name": "Точность оценки себестоимости (Estimation Variance)",
+- claim::characterization/CharacterizationPassport.md::c024 | class=observed | artifact=characterization/CharacterizationPassport.md | text="description": "Отклонение плановой себестоимости (COGS), рассчитанной на этапе пресейла, от фактической себестоимости п
+- claim::characterization/CharacterizationPassport.md::c025 | class=observed | artifact=characterization/CharacterizationPassport.md | text="scale": "Проценты (%)",
+- claim::characterization/CharacterizationPassport.md::c026 | class=observed | artifact=characterization/CharacterizationPassport.md | text="polarity": "Стремление к нулю (Target: 0%, допустимо +5%)",
+- claim::characterization/CharacterizationPassport.md::c027 | class=observed | artifact=characterization/CharacterizationPassport.md | text="measurement_procedure": "(Фактическая себестоимость - Плановая себестоимость) / Плановая себестоимость * 100."
+- claim::characterization/CharacterizationPassport.md::c028 | class=observed | artifact=characterization/CharacterizationPassport.md | text="id": "CHR-04",
+- claim::characterization/CharacterizationPassport.md::c029 | class=observed | artifact=characterization/CharacterizationPassport.md | text="name": "Уровень мусорной нагрузки (Waste Load Ratio)",
+- claim::characterization/CharacterizationPassport.md::c030 | class=observed | artifact=characterization/CharacterizationPassport.md | text="description": "Доля заявок, переданных Техническому директору, которые не прошли базовую BANT-квалификацию (бюджет, пол
+- claim::characterization/CharacterizationPassport.md::c031 | class=observed | artifact=characterization/CharacterizationPassport.md | text="scale": "Проценты (%)",
+- claim::characterization/CharacterizationPassport.md::c032 | class=observed | artifact=characterization/CharacterizationPassport.md | text="polarity": "Чем меньше, тем лучше (Minimization)",
+- claim::characterization/CharacterizationPassport.md::c033 | class=observed | artifact=characterization/CharacterizationPassport.md | text="measurement_procedure": "Аудит 100% переданных ТД заявок на наличие заполненного чек-листа квалификации."
+- claim::characterization/CharacterizationPassport.md::c034 | class=observed | artifact=characterization/CharacterizationPassport.md | text="id": "CHR-05",
+- claim::characterization/CharacterizationPassport.md::c035 | class=observed | artifact=characterization/CharacterizationPassport.md | text="name": "Индекс прерываний производства (Context Switching Penalty)",
+- claim::characterization/CharacterizationPassport.md::c036 | class=observed | artifact=characterization/CharacterizationPassport.md | text="description": "Количество часов простоя оборудования или брака, вызванных отвлечением ТД на срочные расчеты смет.",
+- claim::characterization/CharacterizationPassport.md::c037 | class=observed | artifact=characterization/CharacterizationPassport.md | text="scale": "Часы в неделю",
+- claim::characterization/CharacterizationPassport.md::c038 | class=observed | artifact=characterization/CharacterizationPassport.md | text="polarity": "Чем меньше, тем лучше (Minimization)",
+- claim::characterization/CharacterizationPassport.md::c039 | class=observed | artifact=characterization/CharacterizationPassport.md | text="measurement_procedure": "Журнал учета простоев оборудования с указанием причины 'Отсутствие/занятость ТД'."
+- claim::characterization/CharacterizationPassport.md::c040 | class=observed | artifact=characterization/CharacterizationPassport.md | text="id": "CHR-06",
+- claim::characterization/CharacterizationPassport.md::c041 | class=observed | artifact=characterization/CharacterizationPassport.md | text="name": "Конверсия Quote-to-Contract (Q2C)",
+- claim::characterization/CharacterizationPassport.md::c042 | class=observed | artifact=characterization/CharacterizationPassport.md | text="description": "Процент заявок, по которым выдана оценка, перешедших в подписанный договор.",
+- claim::characterization/CharacterizationPassport.md::c043 | class=observed | artifact=characterization/CharacterizationPassport.md | text="scale": "Проценты (%)",
+- claim::characterization/CharacterizationPassport.md::c044 | class=observed | artifact=characterization/CharacterizationPassport.md | text="polarity": "Чем больше, тем лучше (Maximization)",
+- claim::characterization/CharacterizationPassport.md::c045 | class=observed | artifact=characterization/CharacterizationPassport.md | text="measurement_procedure": "Количество подписанных договоров / Количество выданных оценок * 100."
+- claim::characterization/CharacterizationPassport.md::c046 | class=observed | artifact=characterization/CharacterizationPassport.md | text=```
+- claim::characterization/CharacterizationPassport.md::c047 | class=observed | artifact=characterization/CharacterizationPassport.md | text=Условия честного сравнения текущего состояния (As-Is) и будущих решений (To-Be).
+- claim::characterization/CharacterizationPassport.md::c048 | class=observed | artifact=characterization/CharacterizationPassport.md | text=```json
+- claim::characterization/CharacterizationPassport.md::c049 | class=observed | artifact=characterization/CharacterizationPassport.md | text="id": "case_20260318_001__parity_plan",
+- claim::characterization/CharacterizationPassport.md::c050 | class=observed | artifact=characterization/CharacterizationPassport.md | text="type": "parity_plan",
+- claim::characterization/CharacterizationPassport.md::c051 | class=observed | artifact=characterization/CharacterizationPassport.md | text="valid_until": "2026-12-31",
+- claim::characterization/CharacterizationPassport.md::c052 | class=observed | artifact=characterization/CharacterizationPassport.md | text="comparison_conditions": {
+- claim::characterization/CharacterizationPassport.md::c053 | class=observed | artifact=characterization/CharacterizationPassport.md | text="evaluation_window": "3 месяца с момента внедрения изменений",
+- claim::characterization/CharacterizationPassport.md::c054 | class=observed | artifact=characterization/CharacterizationPassport.md | text="budgets": {
+- claim::characterization/CharacterizationPassport.md::c055 | class=observed | artifact=characterization/CharacterizationPassport.md | text="implementation_capex": "Не более стоимости найма 1 выделенного сметчика за 3 месяца",
+- claim::characterization/CharacterizationPassport.md::c056 | class=observed | artifact=characterization/CharacterizationPassport.md | text="opex_limit": "Операционные затраты на пресейл не должны превышать 5% от маржи контракта"
+- claim::characterization/CharacterizationPassport.md::c057 | class=observed | artifact=characterization/CharacterizationPassport.md | text="baseline_state": {
+- claim::characterization/CharacterizationPassport.md::c058 | class=observed | artifact=characterization/CharacterizationPassport.md | text="TTQ": "7-10 дней (168-240 часов)",
+- claim::characterization/CharacterizationPassport.md::c059 | class=observed | artifact=characterization/CharacterizationPassport.md | text="Self_Service_Rate": "0% (все идет через ТД)",
+- claim::characterization/CharacterizationPassport.md::c060 | class=observed | artifact=characterization/CharacterizationPassport.md | text="Estimation_Variance": "Неизвестно (Скрытый риск)"
+- claim::characterization/CharacterizationPassport.md::c061 | class=observed | artifact=characterization/CharacterizationPassport.md | text="ceteris_paribus": [
+- claim::characterization/CharacterizationPassport.md::c062 | class=observed | artifact=characterization/CharacterizationPassport.md | text="Объем входящего трафика (лидов) остается неизменным",
+- claim::characterization/CharacterizationPassport.md::c063 | class=observed | artifact=characterization/CharacterizationPassport.md | text="Сложность производимых изделий (микс стандарт/кастом) остается на историческом уровне",
+- claim::characterization/CharacterizationPassport.md::c064 | class=observed | artifact=characterization/CharacterizationPassport.md | text="Производственные мощности не расширяются"
+- claim::characterization/CharacterizationPassport.md::c065 | class=observed | artifact=characterization/CharacterizationPassport.md | text=```
+- claim::characterization/CharacterizationPassport.md::c066 | class=observed | artifact=characterization/CharacterizationPassport.md | text=Выбор индикаторов, определение Слабого Звена (WLNK) и защита от Reward Hacking'а.
+- claim::characterization/CharacterizationPassport.md::c067 | class=observed | artifact=characterization/CharacterizationPassport.md | text=```json
+- claim::characterization/CharacterizationPassport.md::c068 | class=observed | artifact=characterization/CharacterizationPassport.md | text="id": "case_20260318_001__characterization_passport",
+- claim::characterization/CharacterizationPassport.md::c069 | class=observed | artifact=characterization/CharacterizationPassport.md | text="type": "characterization_passport",
+- claim::characterization/CharacterizationPassport.md::c070 | class=observed | artifact=characterization/CharacterizationPassport.md | text="valid_until": "2026-12-31",
+- claim::characterization/CharacterizationPassport.md::c071 | class=observed | artifact=characterization/CharacterizationPassport.md | text="weakest_link_wlnk": {
+- claim::characterization/CharacterizationPassport.md::c072 | class=observed | artifact=characterization/CharacterizationPassport.md | text="component": "Когнитивная и временная пропускная способность Технического директора",
+- claim::characterization/CharacterizationPassport.md::c073 | class=observed | artifact=characterization/CharacterizationPassport.md | text="rationale": "Согласно Теории Ограничений (Operator Viewpoint), ТД является абсолютным бутылочным горлышком. Пропускная 
+- claim::characterization/CharacterizationPassport.md::c074 | class=observed | artifact=characterization/CharacterizationPassport.md | text="portfolio": {
+- claim::characterization/CharacterizationPassport.md::c075 | class=observed | artifact=characterization/CharacterizationPassport.md | text="optimization_targets": [
+- claim::characterization/CharacterizationPassport.md::c076 | class=observed | artifact=characterization/CharacterizationPassport.md | text="characteristic_id": "CHR-02",
+- claim::characterization/CharacterizationPassport.md::c077 | class=observed | artifact=characterization/CharacterizationPassport.md | text="name": "Доля автономных расчетов (Self-Service Rate)",
+- claim::characterization/CharacterizationPassport.md::c078 | class=observed | artifact=characterization/CharacterizationPassport.md | text="target_level": "> 60%",
+- claim::characterization/CharacterizationPassport.md::c079 | class=observed | artifact=characterization/CharacterizationPassport.md | text="rationale": "Единственный способ масштабировать бизнес — отчуждать экспертизу. Типовые заказы должны считаться без ТД (
+- claim::characterization/CharacterizationPassport.md::c080 | class=observed | artifact=characterization/CharacterizationPassport.md | text="characteristic_id": "CHR-01",
+- claim::characterization/CharacterizationPassport.md::c081 | class=observed | artifact=characterization/CharacterizationPassport.md | text="name": "Time-to-Quote (TTQ)",
+- claim::characterization/CharacterizationPassport.md::c082 | class=observed | artifact=characterization/CharacterizationPassport.md | text="target_level": "< 48 часов",
+- claim::characterization/CharacterizationPassport.md::c083 | class=observed | artifact=characterization/CharacterizationPassport.md | text="rationale": "Рыночный стандарт. Задержка свыше 48 часов убивает конверсию и обесценивает продукт (Client Viewpoint)."
+- claim::characterization/CharacterizationPassport.md::c084 | class=observed | artifact=characterization/CharacterizationPassport.md | text="hard_constraints": [
+- claim::characterization/CharacterizationPassport.md::c085 | class=observed | artifact=characterization/CharacterizationPassport.md | text="characteristic_id": "CHR-03",
+- claim::characterization/CharacterizationPassport.md::c086 | class=observed | artifact=characterization/CharacterizationPassport.md | text="name": "Точность оценки себестоимости (Estimation Variance)",
+- claim::characterization/CharacterizationPassport.md::c087 | class=observed | artifact=characterization/CharacterizationPassport.md | text="limit": "Отклонение не более +5% от плана, недопустимо занижение себестоимости (< 0%)",
+- claim::characterization/CharacterizationPassport.md::c088 | class=observed | artifact=characterization/CharacterizationPassport.md | text="rationale": "Защита от продажи в минус. Ускорение оценки не должно приводить к кассовым разрывам."
+- claim::characterization/CharacterizationPassport.md::c089 | class=observed | artifact=characterization/CharacterizationPassport.md | text="characteristic_id": "CHR-05",
+- claim::characterization/CharacterizationPassport.md::c090 | class=observed | artifact=characterization/CharacterizationPassport.md | text="name": "Индекс прерываний производства",
+- claim::characterization/CharacterizationPassport.md::c091 | class=observed | artifact=characterization/CharacterizationPassport.md | text="limit": "0 часов (ТД оценивает заявки только в выделенные 'окна')",
+- claim::characterization/CharacterizationPassport.md::c092 | class=observed | artifact=characterization/CharacterizationPassport.md | text="rationale": "Защита производственного ядра (Strategist Viewpoint). Исполнение текущих контрактов важнее пресейла новых.
+- claim::characterization/CharacterizationPassport.md::c093 | class=observed | artifact=characterization/CharacterizationPassport.md | text="risk_signals": [
+- claim::characterization/CharacterizationPassport.md::c094 | class=observed | artifact=characterization/CharacterizationPassport.md | text="characteristic_id": "CHR-06",
+- claim::characterization/CharacterizationPassport.md::c095 | class=observed | artifact=characterization/CharacterizationPassport.md | text="name": "Конверсия Quote-to-Contract (Q2C)",
+- claim::characterization/CharacterizationPassport.md::c096 | class=observed | artifact=characterization/CharacterizationPassport.md | text="monitoring_threshold": "Падение ниже исторического минимума",
+- claim::characterization/CharacterizationPassport.md::c097 | class=observed | artifact=characterization/CharacterizationPassport.md | text="rationale": "Сигнализирует о том, что ТД начал применять 'заградительное ценообразование' (накидывать +50% к цене), что
+- claim::characterization/CharacterizationPassport.md::c098 | class=observed | artifact=characterization/CharacterizationPassport.md | text="anti_goodhart_protocol": {
+- claim::characterization/CharacterizationPassport.md::c099 | class=observed | artifact=characterization/CharacterizationPassport.md | text="identified_risks": [
+- claim::characterization/CharacterizationPassport.md::c100 | class=observed | artifact=characterization/CharacterizationPassport.md | text="hacked_metric": "Time-to-Quote (CHR-01)",
+- claim::characterization/CharacterizationPassport.md::c101 | class=observed | artifact=characterization/CharacterizationPassport.md | text="hack_mechanism": "Если привязать бонус ТД к скорости ответа (SLA 24 часа), он начнет считать сметы 'на глаз' за 5 минут
+- claim::characterization/CharacterizationPassport.md::c102 | class=observed | artifact=characterization/CharacterizationPassport.md | text="systemic_damage": "Сценарий 'Margin Squeeze' или полная остановка продаж из-за неконкурентных цен (Critic Viewpoint). М
+- claim::characterization/CharacterizationPassport.md::c103 | class=observed | artifact=characterization/CharacterizationPassport.md | text="mitigation": "Метрика TTQ (CHR-01) действительна ТОЛЬКО при удержании Точности оценки (CHR-03) в пределах 5% и сохранен
+- claim::characterization/CharacterizationPassport.md::c104 | class=observed | artifact=characterization/CharacterizationPassport.md | text="hacked_metric": "Доля автономных расчетов (CHR-02)",
+- claim::characterization/CharacterizationPassport.md::c105 | class=observed | artifact=characterization/CharacterizationPassport.md | text="hack_mechanism": "Менеджер по продажам начнет классифицировать сложные кастомные заказы как 'типовые', чтобы прогнать и
+- claim::characterization/CharacterizationPassport.md::c106 | class=observed | artifact=characterization/CharacterizationPassport.md | text="systemic_damage": "В производство поступят заказы, которые физически невозможно выполнить на текущем оборудовании, или 
+- claim::characterization/CharacterizationPassport.md::c107 | class=observed | artifact=characterization/CharacterizationPassport.md | text="mitigation": "Внедрение жесткого Gate-контроля: ТД имеет право вето на запуск в производство любого 'автономного' заказ
+- claim::characterization/CharacterizationPassport.md::c108 | class=observed | artifact=characterization/CharacterizationPassport.md | text=```
+- claim::problems/SelectedProblemCard.md::c001 | class=observed | artifact=problems/SelectedProblemCard.md | text=---
+- claim::problems/SelectedProblemCard.md::c002 | class=decision_grade | artifact=problems/SelectedProblemCard.md | text=id: case_20260318_001__selected_problem_card
+- claim::problems/SelectedProblemCard.md::c003 | class=decision_grade | artifact=problems/SelectedProblemCard.md | text=artifact_type: selected_problem_card
+- claim::problems/SelectedProblemCard.md::c004 | class=observed | artifact=problems/SelectedProblemCard.md | text=stage: problem_formation
+- claim::problems/SelectedProblemCard.md::c005 | class=observed | artifact=problems/SelectedProblemCard.md | text=state: draft
+- claim::problems/SelectedProblemCard.md::c006 | class=observed | artifact=problems/SelectedProblemCard.md | text=valid_until: 2026-12-31
+- claim::problems/SelectedProblemCard.md::c007 | class=observed | artifact=problems/SelectedProblemCard.md | text=owner_role: ec-problem-factory
+- claim::problems/SelectedProblemCard.md::c008 | class=observed | artifact=problems/SelectedProblemCard.md | text=---
+- claim::problems/SelectedProblemCard.md::c009 | class=observed | artifact=problems/SelectedProblemCard.md | text=**Стратегия и Бизнес-модель:**
+- claim::problems/SelectedProblemCard.md::c010 | class=observed | artifact=problems/SelectedProblemCard.md | text=Масштабирование выручки компании физически заблокировано. Пропускная способность бизнеса по генерации новых контрактов ж
+- claim::problems/SelectedProblemCard.md::c011 | class=observed | artifact=problems/SelectedProblemCard.md | text=**Функциональная модель:**
+- claim::problems/SelectedProblemCard.md::c012 | class=observed | artifact=problems/SelectedProblemCard.md | text=Отсутствует функциональное разделение потоков на "Типовые" и "Кастомные" (Сложные) заказы. Отдел продаж работает как про
+- claim::problems/SelectedProblemCard.md::c013 | class=observed | artifact=problems/SelectedProblemCard.md | text=**Размещение (Компонентная структура):**
+- claim::problems/SelectedProblemCard.md::c014 | class=observed | artifact=problems/SelectedProblemCard.md | text=Отсутствуют инструменты отчуждения экспертизы (матрицы цен, калькуляторы, CPQ-системы). Вся логика ценообразования и оце
+- claim::problems/SelectedProblemCard.md::c015 | class=observed | artifact=problems/SelectedProblemCard.md | text=**Распределение ролей:**
+- claim::problems/SelectedProblemCard.md::c016 | class=observed | artifact=problems/SelectedProblemCard.md | text=Технический директор совмещает несовместимые роли: управление производством (исполнение контрактов) и пресейл-инжиниринг
+- claim::problems/SelectedProblemCard.md::c017 | class=observed | artifact=problems/SelectedProblemCard.md | text=---
+- claim::problems/SelectedProblemCard.md::c018 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   **CHR-01:** Текущее время выдачи оценки (TTQ) составляет 7-10 дней (168-240 часов).
+- claim::problems/SelectedProblemCard.md::c019 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   **CHR-02:** Доля автономных расчетов (Self-Service Rate) равна 0% — абсолютно все заявки оцениваются Техническим дир
+- claim::problems/SelectedProblemCard.md::c020 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   **CHR-05:** Происходят регулярные прерывания производственного процесса из-за отвлечения ТД на срочные расчеты смет.
+- claim::problems/SelectedProblemCard.md::c021 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   **WLNK:** Технический директор является абсолютным "бутылочным горлышком" системы.
+- claim::problems/SelectedProblemCard.md::c022 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   Длительный TTQ (7-10 дней) является прямым следствием очередей перед ТД, а не сложности самих расчетов.
+- claim::problems/SelectedProblemCard.md::c023 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   Отсутствие фильтрации (CHR-04: Уровень мусорной нагрузки) усугубляет перегрузку ТД, заставляя его тратить время на л
+- claim::problems/SelectedProblemCard.md::c024 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   Текущая архитектура процесса провоцирует конфликт между производством (которому нужна стабильность) и продажами (кот
+- claim::problems/SelectedProblemCard.md::c025 | class=hypothesis | artifact=problems/SelectedProblemCard.md | text=*   **Гипотеза типизации:** Не менее 60% входящего потока заявок обладают достаточно предсказуемой себестоимостью, чтобы
+- claim::problems/SelectedProblemCard.md::c026 | class=hypothesis | artifact=problems/SelectedProblemCard.md | text=*   **Гипотеза квалификации:** Менеджеры по продажам способны безошибочно маршрутизировать заявки на "Типовые" (считают 
+- claim::problems/SelectedProblemCard.md::c027 | class=observed | artifact=problems/SelectedProblemCard.md | text=---
+- claim::problems/SelectedProblemCard.md::c028 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   **Почему это Goldilocks-проблема:** Мы не пытаемся автоматизировать 100% расчетов (что потребовало бы создания сложн
+- claim::problems/SelectedProblemCard.md::c029 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   **Trade-off axes (Оси компромисса):** Скорость оценки (TTQ) **VS** Точность оценки себестоимости (Estimation Varianc
+- claim::problems/SelectedProblemCard.md::c030 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   **Reversibility (Обратимость):** Высокая. В случае ошибки в автономных расчетах, ТД имеет право вето (Gate-контроль)
+- claim::problems/SelectedProblemCard.md::c031 | class=observed | artifact=problems/SelectedProblemCard.md | text=---
+- claim::problems/SelectedProblemCard.md::c032 | class=observed | artifact=problems/SelectedProblemCard.md | text=**Описание задачи для Фабрики Решений:**
+- claim::problems/SelectedProblemCard.md::c033 | class=observed | artifact=problems/SelectedProblemCard.md | text=Разработать процесс, ролевую модель и инструментарий, позволяющие Отделу продаж автономно оценивать не менее 60% заявок 
+- claim::problems/SelectedProblemCard.md::c034 | class=observed | artifact=problems/SelectedProblemCard.md | text=**Приёмочные ограничения (Constraints & Targets):**
+- claim::problems/SelectedProblemCard.md::c035 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   **Target 1 (CHR-02):** Доля автономных расчетов (Self-Service Rate) должна стать **> 60%**.
+- claim::problems/SelectedProblemCard.md::c036 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   **Target 2 (CHR-01):** Time-to-Quote (TTQ) для автономных расчетов должен составить **< 48 часов**.
+- claim::problems/SelectedProblemCard.md::c037 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   **Hard Constraint 1 (CHR-03):** Точность оценки себестоимости (Estimation Variance) по автономным расчетам должна ос
+- claim::problems/SelectedProblemCard.md::c038 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   **Hard Constraint 2 (CHR-05):** Индекс прерываний производства для оценки типовых заявок должен быть равен **0 часов
+- claim::problems/SelectedProblemCard.md::c039 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   **Бюджетные ограничения:** CAPEX на внедрение решения не превышает стоимость найма 1 выделенного сметчика за 3 месяц
+- claim::problems/SelectedProblemCard.md::c040 | class=observed | artifact=problems/SelectedProblemCard.md | text=**Метод верификации:**
+- claim::problems/SelectedProblemCard.md::c041 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   Замер метрик в CRM/ERP системе на окне в 3 месяца с момента внедрения.
+- claim::problems/SelectedProblemCard.md::c042 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   Сравнение когорты "Автономные расчеты" с историческим Baseline (TTQ 7-10 дней, Variance неизвестен).
+- claim::problems/SelectedProblemCard.md::c043 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   Аудит журнала простоев оборудования (CHR-05).
+- claim::problems/SelectedProblemCard.md::c044 | class=observed | artifact=problems/SelectedProblemCard.md | text=**Anti-Goodhart Protocol (Защита от взлома метрик):**
+- claim::problems/SelectedProblemCard.md::c045 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   *Риск:* Менеджеры будут классифицировать сложные заказы как "типовые" для ускорения продажи.
+- claim::problems/SelectedProblemCard.md::c046 | class=observed | artifact=problems/SelectedProblemCard.md | text=*   *Защита:* Внедрение жесткого Gate-контроля. ТД наделяется правом вето на запуск в производство любого "автономного" 
+- claim::solutions/SolutionPortfolio.md::c001 | class=observed | artifact=solutions/SolutionPortfolio.md | text=principle: Класс weak-interventions описывает минимально достаточные и обратимые меры, которые меняют правила входа, фил
+- claim::solutions/SolutionPortfolio.md::c002 | class=observed | artifact=solutions/SolutionPortfolio.md | text=purpose: represent a reusable intervention class, not a case-specific patch
+- claim::solutions/SolutionPortfolio.md::c003 | class=observed | artifact=solutions/SolutionPortfolio.md | text=selection_rule: keep this class in the portfolio only if it adds a distinct pareto profile or a safer rollout path
+- claim::solutions/SolutionPortfolio.md::c004 | class=observed | artifact=solutions/SolutionPortfolio.md | text=instances: sol_01_fix1
+- claim::solutions/SolutionPortfolio.md::c005 | class=observed | artifact=solutions/SolutionPortfolio.md | text=principle: Класс medium-interventions описывает меры, которые частично отчуждают повторяемую экспертную функцию в метод,
+- claim::solutions/SolutionPortfolio.md::c006 | class=observed | artifact=solutions/SolutionPortfolio.md | text=purpose: represent a reusable intervention class, not a case-specific patch
+- claim::solutions/SolutionPortfolio.md::c007 | class=observed | artifact=solutions/SolutionPortfolio.md | text=selection_rule: keep this class in the portfolio only if it adds a distinct pareto profile or a safer rollout path
+- claim::solutions/SolutionPortfolio.md::c008 | class=observed | artifact=solutions/SolutionPortfolio.md | text=instances: sol_02_fix2
+- claim::solutions/SolutionPortfolio.md::c009 | class=observed | artifact=solutions/SolutionPortfolio.md | text=principle: Класс strong-interventions описывает меры, которые меняют саму топологию системы, архитектурные границы, оргс
+- claim::solutions/SolutionPortfolio.md::c010 | class=observed | artifact=solutions/SolutionPortfolio.md | text=purpose: represent a reusable intervention class, not a case-specific patch
+- claim::solutions/SolutionPortfolio.md::c011 | class=observed | artifact=solutions/SolutionPortfolio.md | text=selection_rule: keep this class in the portfolio only if it adds a distinct pareto profile or a safer rollout path
+- claim::solutions/SolutionPortfolio.md::c012 | class=observed | artifact=solutions/SolutionPortfolio.md | text=instances: sol_03_fix3
+- claim::solutions/SolutionPortfolio.md::c013 | class=observed | artifact=solutions/SolutionPortfolio.md | text=type: baseline
+- claim::solutions/SolutionPortfolio.md::c014 | class=observed | artifact=solutions/SolutionPortfolio.md | text=assurance_level: low
+- claim::solutions/SolutionPortfolio.md::c015 | class=observed | artifact=solutions/SolutionPortfolio.md | text=anti_goodhart_risk: hidden structural waste remains unmeasured under status quo
+- claim::solutions/SolutionPortfolio.md::c016 | class=observed | artifact=solutions/SolutionPortfolio.md | text=type: process
+- claim::solutions/SolutionPortfolio.md::c017 | class=observed | artifact=solutions/SolutionPortfolio.md | text=assurance_level: medium
+- claim::solutions/SolutionPortfolio.md::c018 | class=observed | artifact=solutions/SolutionPortfolio.md | text=intervention_force: weak
+- claim::solutions/SolutionPortfolio.md::c019 | class=observed | artifact=solutions/SolutionPortfolio.md | text=relevance_basis: rollout_relevant
+- claim::solutions/SolutionPortfolio.md::c020 | class=observed | artifact=solutions/SolutionPortfolio.md | text=anti_goodhart_risk: process speed can be gamed while quality drifts downstream
+- claim::solutions/SolutionPortfolio.md::c021 | class=observed | artifact=solutions/SolutionPortfolio.md | text=type: architecture
+- claim::solutions/SolutionPortfolio.md::c022 | class=observed | artifact=solutions/SolutionPortfolio.md | text=assurance_level: high
+- claim::solutions/SolutionPortfolio.md::c023 | class=observed | artifact=solutions/SolutionPortfolio.md | text=intervention_force: medium
+- claim::solutions/SolutionPortfolio.md::c024 | class=observed | artifact=solutions/SolutionPortfolio.md | text=relevance_basis: pareto_relevant
+- claim::solutions/SolutionPortfolio.md::c025 | class=hypothesis | artifact=solutions/SolutionPortfolio.md | text=anti_goodhart_risk: implementation velocity may be optimized at the expense of outcome quality
+- claim::solutions/SolutionPortfolio.md::c026 | class=observed | artifact=solutions/SolutionPortfolio.md | text=type: hr
+- claim::solutions/SolutionPortfolio.md::c027 | class=observed | artifact=solutions/SolutionPortfolio.md | text=assurance_level: medium
+- claim::solutions/SolutionPortfolio.md::c028 | class=observed | artifact=solutions/SolutionPortfolio.md | text=intervention_force: strong
+- claim::solutions/SolutionPortfolio.md::c029 | class=observed | artifact=solutions/SolutionPortfolio.md | text=relevance_basis: pareto_relevant
+- claim::solutions/SolutionPortfolio.md::c030 | class=hypothesis | artifact=solutions/SolutionPortfolio.md | text=anti_goodhart_risk: staffing metrics may improve without fixing the real bottleneck
+- claim::reports/Analytical_Full_Report.md::c001 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `raw/case_input.md`
+- claim::reports/Analytical_Full_Report.md::c002 | class=observed | artifact=reports/Analytical_Full_Report.md | text=*Примечание: Исходный текстовый артефакт брифа отсутствует в системе, однако контекст надежно восстановлен из производны
+- claim::reports/Analytical_Full_Report.md::c003 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Что происходит:** Мы анализируем операционный кризис в небольшой производственной компании, работающей по модели касто
+- claim::reports/Analytical_Full_Report.md::c004 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Почему это важно:** Текущая архитектура процесса продаж и оценки заказов разрушает ценностное предложение компании.
+- claim::reports/Analytical_Full_Report.md::c005 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Что будет при бездействии:** Дальнейшее увеличение маркетингового бюджета приведет лишь к росту очередей, выгоранию кл
+- claim::reports/Analytical_Full_Report.md::c006 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Ближайший шаг:** Провести декомпозицию проблемы, выявить корневое ограничение и определить безопасный путь трансформац
+- claim::reports/Analytical_Full_Report.md::c007 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `problems/ComparisonAcceptanceSpec.md`
+- claim::reports/Analytical_Full_Report.md::c008 | class=observed | artifact=reports/Analytical_Full_Report.md | text=**Факты:** Границы нашего анализа строго очерчены процессом пресейла (оценки заказов). В настоящее время 100% входящих з
+- claim::reports/Analytical_Full_Report.md::c009 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Интерпретации:** Проблема сфокусирована на типовой части потока заявок (которая составляет более 60%). Мы не рассматри
+- claim::reports/Analytical_Full_Report.md::c010 | class=hypothesis | artifact=reports/Analytical_Full_Report.md | text=**Гипотезы/Следующий шаг:** Мы предполагаем, что отвязка оценки типовых заказов от когнитивной пропускной способности ТД
+- claim::reports/Analytical_Full_Report.md::c011 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `intake/normalized_case.md`
+- claim::reports/Analytical_Full_Report.md::c012 | class=observed | artifact=reports/Analytical_Full_Report.md | text=**Факты:**
+- claim::reports/Analytical_Full_Report.md::c013 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   Менеджер по продажам принимает заявку и передает ее ТД без предварительной фильтрации.
+- claim::reports/Analytical_Full_Report.md::c014 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   ТД оценивает выполнимость, объемы, цену и сроки.
+- claim::reports/Analytical_Full_Report.md::c015 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   ТД перегружен управлением производством, поставками и настройкой оборудования.
+- claim::reports/Analytical_Full_Report.md::c016 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   KPI ТД привязаны к объему производства и качеству, но должностная инструкция обязывает его считать сметы.
+- claim::reports/Analytical_Full_Report.md::c017 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   Значительная часть оценок не становится заказами (клиентов не устраивает цена или сроки).
+- claim::reports/Analytical_Full_Report.md::c018 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Интерпретации (Причинно-следственная цепочка):**
+- claim::reports/Analytical_Full_Report.md::c019 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   *Причина:* Отсутствие инструментов автономной оценки у отдела продаж и отсутствие фильтрации лидов.
+- claim::reports/Analytical_Full_Report.md::c020 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   *Механизм влияния:* 100% нагрузки падает на ТД, чьи KPI противоречат задаче быстрых продаж.
+- claim::reports/Analytical_Full_Report.md::c021 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   *Симптом:* Задержки ответов клиентам до 10 дней; игнорирование части заявок.
+- claim::reports/Analytical_Full_Report.md::c022 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   *Последствие:* Клиенты уходят к конкурентам, репутация падает, компания несет скрытые убытки (оплачивая дорогое врем
+- claim::reports/Analytical_Full_Report.md::c023 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   *Управленческий риск:* Потеря ключевого сотрудника (ТД) из-за выгорания, что приведет к полной остановке как продаж,
+- claim::reports/Analytical_Full_Report.md::c024 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `layers/layer_1_business_model.md`
+- claim::reports/Analytical_Full_Report.md::c025 | class=observed | artifact=reports/Analytical_Full_Report.md | text=**Факты:** На уровне бизнес-модели выявлен конфликт ролей. ТД отвечает за производство (исполнение), но вынужден занимат
+- claim::reports/Analytical_Full_Report.md::c026 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Интерпретации:** Система мотивации стимулирует ТД саботировать продажи ради выполнения производственного плана. Менедж
+- claim::reports/Analytical_Full_Report.md::c027 | class=hypothesis | artifact=reports/Analytical_Full_Report.md | text=**Гипотезы/Следующий шаг:** В данных зияют критические пробелы (GAP). У нас нет метрик по точному объему заявок, конверс
+- claim::reports/Analytical_Full_Report.md::c028 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `viewpoints/conflicts_index.md`
+- claim::reports/Analytical_Full_Report.md::c029 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=Анализ покрывает 6 критических точек зрения, что гарантирует отсутствие слепых зон:
+- claim::reports/Analytical_Full_Report.md::c030 | class=observed | artifact=reports/Analytical_Full_Report.md | text=1.  **Strategist (Стратег):** Бизнес пытается продавать кастомный инжиниринг, но управляется метриками массового произво
+- claim::reports/Analytical_Full_Report.md::c031 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=2.  **Analyst (Аналитик):** Компания сжигает операционный бюджет (OPEX), используя самого дорогого сотрудника как беспла
+- claim::reports/Analytical_Full_Report.md::c032 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=3.  **Operator (Операционный директор):** ТД — это физическое "бутылочное горлышко". Информационный поток (продажи) и фи
+- claim::reports/Analytical_Full_Report.md::c033 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=4.  **Architect (Архитектор):** В системе отсутствует интерфейс маршрутизации и балансировки нагрузки. ТД является едино
+- claim::reports/Analytical_Full_Report.md::c034 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=5.  **Critic (Критик/Рисковик):** Плана "Б" нет. Если ТД уволится, компания умрет. Попытка просто ввести жесткие сроки (
+- claim::reports/Analytical_Full_Report.md::c035 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=6.  **Client (Клиент):** Клиент покупает внутренний хаос компании. Долгое ожидание воспринимается как маркер ненадежност
+- claim::reports/Analytical_Full_Report.md::c036 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Вывод:** Текущая система находится в состоянии структурного коллапса. Локальные оптимизации невозможны.
+- claim::reports/Analytical_Full_Report.md::c037 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `characterization/CharacterizationPassport.md`
+- claim::reports/Analytical_Full_Report.md::c038 | class=observed | artifact=reports/Analytical_Full_Report.md | text=**Факты:** Главным слабым звеном (Weakest Link, WLNK) признана когнитивная и временная пропускная способность Техническо
+- claim::reports/Analytical_Full_Report.md::c039 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Интерпретации:** Любое увеличение потока лидов без расширения этого "горлышка" лишь увеличит объем незавершенного прои
+- claim::reports/Analytical_Full_Report.md::c040 | class=hypothesis | artifact=reports/Analytical_Full_Report.md | text=**Гипотезы/Следующий шаг:** Целевое состояние — отчуждение экспертизы. Типовые заказы должны рассчитываться без участия 
+- claim::reports/Analytical_Full_Report.md::c041 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `characterization/IndicatorSet.md`
+- claim::reports/Analytical_Full_Report.md::c042 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=Для управления изменениями зафиксировано пространство характеристик (CHR-SPACE):
+- claim::reports/Analytical_Full_Report.md::c043 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   **CHR-01 (Time-to-Quote):** Время выдачи оценки. Сейчас 168-240 часов. Цель: < 48 часов.
+- claim::reports/Analytical_Full_Report.md::c044 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   **CHR-02 (Self-Service Rate):** Доля автономных расчетов. Сейчас 0%. Цель: > 60%.
+- claim::reports/Analytical_Full_Report.md::c045 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   **CHR-03 (Estimation Variance):** Точность оценки себестоимости. Цель: отклонение от 0% до +5% (продажа в убыток нед
+- claim::reports/Analytical_Full_Report.md::c046 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   **CHR-04 (Waste Load Ratio):** Уровень мусорной нагрузки на ТД.
+- claim::reports/Analytical_Full_Report.md::c047 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   **CHR-05 (Context Switching Penalty):** Индекс прерываний производства. Цель: 0 часов на типовые заявки.
+- claim::reports/Analytical_Full_Report.md::c048 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   **CHR-06 (Quote-to-Contract):** Конверсия в договор.
+- claim::reports/Analytical_Full_Report.md::c049 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Почему это важно:** Этот набор метрик содержит встроенную защиту от взлома (риск искажения метрик). Мы не позволяем ме
+- claim::reports/Analytical_Full_Report.md::c050 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `problems/ProblemArchive.md`
+- claim::reports/Analytical_Full_Report.md::c051 | class=observed | artifact=reports/Analytical_Full_Report.md | text=**Факты:** Сформированы две ключевые проблемы в зоне ближайшего развития (рабочая зона приоритизации zone).
+- claim::reports/Analytical_Full_Report.md::c052 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=1.  **Инфраструктурный паралич пресейла:** Отсутствие инструментов отчуждения экспертизы (матриц цен, калькуляторов).
+- claim::reports/Analytical_Full_Report.md::c053 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=2.  **Токсичная маршрутизация:** Отсутствие BANT-квалификации (бюджет, полномочия, потребность, сроки) на стороне продаж
+- claim::reports/Analytical_Full_Report.md::c054 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Интерпретации:** Менеджер по продажам не несет ответственности за качество передаваемой заявки.
+- claim::reports/Analytical_Full_Report.md::c055 | class=hypothesis | artifact=reports/Analytical_Full_Report.md | text=**Гипотезы/Следующий шаг:** Внедрение квалификационного барьера и выделение паттернов ценообразования для типовых заказо
+- claim::reports/Analytical_Full_Report.md::c056 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `problems/ProblemPortfolio.md`
+- claim::reports/Analytical_Full_Report.md::c057 | class=observed | artifact=reports/Analytical_Full_Report.md | text=**Факты:** Портфель проблем (PRB-01 и PRB-02) утвержден.
+- claim::reports/Analytical_Full_Report.md::c058 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Интерпретации:**
+- claim::reports/Analytical_Full_Report.md::c059 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   *PRB-01 (Дилемма самообслуживания):* Как перевести >60% расчетов на отдел продаж, снизив время ответа, но не допусти
+- claim::reports/Analytical_Full_Report.md::c060 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   *PRB-02 (Изоляция ядра):* Как исключить прерывания ТД, сохранив конверсию.
+- claim::reports/Analytical_Full_Report.md::c061 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Следующий шаг:** Фокус на решении PRB-01 как наиболее критичной для разблокировки выручки.
+- claim::reports/Analytical_Full_Report.md::c062 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `problems/SelectedProblemCard.md`
+- claim::reports/Analytical_Full_Report.md::c063 | class=observed | artifact=reports/Analytical_Full_Report.md | text=**Факты:** Выбрана проблема отвязки оценки типовых заказов от ТД.
+- claim::reports/Analytical_Full_Report.md::c064 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Интерпретации:** Мы не пытаемся автоматизировать 100% расчетов (это слишком дорого и сложно) и не пытаемся "ускорить" 
+- claim::reports/Analytical_Full_Report.md::c065 | class=hypothesis | artifact=reports/Analytical_Full_Report.md | text=**Гипотезы/Следующий шаг:** Менеджеры по продажам способны безошибочно маршрутизировать заявки, если им дать четкие крит
+- claim::reports/Analytical_Full_Report.md::c066 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `problems/ComparisonAcceptanceSpec.md`
+- claim::reports/Analytical_Full_Report.md::c067 | class=observed | artifact=reports/Analytical_Full_Report.md | text=**Факты:** Установлены жесткие ограничения (Hard Constraints) для будущих решений. CAPEX (капитальные затраты) на внедре
+- claim::reports/Analytical_Full_Report.md::c068 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Интерпретации:** Принят компромисс: Скорость оценки против Точности себестоимости.
+- claim::reports/Analytical_Full_Report.md::c069 | class=hypothesis | artifact=reports/Analytical_Full_Report.md | text=**Гипотезы/Следующий шаг:** Внедряется протокол защиты (риск искажения метрик): ТД наделяется правом вето на запуск в пр
+- claim::reports/Analytical_Full_Report.md::c070 | class=hypothesis | artifact=reports/Analytical_Full_Report.md | text=Замечание об ограничениях: бюджет / OPEX, операционный SLA / целевое время фигурируют в сравнении решений как рабочие пр
+- claim::reports/Analytical_Full_Report.md::c071 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `solutions/SolutionPortfolio.md`
+- claim::reports/Analytical_Full_Report.md::c072 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=Сформированы три класса решений:
+- claim::reports/Analytical_Full_Report.md::c073 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=1.  **Weak Intervention (sol_01_fix1):** Организационные меры. Изменение правил маршрутизации без ИТ-разработки.
+- claim::reports/Analytical_Full_Report.md::c074 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=2.  **Medium Intervention (sol_02_fix2):** Технологизация рутины. Создание параметрического калькулятора.
+- claim::reports/Analytical_Full_Report.md::c075 | class=observed | artifact=reports/Analytical_Full_Report.md | text=3.  **Strong Intervention (sol_03_fix3):** Системный рефакторинг. Изменение бизнес-модели и продуктового предложения.
+- claim::reports/Analytical_Full_Report.md::c076 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Почему выбран такой портфель:** Он позволяет двигаться итеративно, от дешевых и обратимых организационных мер к дорого
+- claim::reports/Analytical_Full_Report.md::c077 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Weak interventions:** Класс weak-interventions решает универсальную задачу: вынести шум, неквалифицированный вход и пр
+- claim::reports/Analytical_Full_Report.md::c078 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Medium interventions:** Класс medium-interventions решает универсальную задачу: частично отчуждать повторяемую эксперт
+- claim::reports/Analytical_Full_Report.md::c079 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Strong interventions:** Класс strong-interventions решает универсальную задачу: менять саму топологию системы, распред
+- claim::reports/Analytical_Full_Report.md::c080 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `solutions/ParityReport.md`
+- claim::reports/Analytical_Full_Report.md::c081 | class=observed | artifact=reports/Analytical_Full_Report.md | text=**Факты:**
+- claim::reports/Analytical_Full_Report.md::c082 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   **Статус-кво (sol_00):** Ведет к упущенной выгоде и риску потери ТД.
+- claim::reports/Analytical_Full_Report.md::c083 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   **Организационный фильтр (sol_01_gatekeeper_protocol):** Внедрение жесткого чек-листа для продаж и использование ист
+- claim::reports/Analytical_Full_Report.md::c084 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   **Параметрический калькулятор (sol_02_parametric_calculator):** Отчуждение логики ТД в защищенный Excel/No-Code. Авт
+- claim::reports/Analytical_Full_Report.md::c085 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*   **Продуктизация (sol_03_productization_sku):** Переход к стандартным SKU.
+- claim::reports/Analytical_Full_Report.md::c086 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Интерпретации:** Решение `sol_02` (`sol_02_parametric_calculator`) выглядит наиболее перспективным для достижения целе
+- claim::reports/Analytical_Full_Report.md::c087 | class=hypothesis | artifact=reports/Analytical_Full_Report.md | text=Замечание об ограничениях: бюджет / OPEX, операционный SLA / целевое время фигурируют в сравнении решений как рабочие пр
+- claim::reports/Analytical_Full_Report.md::c088 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `solutions/ConflictRecords.md`
+- claim::reports/Analytical_Full_Report.md::c089 | class=observed | artifact=reports/Analytical_Full_Report.md | text=**Факты:** Зафиксирован конфликт ранжирования альтернатив (conflict_01) между стратегией, аналитикой, архитектурой и кли
+- claim::reports/Analytical_Full_Report.md::c090 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Интерпретации:** Разные стейкхолдеры тянут систему в разные стороны (скорость vs безопасность vs стоимость внедрения).
+- claim::reports/Analytical_Full_Report.md::c091 | class=hypothesis | artifact=reports/Analytical_Full_Report.md | text=**Гипотезы/Следующий шаг:** Применен метод многокритериального анализа (MCDA). Однако из-за нехватки точных данных по юн
+- claim::reports/Analytical_Full_Report.md::c092 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `decisions/ADR-001.md`
+- claim::reports/Analytical_Full_Report.md::c093 | class=hypothesis | artifact=reports/Analytical_Full_Report.md | text=Управленческое решение на этом цикле не утверждено. Вместо фиксации целевой архитектуры система перевела кейс в режим co
+- claim::reports/Analytical_Full_Report.md::c094 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `operation/Runbook.md`
+- claim::reports/Analytical_Full_Report.md::c095 | class=hypothesis | artifact=reports/Analytical_Full_Report.md | text=Операционный план на ближайший цикл сводится к сбору недостающих параметров процесса, явному разделению фактов и гипотез
+- claim::reports/Analytical_Full_Report.md::c096 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `evidence/evidence_graph.md`
+- claim::reports/Analytical_Full_Report.md::c097 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*Примечание: Формализованный граф доказательств отсутствует в текущем срезе данных.*
+- claim::reports/Analytical_Full_Report.md::c098 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Что происходит:** Отсутствие графа означает, что наши выводы строятся на качественных симптомах (интервью, жалобы), а 
+- claim::reports/Analytical_Full_Report.md::c099 | class=inferred | artifact=reports/Analytical_Full_Report.md | text=**Управленческий риск:** Высокая вероятность когнитивных искажений. То, что ТД называет "мусорными лидами", может оказат
+- claim::reports/Analytical_Full_Report.md::c100 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `dialogue/question_queue.json`
+- claim::reports/Analytical_Full_Report.md::c101 | class=observed | artifact=reports/Analytical_Full_Report.md | text=Для принятия решения требуется добавить следующие данные: фактические операционные и экономические параметры процесса. Д
+- claim::reports/Analytical_Full_Report.md::c102 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=Для построения дерева проблем и решений с высокой уверенностью системе нужны не частные догадки по кейсу, а следующие кл
+- claim::reports/Analytical_Full_Report.md::c103 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=топология входящего потока: объем, ритм, сезонность и точки накопления очереди.
+- claim::reports/Analytical_Full_Report.md::c104 | class=inferred | artifact=reports/Analytical_Full_Report.md | text=переходные вероятности по стадиям процесса: конверсия, отвал, возвраты и причины потерь.
+- claim::reports/Analytical_Full_Report.md::c105 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=сегментация потока: какие классы запросов действительно различаются по сложности, марже и требуемой экспертизе.
+- claim::reports/Analytical_Full_Report.md::c106 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=экономика шага принятия решения: стоимость времени экспертов, стоимость ошибки, стоимость задержки и цена ложной эскалац
+- claim::reports/Analytical_Full_Report.md::c107 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=границы допустимого решения: подтвержденный бюджет, горизонт пилота, допустимый радиус поражения и условия обратимости.
+- claim::reports/Analytical_Full_Report.md::c108 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=операционные и юридические ограничения: какие изменения разрешены в ролях, маршрутизации, IT-слое и ответственности.
+- claim::reports/Analytical_Full_Report.md::c109 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=risk tolerance и пороги отката: какие метрики нельзя ухудшать и какие отклонения считаются неприемлемыми.
+- claim::reports/Analytical_Full_Report.md::c110 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=структура прав принятия решений: кто владеет входом, кто владеет эскалацией, кто подтверждает исключения и кто принимает
+- claim::reports/Analytical_Full_Report.md::c111 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=source: `evidence/refresh_report.md`
+- claim::reports/Analytical_Full_Report.md::c112 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=*Примечание: Документ условий перезапуска цикла отсутствует.*
+- claim::reports/Analytical_Full_Report.md::c113 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Интерпретации и регламент:** Поскольку решение отложено, мы обязаны зафиксировать условия возврата к проектированию (R
+- claim::reports/Analytical_Full_Report.md::c114 | class=decision_grade | artifact=reports/Analytical_Full_Report.md | text=**Ближайший шаг:** Процесс выбора решения (Solution Selection) будет перезапущен строго в тот момент, когда операционный
+
+## Edges
+- claim::intake/normalized_case.md::c001 -> raw/Технический директор_input.md:L1 | kind=source_ref
+- claim::intake/normalized_case.md::c002 -> raw/Технический директор_input.md:L1 | kind=source_ref
+- claim::intake/normalized_case.md::c003 -> raw/Технический директор_input.md:L1 | kind=source_ref
+- claim::intake/normalized_case.md::c004 -> raw/Технический директор_input.md:L1 | kind=source_ref
+- claim::intake/normalized_case.md::c005 -> raw/Технический директор_input.md:L1 | kind=source_ref
+- claim::intake/normalized_case.md::c006 -> raw/Технический директор_input.md:L1 | kind=source_ref
+- claim::intake/normalized_case.md::c007 -> raw/Технический директор_input.md:L1 | kind=source_ref
+- claim::intake/normalized_case.md::c008 -> raw/Технический директор_input.md:L1 | kind=source_ref
+- claim::intake/normalized_case.md::c009 -> raw/Технический директор_input.md:L1 | kind=source_ref
+- claim::intake/normalized_case.md::c010 -> raw/Технический директор_input.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c001 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c002 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c003 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c004 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c005 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c006 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c007 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c008 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c009 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c010 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c011 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c012 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c013 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c014 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c015 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c016 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c017 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c018 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c019 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c020 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c021 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c022 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c023 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c024 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c025 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c026 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c027 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c028 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c029 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c030 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c031 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::layers/layer_1_business_model.md::c032 -> intake/normalized_case.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c001 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c002 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c003 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c004 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c005 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c006 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c007 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c008 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c009 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c010 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c011 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c012 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c013 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c014 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c015 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c016 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c017 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c018 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c019 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c020 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c021 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c022 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c023 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c024 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c025 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c026 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::viewpoints/strategist.md::c027 -> layers/layer_1_business_model.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c001 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c002 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c003 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c004 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c005 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c006 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c007 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c008 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c009 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c010 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c011 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c012 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c013 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c014 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c015 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c016 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c017 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c018 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c019 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c020 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c021 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c022 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c023 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c024 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c025 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c026 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c027 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c028 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c029 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c030 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c031 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c032 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c033 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c034 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c035 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c036 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c037 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c038 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c039 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c040 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c041 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c042 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c043 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c044 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c045 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c046 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c047 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c048 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c049 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c050 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c051 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c052 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c053 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c054 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c055 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c056 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c057 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c058 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c059 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c060 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c061 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c062 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c063 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c064 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c065 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c066 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c067 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c068 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c069 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c070 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c071 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c072 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c073 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c074 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c075 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c076 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c077 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c078 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c079 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c080 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c081 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c082 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c083 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c084 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c085 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c086 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c087 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c088 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c089 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c090 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c091 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c092 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c093 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c094 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c095 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c096 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c097 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c098 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c099 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c100 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c101 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c102 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c103 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c104 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c105 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c106 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c107 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::characterization/CharacterizationPassport.md::c108 -> viewpoints/conflicts_index.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c001 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c001 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c002 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c002 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c003 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c003 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c004 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c004 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c005 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c005 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c006 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c006 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c007 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c007 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c008 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c008 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c009 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c009 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c010 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c010 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c011 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c011 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c012 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c012 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c013 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c013 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c014 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c014 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c015 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c015 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c016 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c016 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c017 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c017 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c018 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c018 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c019 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c019 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c020 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c020 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c021 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c021 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c022 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c022 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c023 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c023 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c024 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c024 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c025 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c025 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c026 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c026 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c027 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c027 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c028 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c028 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c029 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c029 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c030 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c030 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c031 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c031 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c032 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c032 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c033 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c033 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c034 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c034 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c035 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c035 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c036 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c036 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c037 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c037 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c038 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c038 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c039 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c039 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c040 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c040 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c041 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c041 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c042 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c042 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c043 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c043 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c044 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c044 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c045 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c045 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::problems/SelectedProblemCard.md::c046 -> problems/ProblemPortfolio.md:L1 | kind=source_ref
+- claim::problems/SelectedProblemCard.md::c046 -> viewpoints/conflicts_index.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c001 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c001 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c002 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c002 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c003 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c003 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c004 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c004 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c005 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c005 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c006 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c006 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c007 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c007 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c008 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c008 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c009 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c009 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c010 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c010 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c011 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c011 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c012 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c012 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c013 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c013 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c014 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c014 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c015 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c015 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c016 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c016 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c017 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c017 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c018 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c018 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c019 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c019 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c020 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c020 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c021 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c021 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c022 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c022 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c023 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c023 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c024 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c024 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c025 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c025 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c026 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c026 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c027 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c027 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c028 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c028 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c029 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c029 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::solutions/SolutionPortfolio.md::c030 -> problems/ComparisonAcceptanceSpec.md:L1 | kind=source_ref
+- claim::solutions/SolutionPortfolio.md::c030 -> problems/SelectedProblemCard.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c001 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c001 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c001 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c001 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c002 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c002 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c002 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c002 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c003 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c003 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c003 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c003 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c004 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c004 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c004 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c004 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c005 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c005 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c005 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c005 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c006 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c006 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c006 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c006 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c007 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c007 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c007 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c007 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c008 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c008 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c008 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c008 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c009 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c009 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c009 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c009 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c010 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c010 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c010 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c010 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c011 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c011 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c011 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c011 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c012 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c012 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c012 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c012 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c013 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c013 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c013 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c013 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c014 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c014 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c014 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c014 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c015 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c015 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c015 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c015 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c016 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c016 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c016 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c016 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c017 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c017 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c017 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c017 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c018 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c018 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c018 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c018 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c019 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c019 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c019 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c019 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c020 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c020 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c020 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c020 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c021 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c021 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c021 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c021 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c022 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c022 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c022 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c022 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c023 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c023 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c023 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c023 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c024 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c024 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c024 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c024 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c025 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c025 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c025 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c025 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c026 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c026 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c026 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c026 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c027 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c027 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c027 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c027 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c028 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c028 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c028 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c028 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c029 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c029 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c029 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c029 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c030 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c030 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c030 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c030 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c031 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c031 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c031 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c031 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c032 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c032 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c032 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c032 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c033 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c033 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c033 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c033 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c034 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c034 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c034 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c034 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c035 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c035 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c035 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c035 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c036 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c036 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c036 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c036 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c037 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c037 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c037 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c037 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c038 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c038 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c038 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c038 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c039 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c039 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c039 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c039 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c040 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c040 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c040 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c040 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c041 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c041 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c041 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c041 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c042 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c042 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c042 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c042 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c043 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c043 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c043 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c043 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c044 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c044 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c044 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c044 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c045 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c045 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c045 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c045 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c046 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c046 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c046 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c046 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c047 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c047 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c047 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c047 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c048 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c048 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c048 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c048 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c049 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c049 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c049 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c049 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c050 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c050 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c050 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c050 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c051 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c051 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c051 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c051 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c052 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c052 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c052 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c052 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c053 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c053 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c053 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c053 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c054 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c054 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c054 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c054 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c055 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c055 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c055 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c055 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c056 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c056 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c056 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c056 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c057 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c057 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c057 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c057 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c058 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c058 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c058 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c058 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c059 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c059 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c059 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c059 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c060 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c060 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c060 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c060 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c061 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c061 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c061 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c061 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c062 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c062 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c062 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c062 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c063 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c063 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c063 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c063 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c064 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c064 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c064 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c064 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c065 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c065 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c065 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c065 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c066 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c066 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c066 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c066 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c067 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c067 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c067 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c067 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c068 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c068 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c068 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c068 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c069 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c069 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c069 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c069 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c070 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c070 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c070 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c070 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c071 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c071 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c071 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c071 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c072 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c072 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c072 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c072 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c073 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c073 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c073 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c073 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c074 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c074 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c074 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c074 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c075 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c075 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c075 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c075 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c076 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c076 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c076 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c076 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c077 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c077 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c077 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c077 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c078 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c078 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c078 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c078 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c079 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c079 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c079 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c079 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c080 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c080 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c080 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c080 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c081 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c081 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c081 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c081 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c082 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c082 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c082 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c082 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c083 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c083 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c083 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c083 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c084 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c084 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c084 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c084 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c085 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c085 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c085 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c085 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c086 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c086 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c086 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c086 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c087 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c087 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c087 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c087 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c088 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c088 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c088 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c088 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c089 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c089 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c089 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c089 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c090 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c090 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c090 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c090 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c091 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c091 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c091 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c091 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c092 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c092 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c092 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c092 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c093 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c093 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c093 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c093 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c094 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c094 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c094 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c094 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c095 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c095 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c095 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c095 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c096 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c096 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c096 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c096 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c097 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c097 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c097 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c097 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c098 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c098 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c098 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c098 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c099 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c099 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c099 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c099 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c100 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c100 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c100 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c100 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c101 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c101 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c101 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c101 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c102 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c102 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c102 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c102 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c103 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c103 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c103 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c103 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c104 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c104 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c104 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c104 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c105 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c105 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c105 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c105 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c106 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c106 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c106 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c106 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c107 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c107 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c107 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c107 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c108 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c108 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c108 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c108 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c109 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c109 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c109 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c109 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c110 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c110 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c110 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c110 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c111 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c111 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c111 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c111 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c112 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c112 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c112 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c112 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c113 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c113 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c113 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c113 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c114 -> reports/Analytical_Full_Report.md:L1 | kind=source_ref
+- claim::reports/Analytical_Full_Report.md::c114 -> solutions/SelectedSolutions.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c114 -> decisions/ADR-001.md:L1 | kind=evidence_ref
+- claim::reports/Analytical_Full_Report.md::c114 -> evidence/evidence_graph.md:L1 | kind=evidence_ref
+

@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Tuple
 
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
+from app.pipeline.epistemic_sanitizer import soften_unanchored_claims
 from app.validation.artifact_contract_validator import read_frontmatter_document
 
 
@@ -67,7 +68,7 @@ SKILL_CANDIDATES = ["ec-reporting", "ec-reporter"]
 def _safe_read(path: Path) -> str:
     if not path.is_file():
         return ""
-    return path.read_text(encoding="utf-8")
+    return soften_unanchored_claims(path.read_text(encoding="utf-8"))
 
 
 def _md_body(path: Path) -> str:
@@ -163,10 +164,17 @@ def _collect_artifact_context(workspace: Path) -> Tuple[Dict[str, str], List[str
 def _extract_section_body(text: str, title: str) -> str:
     if not text:
         return ""
-    pattern = re.compile(
-        rf"(?ms)^##\s+\d+\.\s+{re.escape(title)}\n(?:- source: .*\n)?(.*?)(?=^##\s+\d+\.|\Z)"
-    )
-    match = pattern.search(text)
+    patterns = [
+        re.compile(
+            rf"(?ms)^##\s+\d+\.\s+{re.escape(title)}\n(?:- source: .*\n)?(.*?)(?=^##\s+\d+\.|^##\s+(?!\d+\.)|\Z)"
+        ),
+        re.compile(rf"(?ms)^##\s+{re.escape(title)}\n(?:- source: .*\n)?(.*?)(?=^##\s+|\Z)"),
+    ]
+    match = None
+    for pattern in patterns:
+        match = pattern.search(text)
+        if match:
+            break
     if not match:
         return ""
     body = match.group(1)
@@ -177,6 +185,195 @@ def _extract_section_body(text: str, title: str) -> str:
             continue
         lines.append(raw)
     return "\n".join(lines).strip()
+
+
+def _extract_bullet_values(text: str, section_title: str, prefix: str) -> List[str]:
+    section = _extract_section_body(text, section_title)
+    out: List[str] = []
+    for raw in section.splitlines():
+        s = raw.strip()
+        if s.startswith(f"- {prefix}"):
+            out.append(s.split(":", 1)[1].strip() if ":" in s else s[2:].strip())
+    return out
+
+
+def _extract_rejected_summary(selected_text: str) -> Dict[str, List[str]]:
+    rejected_section = _extract_section_body(selected_text, "Rejected Alternatives")
+    dominated: List[str] = []
+    rollout: List[str] = []
+    current_sid = ""
+    for raw in rejected_section.splitlines():
+        s = raw.strip()
+        if s.startswith("- sol_") and ":" in s:
+            sid, status = s[2:].split(":", 1)
+            current_sid = sid.strip()
+            status = status.strip()
+            if status == "rollout_relevant_not_primary":
+                rollout.append(current_sid)
+            elif status == "dominated_or_constraint_failing":
+                dominated.append(current_sid)
+        elif s.startswith("- reason:") and current_sid:
+            continue
+    return {"dominated": dominated, "rollout": rollout}
+
+
+def _parse_solution_portfolio(text: str) -> List[Dict[str, object]]:
+    entries: List[Dict[str, object]] = []
+    current: Optional[Dict[str, object]] = None
+    for raw in text.splitlines():
+        stripped = raw.strip()
+        section = re.match(r"^##\s+(sol_[a-z0-9_]+)\s*$", stripped, flags=re.IGNORECASE)
+        if section:
+            current = {"id": section.group(1).lower(), "attrs": {}, "lines": []}
+            entries.append(current)
+            continue
+        if not current or not stripped:
+            continue
+        current["lines"].append(stripped)
+        if stripped.startswith("- ") and ":" in stripped:
+            key, value = stripped[2:].split(":", 1)
+            current["attrs"][key.strip().lower()] = value.strip()
+    return entries
+
+
+def _humanize_solution_id(solution_id: str) -> str:
+    core = re.sub(r"^sol_\d{2}_", "", solution_id).strip("_")
+    if not core:
+        return solution_id
+    return core.replace("_", " ")
+
+
+def _infer_solution_task(entry: Dict[str, object]) -> str:
+    attrs = entry.get("attrs", {})
+    preferred_keys = [
+        "expected_effects",
+        "solves_which_problems",
+        "roles",
+        "стратегия",
+    ]
+    for key in preferred_keys:
+        value = str(attrs.get(key, "")).strip()
+        if value and len(value) > 12 and value.count("_") < 6:
+            return value.rstrip(".")
+    lines = [ln for ln in entry.get("lines", []) if ln.startswith("- ")]
+    for line in lines:
+        if ":" in line:
+            key, value = line[2:].split(":", 1)
+            key = key.strip().lower()
+            value = value.strip()
+            if key in {"type", "assurance_level", "intervention_force", "relevance_basis"}:
+                continue
+            if value and len(value) > 12 and value.count("_") < 6 and not value.endswith("):"):
+                return value.rstrip(".")
+    return _humanize_solution_id(str(entry.get("id", "решение")))
+
+
+def _intervention_force_explanation(force: str) -> str:
+    explanations = {
+        "weak": "Это слабое решение, потому что оно меняет правила входа, фильтрацию или локальную маршрутизацию, но не требует тяжелой ИТ-разработки, новой оргструктуры или радикальной перестройки бизнес-модели.",
+        "medium": "Это среднее решение, потому что оно уже меняет контур работы и частично отчуждает функцию в инструмент или новый операционный режим, но еще не требует полной архитектурной или организационной трансформации.",
+        "strong": "Это сильное решение, потому что оно затрагивает архитектуру, оргструктуру или рыночную конфигурацию системы и поэтому имеет более высокий радиус поражения и цену ошибки.",
+    }
+    return explanations.get(force, "Уровень вмешательства требует отдельного уточнения.")
+
+
+def _intervention_force_principle(force: str) -> str:
+    principles = {
+        "weak": "Класс weak-interventions решает универсальную задачу: вынести шум, неквалифицированный вход и простые правила допуска как можно ближе ко входу системы, не меняя ее базовую архитектуру.",
+        "medium": "Класс medium-interventions решает универсальную задачу: частично отчуждать повторяемую экспертную логику в метод, инструмент или контролируемый операционный контур, не переходя к полной трансформации системы.",
+        "strong": "Класс strong-interventions решает универсальную задачу: менять саму топологию системы, распределение ролей, архитектурные границы или бизнес-модель, когда локальных мер уже недостаточно.",
+    }
+    return principles.get(force, "Класс вмешательства требует отдельного принципиального описания.")
+
+
+def _build_intervention_ladder_note(portfolio_text: str) -> str:
+    entries = _parse_solution_portfolio(portfolio_text)
+    if not entries:
+        return ""
+    ladder_parts: List[str] = []
+    for force in ["weak", "medium", "strong"]:
+        forced = [
+            entry
+            for entry in entries
+            if str(entry.get("attrs", {}).get("intervention_force", "")).lower() == force
+            and "status_quo" not in str(entry.get("id", ""))
+            and str(entry.get("attrs", {}).get("type", "")).lower() != "baseline"
+        ]
+        if not forced:
+            continue
+        labels = [f"`{str(entry.get('id', ''))}`" for entry in forced[:3]]
+        examples = ", ".join(labels)
+        ladder_parts.append(
+            f"**{force.capitalize()} interventions:** {_intervention_force_principle(force)} "
+            f"{_intervention_force_explanation(force)} "
+            f"В текущем кейсе этот класс представлен альтернативами: {examples}."
+        )
+    return "\n".join(ladder_parts)
+
+
+def _collect_constraint_markers(*texts: str) -> List[str]:
+    patterns = [
+        (r"\bbudget\b|бюджет|opex|capex", "бюджет / OPEX"),
+        (r"time_horizon|horizon|pilot window|30-day|30 days|6 months|срок|горизонт|пилот|месяц|дн", "срок / горизонт пилота"),
+        (r"sla|service level|ttq|time-to-quote", "операционный SLA / целевое время"),
+    ]
+    found: List[str] = []
+    combined = "\n".join(texts).lower()
+    for pattern, label in patterns:
+        if re.search(pattern, combined, flags=re.IGNORECASE) and label not in found:
+            found.append(label)
+    return found
+
+
+def _build_constraint_assumption_note(artifacts: Dict[str, str]) -> str:
+    source_text = "\n".join(
+        [
+            artifacts.get("raw/case_input.md", ""),
+            artifacts.get("intake/normalized_case.md", ""),
+        ]
+    )
+    derived_text = "\n".join(
+        [
+            artifacts.get("problems/ComparisonAcceptanceSpec.md", ""),
+            artifacts.get("solutions/SolutionPortfolio.md", ""),
+            artifacts.get("solutions/ParityReport.md", ""),
+        ]
+    )
+    source_markers = _collect_constraint_markers(source_text)
+    derived_markers = _collect_constraint_markers(derived_text)
+    assumptions = [marker for marker in derived_markers if marker not in source_markers]
+    if not assumptions:
+        return ""
+    return (
+        "Замечание об ограничениях: "
+        + ", ".join(assumptions)
+        + " фигурируют в сравнении решений как рабочие предположения, а не как явно подтвержденные входные данные кейса. "
+        "Если эти ограничения действительно критичны для выбора, их нужно либо подтвердить отдельным вводом пользователя, либо считать открытыми вопросами."
+    )
+
+
+def _build_high_confidence_data_note(artifacts: Dict[str, str], selected_text: str) -> str:
+    missing_inputs = _extract_bullet_values(selected_text, "Decision Preconditions", "missing_input")
+    defaults = [
+        "топология входящего потока: объем, ритм, сезонность и точки накопления очереди",
+        "переходные вероятности по стадиям процесса: конверсия, отвал, возвраты и причины потерь",
+        "сегментация потока: какие классы запросов действительно различаются по сложности, марже и требуемой экспертизе",
+        "экономика шага принятия решения: стоимость времени экспертов, стоимость ошибки, стоимость задержки и цена ложной эскалации",
+        "границы допустимого решения: подтвержденный бюджет, горизонт пилота, допустимый радиус поражения и условия обратимости",
+        "операционные и юридические ограничения: какие изменения разрешены в ролях, маршрутизации, IT-слое и ответственности",
+        "risk tolerance и пороги отката: какие метрики нельзя ухудшать и какие отклонения считаются неприемлемыми",
+        "структура прав принятия решений: кто владеет входом, кто владеет эскалацией, кто подтверждает исключения и кто принимает rollback",
+    ]
+    generic_missing = {
+        "фактические операционные и экономические параметры процесса",
+        "критические операционные и экономические параметры процесса",
+    }
+    items = defaults if not missing_inputs or set(missing_inputs).issubset(generic_missing) else missing_inputs
+    lines = [
+        "Для построения дерева проблем и решений с высокой уверенностью системе нужны не частные догадки по кейсу, а следующие классы данных мета-уровня:"
+    ]
+    lines.extend(f"- {item}." for item in items)
+    return "\n".join(lines)
 
 
 def _executive_snippet(text: str, fallback: str, max_lines: int = 3) -> str:
@@ -298,7 +495,18 @@ def _augment_analytical_report(body: str, artifacts: Dict[str, str]) -> str:
             body = body[:start] + expanded_block + body[insert_at:]
 
     selected = str(artifacts.get("solutions/SelectedSolutions.md", "")).lower()
+    selected_raw = str(artifacts.get("solutions/SelectedSolutions.md", ""))
+    intervention_note = _build_intervention_ladder_note(str(artifacts.get("solutions/SolutionPortfolio.md", "")))
+    constraint_note = _build_constraint_assumption_note(artifacts)
     if "deferred_pending_data_collection" in selected or "decision deferred" in selected:
+        missing_inputs = _extract_bullet_values(selected_raw, "Decision Preconditions", "missing_input")
+        clarifications = "; ".join(missing_inputs) if missing_inputs else "критические операционные и экономические параметры процесса"
+        data_note = _build_high_confidence_data_note(artifacts, selected_raw)
+        if intervention_note:
+            body = _upsert_section_suffix(body, "## 12. Solution Portfolio", intervention_note)
+        if constraint_note:
+            body = _upsert_section_suffix(body, "## 11. Comparison & Acceptance Spec", constraint_note)
+            body = _upsert_section_suffix(body, "## 13. Parity Plan/Report", constraint_note)
         body = _replace_section_body(
             body,
             "## 15. ADR",
@@ -317,6 +525,39 @@ def _augment_analytical_report(body: str, artifacts: Dict[str, str]) -> str:
                 "они не являются утвержденной целевой трансформацией."
             ),
         )
+        body = _replace_section_body(
+            body,
+            "## 18. Open Questions",
+            (
+                "Для принятия решения требуется добавить следующие данные: "
+                + clarifications
+                + ". До их получения система должна оставаться в режиме controlled deferral, а не подменять выбор статус-кво или декоративной архитектурой.\n\n"
+                + data_note
+            ),
+        )
+    else:
+        rejected = _extract_rejected_summary(selected_raw)
+        suffix_bits: List[str] = []
+        if intervention_note:
+            body = _upsert_section_suffix(body, "## 12. Solution Portfolio", intervention_note)
+        if constraint_note:
+            body = _upsert_section_suffix(body, "## 11. Comparison & Acceptance Spec", constraint_note)
+            body = _upsert_section_suffix(body, "## 13. Parity Plan/Report", constraint_note)
+        missing_inputs = _extract_bullet_values(selected_raw, "Decision Preconditions", "missing_input")
+        if missing_inputs:
+            body = _upsert_section_suffix(body, "## 18. Open Questions", _build_high_confidence_data_note(artifacts, selected_raw))
+        if rejected["dominated"]:
+            suffix_bits.append("Доминируемые или не проходящие ограничения альтернативы: " + ", ".join(rejected["dominated"]) + ".")
+        if rejected["rollout"]:
+            suffix_bits.append("Оставленные как rollout-relevant but not primary: " + ", ".join(rejected["rollout"]) + ".")
+        if suffix_bits:
+            body = _upsert_section_suffix(body, "## 14. Tradeoff Resolution", " ".join(suffix_bits))
+        if "provisional_pending_revalidation" in selected:
+            body = _upsert_section_suffix(
+                body,
+                "## 15. ADR",
+                "Выбранные решения следует трактовать как предварительные рекомендации, а не как окончательно утвержденную архитектуру. Они сохраняют силу только до момента повторной переоценки после поступления недостающих данных."
+            )
     return body
 
 
@@ -329,6 +570,8 @@ def _augment_executive_summary(body: str, artifacts: Dict[str, str], missing_sou
     evidence = artifacts.get("evidence/evidence_graph.md", "")
     questions = artifacts.get("dialogue/question_queue.json", "")
     selected = str(artifacts.get("solutions/SelectedSolutions.md", ""))
+    rejected = _extract_rejected_summary(selected)
+    missing_inputs = _extract_bullet_values(selected, "Decision Preconditions", "missing_input")
 
     analytical_problem = _extract_section_body(analytical, "Problem Archive")
     analytical_layers = _extract_section_body(analytical, "4-Layer Model")
@@ -408,6 +651,20 @@ def _augment_executive_summary(body: str, artifacts: Dict[str, str], missing_sou
     body = _upsert_section_suffix(body, "## 5. Почему выбраны", section_5_suffix)
     body = _upsert_section_suffix(body, "## 6. Главные риски", section_6_suffix)
     body = _upsert_section_suffix(body, "## 10. Epistemic status", section_10_suffix)
+    portfolio_note = _build_intervention_ladder_note(str(artifacts.get("solutions/SolutionPortfolio.md", "")))
+    if portfolio_note:
+        summary_lines = []
+        weak_match = re.search(r"\*\*Weak interventions:\*\*\s+(.*?)(?=\n\*\*|\Z)", portfolio_note, flags=re.S)
+        medium_match = re.search(r"\*\*Medium interventions:\*\*\s+(.*?)(?=\n\*\*|\Z)", portfolio_note, flags=re.S)
+        if weak_match:
+            summary_lines.append("Слабые решения: " + weak_match.group(1).strip())
+        if medium_match:
+            summary_lines.append("Средние решения: " + medium_match.group(1).strip())
+        if summary_lines:
+            body = _upsert_section_suffix(body, "## 4. 1-3 рекомендуемых решения", "\n".join(summary_lines))
+    constraint_note = _build_constraint_assumption_note(artifacts)
+    if constraint_note:
+        body = _upsert_section_suffix(body, "## 10. Epistemic status", constraint_note)
     if "deferred_pending_data_collection" in selected.lower() or "decision deferred" in selected.lower():
         body = _replace_section_body(
             body,
@@ -433,6 +690,38 @@ def _augment_executive_summary(body: str, artifacts: Dict[str, str], missing_sou
                 "критических пробелов по потоку, структуре заявок и экономике процесса."
             ),
         )
+        if missing_inputs:
+            body = _replace_section_body(
+                body,
+                "## 10. Epistemic status",
+                (
+                    "Решение не может быть принято до уточнения следующих данных: "
+                    + "; ".join(missing_inputs)
+                    + ". Текущий статус допускает диагноз и план уточнения, но не финальный управленческий выбор.\n\n"
+                    + _build_high_confidence_data_note(artifacts, selected)
+                    + ("\n\n" + constraint_note if constraint_note else "")
+                ),
+            )
+    elif "provisional_pending_revalidation" in selected.lower():
+        if missing_inputs:
+            body = _replace_section_body(
+                body,
+                "## 10. Epistemic status",
+                (
+                    "Сервис предлагает предварительные решения, но они основаны на неполной количественной базе и должны быть пересмотрены после уточнения следующих данных: "
+                    + "; ".join(missing_inputs)
+                    + ".\n\n"
+                    + _build_high_confidence_data_note(artifacts, selected)
+                    + ("\n\n" + constraint_note if constraint_note else "")
+                ),
+            )
+    elif rejected["dominated"] or rejected["rollout"]:
+        why = []
+        if rejected["dominated"]:
+            why.append("Как dominated или constraint-failing были отклонены: " + ", ".join(rejected["dominated"]) + ".")
+        if rejected["rollout"]:
+            why.append("Как rollout-relevant but not primary оставлены: " + ", ".join(rejected["rollout"]) + ".")
+        body = _upsert_section_suffix(body, "## 5. Почему выбраны", " ".join(why))
     return body
 
 

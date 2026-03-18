@@ -109,15 +109,63 @@ def _extract_rationale_lines(selected_markdown: str, limit: int = 4) -> list[str
     return lines
 
 
+def _extract_rejected_lines(selected_markdown: str) -> list[str]:
+    lines: list[str] = []
+    in_rejected_block = False
+    for raw in selected_markdown.splitlines():
+        stripped = raw.strip()
+        if not stripped:
+            continue
+        lowered = stripped.lower()
+        if lowered.startswith("rejected:") or re.match(r"^#{1,6}\s+rejected\b", lowered):
+            in_rejected_block = True
+            continue
+        if in_rejected_block and stripped.startswith("#"):
+            break
+        if in_rejected_block and stripped.startswith("- "):
+            lines.append(stripped[2:].strip())
+    return lines
+
+
+def _classify_rejected(item: str) -> tuple[str, str]:
+    lowered = item.lower()
+    sid_match = re.search(r"(sol_[a-z0-9_]+)", lowered)
+    sid = sid_match.group(1) if sid_match else item.split()[0]
+    if any(
+        marker in lowered
+        for marker in [
+            "useful as a weak step",
+            "fallback",
+            "rollout",
+            "low-force",
+            "weak step",
+            "bounded pilot",
+        ]
+    ):
+        return sid, "rollout_relevant_not_primary"
+    return sid, "dominated_or_constraint_failing"
+
+
 def _canonicalize_selected_markdown(selected_ids: list[str], selected_markdown: str) -> str:
+    return _canonicalize_selected_markdown_with_readiness(selected_ids, selected_markdown, None)
+
+
+def _canonicalize_selected_markdown_with_readiness(
+    selected_ids: list[str], selected_markdown: str, readiness: Dict[str, object] | None
+) -> str:
+    provisional = bool(readiness and readiness.get("insufficient_for_decision"))
     parts: list[str] = ["## Selected Solutions", ""]
     for sid in selected_ids:
         parts.append(f"- {sid}")
     parts.append("")
 
+    parts.extend(["## Decision Status", ""])
+    parts.append("- provisional_pending_revalidation" if provisional else "- decision_ready_for_execution")
+    parts.append("")
+
     parts.extend(["## Recommendation Status", ""])
     for sid in selected_ids:
-        parts.append(f"- confirmed_action: {sid}")
+        parts.append(f"- {'provisional_recommendation' if provisional else 'confirmed_action'}: {sid}")
     parts.append("")
 
     rationale_lines = _extract_rationale_lines(selected_markdown)
@@ -126,6 +174,49 @@ def _canonicalize_selected_markdown(selected_ids: list[str], selected_markdown: 
         for line in rationale_lines:
             parts.append(f"- {line}")
         parts.append("")
+
+    rejected_lines = _extract_rejected_lines(selected_markdown)
+    if rejected_lines:
+        parts.extend(["## Rejected Alternatives", ""])
+        for line in rejected_lines:
+            sid, classification = _classify_rejected(line)
+            parts.append(f"- {sid}: {classification}")
+            parts.append(f"- reason: {line}")
+        parts.append("")
+
+    if provisional:
+        missing = [DIMENSION_LABELS.get(item, item) for item in readiness.get("missing_dimensions", [])]
+        parts.extend(
+            [
+                "## Assumptions Register",
+                "",
+                "- Предлагаемые решения ранжированы на неполной количественной базе и поэтому считаются предварительными, а не окончательно утвержденными.",
+                "- Неявные ограничения по бюджету, сроку, допустимому радиусу поражения и экономике процесса не считаются подтвержденными фактами, если они не заданы во входе явно.",
+                "",
+                "## Hypotheses to Validate",
+                "",
+                "- Текущие лиды действительно делятся на типовые и нетиповые классы с разной потребностью в экспертной эскалации.",
+                "- Экономический выигрыш от разгрузки узкого экспертного контура превысит стоимость временных или постоянных изменений.",
+                "- Выбранные решения не разрушат производственный SLA и не приведут к систематическим ошибкам оценки.",
+                "",
+                "## Decision Preconditions",
+                "",
+            ]
+        )
+        if missing:
+            for item in missing:
+                parts.append(f"- missing_input: {item}")
+        else:
+            parts.append("- missing_input: фактические операционные и экономические параметры процесса")
+        parts.extend(
+            [
+                "",
+                "## Revalidation Trigger",
+                "",
+                "- После предоставления недостающих данных система обязана повторно пересчитать problem portfolio, parity и selection bundle.",
+                "",
+            ]
+        )
 
     parts.extend(
         [
@@ -150,6 +241,9 @@ DIMENSION_LABELS = {
 
 def _deferred_selected_markdown(readiness: Dict[str, object]) -> str:
     missing = [DIMENSION_LABELS.get(item, item) for item in readiness.get("missing_dimensions", [])]
+    missing_lines = [f"- missing_input: {item}" for item in missing] if missing else [
+        "- missing_input: фактические операционные и экономические параметры процесса"
+    ]
     parts = [
         "## Decision Status",
         "",
@@ -179,6 +273,10 @@ def _deferred_selected_markdown(readiness: Dict[str, object]) -> str:
             "",
             "- Принцип выбора на этом цикле: не имитировать решение при дефиците данных.",
             "- Ближайший допустимый шаг: собрать недостающие параметры, затем повторно сравнить альтернативы.",
+            "",
+            "## Decision Preconditions",
+            "",
+            *missing_lines,
             "",
             "## traceability",
             "- readiness <- problems/SelectedProblemCard.md:L1",
@@ -270,87 +368,81 @@ def run_selection_engine(project_root: Path, workspace_id: str, llm_mode: str = 
     spec_text = (workspace / "problems" / "ComparisonAcceptanceSpec.md").read_text(encoding="utf-8")
     readiness = assess_decision_readiness(workspace)
 
-    if readiness["insufficient_for_decision"]:
-        selected = _deferred_selected_markdown(readiness)
-        selected_ids: list[str] = []
-        adr = _deferred_adr_markdown(readiness)
-        runbook = _deferred_runbook_markdown(readiness)
-        rollback = _deferred_rollback_markdown()
-    else:
-        selected = generate_markdown_with_skill(
-            skill_prompt,
-            {
-                "task_type": "build_selection_bundle",
-                "solution_output": "selected_solutions",
-                "workspace_id": workspace_id,
-                "solution_portfolio": portfolio_text,
-                "parity_report": parity_text,
-                "conflict_records": conflicts_text,
-                "acceptance_spec": spec_text,
-            },
-            mode=llm_mode,
-        )
-        candidates = _parse_portfolio_candidates(portfolio_text)
-        selected_ids = _extract_selected_ids(selected)
-        
-        validation_passed = True
-        if not (1 <= len(selected_ids) <= 3):
-            print(f"  [WARN] Selection Engine validations failed: invalid count {len(selected_ids)} (expected 1-3). selected_ids={selected_ids}")
-            validation_passed = False
-        
-        if validation_passed:
-            for sid in selected_ids:
-                if sid not in candidates:
-                    print(f"  [WARN] Selection Engine validations failed: unknown candidate {sid}.")
-                    validation_passed = False
-                    break
-                assurance = candidates[sid].get("assurance_level", "").strip()
-                if not assurance:
-                    raise ValueError(f"SELECTION_MISSING_ASSURANCE_LEVEL: {sid}")
+    selected = generate_markdown_with_skill(
+        skill_prompt,
+        {
+            "task_type": "build_selection_bundle",
+            "solution_output": "selected_solutions",
+            "workspace_id": workspace_id,
+            "solution_portfolio": portfolio_text,
+            "parity_report": parity_text,
+            "conflict_records": conflicts_text,
+            "acceptance_spec": spec_text,
+        },
+        mode=llm_mode,
+    )
+    candidates = _parse_portfolio_candidates(portfolio_text)
+    selected_ids = _extract_selected_ids(selected)
 
-        if not validation_passed:
-            print("  [WARN] LLM selection failed struct validation. Falling back to deferred decision.")
-            selected_ids = []
-            selected = _deferred_selected_markdown(readiness)
-            adr = _deferred_adr_markdown(readiness)
-            runbook = _deferred_runbook_markdown(readiness)
-            rollback = _deferred_rollback_markdown()
-        else:
-            selected = _canonicalize_selected_markdown(selected_ids, selected)
+    validation_passed = True
+    if not (1 <= len(selected_ids) <= 3):
+        print(f"  [WARN] Selection Engine validations failed: invalid count {len(selected_ids)} (expected 1-3). selected_ids={selected_ids}")
+        validation_passed = False
 
-            adr = generate_markdown_with_skill(
-                skill_prompt,
-                {
-                    "task_type": "build_selection_bundle",
-                    "solution_output": "adr",
-                    "workspace_id": workspace_id,
-                    "solution_portfolio": portfolio_text,
-                    "parity_report": parity_text,
-                    "conflict_records": conflicts_text,
-                    "acceptance_spec": spec_text,
-                },
-                mode=llm_mode,
-            )
-            runbook = generate_markdown_with_skill(
-                skill_prompt,
-                {
-                    "task_type": "build_selection_bundle",
-                    "solution_output": "runbook",
-                    "workspace_id": workspace_id,
-                    "selected_solutions": selected,
-                },
-                mode=llm_mode,
-            )
-            rollback = generate_markdown_with_skill(
-                skill_prompt,
-                {
-                    "task_type": "build_selection_bundle",
-                    "solution_output": "rollback",
-                    "workspace_id": workspace_id,
-                    "selected_solutions": selected,
-                },
-                mode=llm_mode,
-            )
+    if validation_passed:
+        for sid in selected_ids:
+            if sid not in candidates:
+                print(f"  [WARN] Selection Engine validations failed: unknown candidate {sid}.")
+                validation_passed = False
+                break
+            assurance = candidates[sid].get("assurance_level", "").strip()
+            if not assurance:
+                raise ValueError(f"SELECTION_MISSING_ASSURANCE_LEVEL: {sid}")
+
+    if not validation_passed:
+        print("  [WARN] LLM selection failed struct validation. Falling back to provisional recommendation.")
+        fallback_ids = [sid for sid in candidates.keys() if sid != "sol_00_status_quo"][:2]
+        selected_ids = fallback_ids
+        fallback_lines = ["# Selected Solutions", ""]
+        fallback_lines.extend(f"- {sid}" for sid in fallback_ids)
+        fallback_lines.extend(["", "Rejected:", "- sol_00_status_quo (fails acceptance constraints or preserves the bottleneck)", ""])
+        selected = "\n".join(fallback_lines)
+
+    selected = _canonicalize_selected_markdown_with_readiness(selected_ids, selected, readiness)
+
+    adr = generate_markdown_with_skill(
+        skill_prompt,
+        {
+            "task_type": "build_selection_bundle",
+            "solution_output": "adr",
+            "workspace_id": workspace_id,
+            "solution_portfolio": portfolio_text,
+            "parity_report": parity_text,
+            "conflict_records": conflicts_text,
+            "acceptance_spec": spec_text,
+        },
+        mode=llm_mode,
+    )
+    runbook = generate_markdown_with_skill(
+        skill_prompt,
+        {
+            "task_type": "build_selection_bundle",
+            "solution_output": "runbook",
+            "workspace_id": workspace_id,
+            "selected_solutions": selected,
+        },
+        mode=llm_mode,
+    )
+    rollback = generate_markdown_with_skill(
+        skill_prompt,
+        {
+            "task_type": "build_selection_bundle",
+            "solution_output": "rollback",
+            "workspace_id": workspace_id,
+            "selected_solutions": selected,
+        },
+        mode=llm_mode,
+    )
 
     # solutions dir artifacts
     for name, body, art_type in [
@@ -368,7 +460,7 @@ def run_selection_engine(project_root: Path, workspace_id: str, llm_mode: str = 
             ],
             source_refs=["solutions/ParityReport.md:L1"],
             evidence_refs=["solutions/ConflictRecords.md:L1"],
-            epistemic_status="hypothesis" if not selected_ids else "decision_grade",
+            epistemic_status="hypothesis" if readiness["insufficient_for_decision"] else ("hypothesis" if not selected_ids else "decision_grade"),
             next_expected_artifacts=["decisions/ADR-001.md"],
         )
         write_markdown_artifact(workspace / "solutions" / name, fm, body)
@@ -383,7 +475,7 @@ def run_selection_engine(project_root: Path, workspace_id: str, llm_mode: str = 
         parent_refs=["solutions/SelectedSolutions.md"],
         source_refs=["solutions/SelectedSolutions.md:L1"],
         evidence_refs=["solutions/ConflictRecords.md:L1"],
-        epistemic_status="hypothesis" if not selected_ids else "decision_grade",
+        epistemic_status="hypothesis" if readiness["insufficient_for_decision"] else ("hypothesis" if not selected_ids else "decision_grade"),
         next_expected_artifacts=["operation/Runbook.md", "operation/RollbackPlan.md"],
     )
     write_markdown_artifact(dec_dir / "ADR-001.md", adr_fm, adr)

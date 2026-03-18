@@ -1,6 +1,7 @@
 import unittest
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 from app.pipeline.intake_parser import run_intake_parser
 from app.pipeline.layer_builder import build_layers
@@ -111,6 +112,31 @@ class CharacterizationProblemFactoryTests(unittest.TestCase):
         ]
         for rel in expected:
             self.assertTrue((project_root / rel).is_file(), rel)
+
+    def test_s3_problem_factory_unwraps_embedded_markdown(self):
+        run_characterization(self.root, self.ref.workspace_id, llm_mode="local")
+        wrapped = """
+Вступительный текст, который не должен попасть в итоговый артефакт.
+
+```markdown
+---
+id: wrapped
+artifact_type: problem_archive
+---
+# Clean Problem Artifact
+
+- goldilocks_score: 0.8
+- selection_policy: keep
+```
+"""
+        with patch("app.pipeline.problem_factory.generate_markdown_with_skill", return_value=wrapped):
+            out = run_problem_factory(self.root, self.ref.workspace_id, llm_mode="local")
+
+        archive_text = (self.ref.path / "problems" / "ProblemArchive.md").read_text(encoding="utf-8")
+        self.assertIn("# Clean Problem Artifact", archive_text)
+        self.assertNotIn("```markdown", archive_text)
+        self.assertNotIn("Вступительный текст", archive_text)
+        self.assertIn("archive", out)
 
 
 if __name__ == "__main__":
