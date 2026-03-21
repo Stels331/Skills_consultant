@@ -1,4 +1,4 @@
-name: CI
+name: Skills Consultant CI
 
 on:
   push:
@@ -20,12 +20,18 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Upgrade pip
         run: |
           python -m pip install --upgrade pip
+
+      - name: Install dependencies
+        run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Basic check
+      - name: Show Python version
         run: |
           python --version
-          echo "CI is working"
+
+      - name: Syntax check
+        run: |
+          python -m compileall .
