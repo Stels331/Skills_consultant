@@ -1,8 +1,0 @@
-{
-  "workspace_id": "case_20260318_003",
-  "archive": "problems/ProblemArchive.md",
-  "portfolio": "problems/ProblemPortfolio.md",
-  "selected_problem_card": "problems/SelectedProblemCard.md",
-  "comparison_acceptance_spec": "problems/ComparisonAcceptanceSpec.md",
-  "llm_mode": "gemini"
-}

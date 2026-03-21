@@ -5,3 +5,17 @@ __pycache__/
 **/__pycache__/
 *.pyc
 *.pyo
+
+# Local drafts and non-project root artifacts
+/test_gemini.py
+/run_tom_gear.py
+/FPF-Spec.md
+/Бизнес-кейс.md
+/Бизнес-кейс.md
+/ИНСТРУКЦИЯ_ПО_РАБОТЕ.md
+/ОПИС_ПРОЄКТУ_Shot.md
+/Слайдомет.pdf
+/Слайдомет.pdf
+
+# Runtime case workspaces
+/cases/case_*/
