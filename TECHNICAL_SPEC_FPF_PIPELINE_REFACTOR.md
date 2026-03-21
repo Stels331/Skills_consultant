@@ -517,6 +517,14 @@ Skill должен анализировать:
 - allowed domain markers from `domain_profile`;
 - отсутствие unresolved contradictions в selection-critical paths.
 
+Для contract-sensitive LLM artifacts дополнительно должно проверяться:
+
+- сохранен ли raw output до любой обработки;
+- зафиксирован ли `parse_quality`;
+- записан ли field-level provenance для non-explicit полей;
+- отмечен ли `artifact_trust_level`;
+- запрещено ли прохождение degraded artifact в trusted downstream stages.
+
 
 ## 11. Validator stack
 
@@ -595,6 +603,22 @@ Skill должен анализировать:
 - `F.9`
 - `E.17.0`
 - `F.15`
+
+### 11.6 Structured parse boundary validator
+
+Проверяет:
+
+- различаются ли `clean`, `normalized`, `inferred`, `failed`;
+- key alias normalization не смешивается с value reinterpretation;
+- retry выполняется до fallback;
+- failed parse оставляет audit trail с `raw_output_path`, `missing_fields`, `retry_outcome`;
+- `SolutionPortfolio` с `artifact_trust_level=degraded` блокируется до selection.
+
+Основание:
+
+- `A.6`
+- `A.10`
+- `G.6`
 
 
 ## 12. Очистка case-specific логики
@@ -677,6 +701,7 @@ Skill должен анализировать:
 - `analysis/assumptions_projection.json`
 - `governance/epistemic_ledger.jsonl`
 - `governance/contract_audit.jsonl`
+- `analysis/debug/llm_raw/*.raw.md`
 
 Изменить существующие модули:
 
@@ -688,6 +713,14 @@ Skill должен анализировать:
 - `app/pipeline/reporting.py`
 - `app/llm/client.py`
 - `app/router/orchestrator.py`
+
+Ключевое изменение для `solution_portfolio.py`:
+
+- ввести `ParseResult`, `FieldTrust`, `FieldTrustSource`;
+- писать `parse_metadata` во frontmatter артефакта;
+- различать `trusted` и `degraded` artifact trust level;
+- выполнять repair retry до canonical fallback;
+- не поднимать inferred/value-translated поля до trusted decision-grade качества.
 
 
 ## 15. Порядок внедрения
@@ -740,6 +773,8 @@ Skill должен анализировать:
 - добавить `contracts/`;
 - реализовать `contract_validator`;
 - внедрить stage gates.
+- внедрить structured parse boundary для `solution_portfolio`;
+- блокировать degraded portfolio в `selection_engine`.
 
 Результат:
 
@@ -811,4 +846,3 @@ Skill должен анализировать:
 - market/governance/strategy/operations могут сосуществовать в одном кейсе без взаимного разрушения,
 - а любой сильный вывод можно разложить назад до lawful chain:
   `source -> graph -> projection -> decision`.
-

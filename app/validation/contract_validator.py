@@ -108,6 +108,7 @@ def _validate_json_contract(contract: Dict[str, object], artifact_path: Path) ->
 def _validate_markdown_contract(contract: Dict[str, object], artifact_path: Path) -> List[ContractIssue]:
     doc = read_frontmatter_document(artifact_path)
     issues: List[ContractIssue] = []
+    parse_metadata = doc.frontmatter.get("parse_metadata") or {}
 
     expected_type = str(contract.get("artifact_type") or "")
     expected_stage = str(contract.get("expected_stage") or "")
@@ -153,6 +154,37 @@ def _validate_markdown_contract(contract: Dict[str, object], artifact_path: Path
                     action="sanitize",
                 )
             )
+
+    quality = str(parse_metadata.get("parse_quality", "clean"))
+    inferred = parse_metadata.get("inferred_fields", {})
+    if str(parse_metadata.get("artifact_trust_level") or "") == "degraded":
+        issues.append(
+            ContractIssue(
+                code="DEGRADED_ARTIFACT_IN_PIPELINE",
+                severity="hard_fail",
+                message="Artifact marked degraded after retry and cannot proceed as trusted pipeline input",
+                path="$.parse_metadata.artifact_trust_level",
+                action="fail",
+            )
+        )
+    elif expected_type == "solution_portfolio":
+        if quality == "failed":
+            issues.append(ContractIssue(
+                code="SOLUTION_PORTFOLIO_PARSE_FAILED",
+                severity="hard_fail",
+                message="Portfolio built from fallback — no LLM output was parseable",
+                path="$.parse_metadata.parse_quality",
+                action="fail",
+            ))
+        elif quality == "inferred" or inferred:
+            issues.append(ContractIssue(
+                code="SOLUTION_PORTFOLIO_INFERRED_FIELDS",
+                severity="warning",
+                message=f"Fields inferred by parser, not from LLM: {list(inferred.keys()) if inferred else []}",
+                path="$.parse_metadata.inferred_fields",
+                action="degrade",
+            ))
+
     return issues
 
 

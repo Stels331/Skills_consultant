@@ -3,8 +3,10 @@
   "format": "markdown",
   "expected_stage": "problem_factory",
   "required_sections": [
-    "## Facts",
-    "## Interpretations",
-    "## Hypotheses to Validate"
+    "## facts",
+    "## chr_targets",
+    "## derived_thresholds",
+    "## anti_goodhart_conditions",
+    "## hypotheses_to_validate"
   ]
 }

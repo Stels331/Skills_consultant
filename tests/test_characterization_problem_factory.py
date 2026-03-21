@@ -106,6 +106,9 @@ class CharacterizationProblemFactoryTests(unittest.TestCase):
 
         card_text = (self.ref.path / "problems" / "SelectedProblemCard.md").read_text(encoding="utf-8")
         self.assertIn("problem_id", card_text)
+        self.assertIn("## chr_targets", card_text)
+        self.assertIn("## derived_thresholds", card_text)
+        self.assertIn("## anti_goodhart_conditions", card_text)
         self.assertIn("evidence_refs", card_text)
 
         spec_text = (self.ref.path / "problems" / "ComparisonAcceptanceSpec.md").read_text(encoding="utf-8")

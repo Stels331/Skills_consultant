@@ -20,3 +20,4 @@
 - исключить пересечение контекстов между кейсами;
 - привязать ответы модели к evidence и FPF-проверкам;
 - дать пользователю возможность достраивать модель кейса через controlled clarification flow.
+- зафиксировать contract-first parse boundary для LLM-generated artifacts с `parse_quality`, `FieldTrust`, retry-before-fallback и degraded-artifact blocking.

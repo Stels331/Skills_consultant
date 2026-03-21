@@ -82,9 +82,11 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
     def test_problem_factory_selected_card_uses_epistemic_layers(self):
         run_problem_factory(self.root, self.ref.workspace_id, llm_mode="local")
         txt = (self.ref.path / "problems" / "SelectedProblemCard.md").read_text(encoding="utf-8")
-        self.assertIn("## Facts", txt)
-        self.assertIn("## Interpretations", txt)
-        self.assertIn("## Hypotheses to Validate", txt)
+        self.assertIn("## facts", txt)
+        self.assertIn("## chr_targets", txt)
+        self.assertIn("## derived_thresholds", txt)
+        self.assertIn("## anti_goodhart_conditions", txt)
+        self.assertIn("## hypotheses_to_validate", txt)
 
     def test_s4_t1_fails_on_insufficient_portfolio(self):
         bad_md = "# Solution Portfolio\n\n## sol_01_single\n- type: process\n- assurance_level: medium\n"
@@ -206,6 +208,10 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
         self.assertIn("- relevance_basis: rollout_relevant", txt)
         self.assertIn("## sol_03_cpq_portal", txt)
         self.assertIn("- type: architecture", txt)
+        doc = read_frontmatter_document(self.ref.path / "solutions" / "SolutionPortfolio.md")
+        self.assertEqual(doc.frontmatter["epistemic_status"], "inferred")
+        self.assertEqual(doc.frontmatter["parse_metadata"]["parse_quality"], "normalized")
+        self.assertEqual(doc.frontmatter["parse_metadata"]["artifact_trust_level"], "trusted")
 
     def test_solution_portfolio_fallback_replaces_invalid_body_instead_of_appending(self):
         invalid_md = """
@@ -230,6 +236,12 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
         self.assertIn("## sol_01_fix1", txt)
         self.assertNotIn("## sol_01_heuristic_triage", txt)
         self.assertIn("- assurance_level: medium", txt)
+        doc = read_frontmatter_document(self.ref.path / "solutions" / "SolutionPortfolio.md")
+        self.assertEqual(doc.frontmatter["parse_metadata"]["artifact_trust_level"], "degraded")
+        self.assertTrue(doc.frontmatter["parse_metadata"]["retry_attempted"])
+        audit = (self.ref.path / "governance" / "contract_audit.jsonl").read_text(encoding="utf-8")
+        self.assertIn("solution_portfolio_parse_failed", audit)
+        self.assertIn("solution_portfolio_parsed", audit)
 
     def test_solution_portfolio_contains_intervention_ladder_metadata(self):
         out = run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
@@ -293,6 +305,21 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
         self.assertNotIn("sol_01_opex_generator_and_waste_barter", parity_txt)
         self.assertNotIn("```markdown", parity_txt)
 
+    def test_parity_accepts_unambiguous_short_solution_ids(self):
+        run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
+        with patch("app.pipeline.parity_tradeoff.generate_markdown_with_skill") as mocked:
+            mocked.side_effect = [
+                "# Parity Plan\n\n## assumptions\n- same baseline\n\n## evaluation_window\n- 30 days\n\n## indicators_in_scope\n- confidence_gain\n",
+                "# Parity Report\n\n## Findings\n- sol_01 is admissible.\n- sol_02 remains secondary.\n\n## Decision Logic\n- compare sol_01 and sol_02 only.\n\n## Traceability\n- sol_03 remains fallback.\n",
+                "# Tradeoff Table\n\n| solution | confidence_gain | unresolved_gaps | risk_exposure | reversibility |\n|---|---|---|---|---|\n| sol_00_status_quo | low | high | high | n/a |\n| sol_01 | medium | medium | low | high |\n",
+            ]
+            run_parity_tradeoff(self.root, self.ref.workspace_id, llm_mode="local")
+
+        parity_txt = read_frontmatter_document(self.ref.path / "solutions" / "ParityReport.md").body
+        self.assertIn("sol_01_process_stabilization", parity_txt)
+        self.assertIn("sol_02_capability_transfer", parity_txt)
+        self.assertNotIn("`sol_01`", parity_txt)
+
     def test_s4_t3_conflict_router_fallback_for_unsupported_type(self):
         run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
         run_parity_tradeoff(self.root, self.ref.workspace_id, llm_mode="local")
@@ -311,12 +338,39 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "SELECTION_REQUIRES_PARITY_AND_CONFLICTS"):
             run_selection_engine(self.root, self.ref.workspace_id, llm_mode="local")
 
+    def test_selection_blocks_degraded_portfolio_before_selection(self):
+        invalid_md = """
+# Solution Portfolio
+
+## sol_00_status_quo
+- type: baseline
+
+## sol_01_fix
+- assurance_level: medium
+
+## sol_02_fix
+- assurance_level: medium
+
+## sol_03_fix
+- assurance_level: medium
+"""
+        with patch("app.pipeline.solution_portfolio.generate_markdown_with_skill", return_value=invalid_md):
+            run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
+
+        run_parity_tradeoff(self.root, self.ref.workspace_id, llm_mode="local")
+        run_conflict_router(self.root, self.ref.workspace_id, llm_mode="local")
+
+        with self.assertRaisesRegex(ValueError, "SELECTION_BLOCKED_DEGRADED_PORTFOLIO"):
+            run_selection_engine(self.root, self.ref.workspace_id, llm_mode="local")
+
     def test_s4_t4_selection_blocks_if_assurance_missing(self):
         run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
 
         portfolio = self.ref.path / "solutions" / "SolutionPortfolio.md"
         txt = portfolio.read_text(encoding="utf-8")
-        txt = txt.replace("## sol_02_process_rewire\n- type: process\n- assurance_level: medium\n", "## sol_02_process_rewire\n- type: process\n", 1)
+        portfolio_ids = re.findall(r"^##\s+(sol_[a-z0-9_]+)$", txt, flags=re.MULTILINE)
+        target_id = portfolio_ids[2]
+        txt = txt.replace(f"## {target_id}\n- type: process\n- assurance_level: medium\n", f"## {target_id}\n- type: process\n", 1)
         portfolio.write_text(txt, encoding="utf-8")
 
         run_parity_tradeoff(self.root, self.ref.workspace_id, llm_mode="local")

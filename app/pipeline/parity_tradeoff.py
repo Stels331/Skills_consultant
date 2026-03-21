@@ -25,6 +25,27 @@ def _portfolio_ids(portfolio_text: str) -> List[str]:
     return ids
 
 
+def _build_prefix_map(allowed_ids: List[str]) -> Dict[str, str]:
+    prefix_map: Dict[str, List[str]] = {}
+    for full_id in allowed_ids:
+        parts = full_id.split("_")
+        for i in range(2, len(parts)):
+            prefix = "_".join(parts[:i]).lower()
+            prefix_map.setdefault(prefix, []).append(full_id.lower())
+    return {
+        prefix: candidates[0]
+        for prefix, candidates in prefix_map.items()
+        if len(candidates) == 1
+    }
+
+
+def _expand_short_ids(text: str, prefix_map: Dict[str, str]) -> str:
+    expanded = text
+    for short, full in sorted(prefix_map.items(), key=lambda item: -len(item[0])):
+        expanded = re.sub(rf"\b{re.escape(short)}\b(?!_[a-z0-9])", full, expanded, flags=re.IGNORECASE)
+    return expanded
+
+
 def _unknown_solution_ids(text: str, allowed_ids: Set[str]) -> Set[str]:
     seen = {match.group(1).lower() for match in SOLUTION_ID_RE.finditer(text)}
     return {sid for sid in seen if sid not in allowed_ids}
@@ -126,6 +147,7 @@ def run_parity_tradeoff(project_root: Path, workspace_id: str, llm_mode: str = "
     portfolio_text = portfolio.read_text(encoding="utf-8")
     allowed_ids = _portfolio_ids(portfolio_text)
     allowed_id_set = set(allowed_ids)
+    prefix_map = _build_prefix_map(allowed_ids)
 
     parity_plan = generate_markdown_with_skill(
         system_skill_prompt=skill_prompt,
@@ -139,6 +161,7 @@ def run_parity_tradeoff(project_root: Path, workspace_id: str, llm_mode: str = "
         mode=llm_mode,
     )
     _write_raw_llm_output(workspace, "parity_plan.raw.md", parity_plan)
+    parity_plan = _expand_short_ids(parity_plan, prefix_map)
     parity_plan = soften_unanchored_claims(parity_plan)
     if not _validate_parity_artifact("parity_plan", parity_plan, allowed_id_set):
         print("  [WARN] Parity Plan failed validation. Falling back to canonical parity plan.")
@@ -155,6 +178,7 @@ def run_parity_tradeoff(project_root: Path, workspace_id: str, llm_mode: str = "
         mode=llm_mode,
     )
     _write_raw_llm_output(workspace, "parity_report.raw.md", parity_report)
+    parity_report = _expand_short_ids(parity_report, prefix_map)
     parity_report = soften_unanchored_claims(parity_report)
     if not _validate_parity_artifact("parity_report", parity_report, allowed_id_set):
         print("  [WARN] Parity Report failed validation. Falling back to canonical parity report.")
@@ -171,6 +195,7 @@ def run_parity_tradeoff(project_root: Path, workspace_id: str, llm_mode: str = "
         mode=llm_mode,
     )
     _write_raw_llm_output(workspace, "tradeoff_table.raw.md", tradeoff)
+    tradeoff = _expand_short_ids(tradeoff, prefix_map)
     tradeoff = soften_unanchored_claims(tradeoff)
     if not _validate_parity_artifact("tradeoff_table", tradeoff, allowed_id_set):
         print("  [WARN] Tradeoff Table failed validation. Falling back to canonical tradeoff table.")

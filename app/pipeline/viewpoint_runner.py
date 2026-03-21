@@ -6,6 +6,11 @@ from typing import Dict, List, Tuple
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
 from app.pipeline.domain_profiler import build_domain_profile
+from app.pipeline.section_contract_guard import (
+    build_repair_prompt,
+    load_required_sections,
+    repair_sections_with_retry,
+)
 
 
 VIEWPOINTS: List[Tuple[str, str]] = [
@@ -59,6 +64,41 @@ VIEWPOINT_EPISTEMIC_GUARD = """
 - Если вы делаете инженерную или экономическую прикидку, добавьте явный маркер, что это расчетная гипотеза, требующая проверки на данных.
 """
 
+VIEWPOINT_OUTPUT_CONTRACT = """
+
+## OUTPUT STRUCTURE — REQUIRED SECTIONS
+Output must contain exactly these sections in this order:
+
+## viewpoint_name
+<single line>
+
+## primary_concerns
+- <item>
+
+## layer_findings
+- layer_1: <finding>
+- layer_2: <finding>
+- layer_3: <finding>
+- layer_4: <finding>
+
+## key_risks
+- <risk>
+
+## supported_actions
+- <action>
+
+## objections
+- <objection>
+
+## evidence_gaps
+- <gap or none>
+
+## non_negotiables
+- <constraint>
+
+Do not wrap the entire output in a fenced code block.
+"""
+
 
 def run_viewpoints(project_root: Path, workspace_id: str, llm_mode: str = "local") -> Dict[str, object]:
     workspace = project_root / "cases" / workspace_id
@@ -75,22 +115,32 @@ def run_viewpoints(project_root: Path, workspace_id: str, llm_mode: str = "local
     }
 
     active_viewpoints = _active_viewpoints(domain_profile)
+    required_sections = load_required_sections(project_root, "viewpoint_report")
     artifacts: List[str] = []
     conflicts: List[str] = []
 
     for viewpoint, focus in active_viewpoints:
-        skill_prompt = _load_viewpoint_skill(project_root, viewpoint) + VIEWPOINT_EPISTEMIC_GUARD
-        body = generate_markdown_with_skill(
-            system_skill_prompt=skill_prompt,
-            user_payload={
-                "task_type": "build_viewpoint",
-                "workspace_id": workspace_id,
-                "viewpoint": viewpoint,
-                "focus": focus,
-                "layers": layer_payload,
-            },
-            mode=llm_mode,
+        payload = {
+            "task_type": "build_viewpoint",
+            "workspace_id": workspace_id,
+            "viewpoint": viewpoint,
+            "focus": focus,
+            "layers": layer_payload,
+        }
+        skill_prompt = _load_viewpoint_skill(project_root, viewpoint) + VIEWPOINT_EPISTEMIC_GUARD + VIEWPOINT_OUTPUT_CONTRACT
+        body = generate_markdown_with_skill(system_skill_prompt=skill_prompt, user_payload=payload, mode=llm_mode)
+        section_check = repair_sections_with_retry(
+            body=body,
+            required_sections=required_sections,
+            repair_fn=lambda missing: generate_markdown_with_skill(
+                system_skill_prompt=build_repair_prompt(skill_prompt, f"viewpoint:{viewpoint}", missing),
+                user_payload=payload,
+                mode=llm_mode,
+            ),
         )
+        if section_check.outcome == "failed":
+            raise ValueError(f"SECTION_CONTRACT_VIOLATED_AFTER_REPAIR: viewpoint:{viewpoint}, missing={section_check.missing_sections}")
+        body = section_check.body
 
         frontmatter = build_frontmatter(
             artifact_id=f"{workspace_id}__viewpoint__{viewpoint}",

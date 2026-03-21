@@ -3,7 +3,13 @@ import tempfile
 from pathlib import Path
 
 from app.principles.library import Principle
-from app.validation.semantic_judge import SemanticIssue, _recommendation_from_issues, _score_from_issues, run_semantic_judge
+from app.validation.semantic_judge import (
+    SemanticIssue,
+    _has_unanchored_numeric_claims,
+    _recommendation_from_issues,
+    _score_from_issues,
+    run_semantic_judge,
+)
 
 
 class SemanticJudgeTests(unittest.TestCase):
@@ -70,6 +76,13 @@ class SemanticJudgeTests(unittest.TestCase):
         )
         self.assertEqual(result.recommendation, "block")
         self.assertTrue(any(i.code == "UNANCHORED_NUMERIC_CLAIMS" for i in result.issues))
+
+    def test_numeric_softener_in_other_paragraph_does_not_cancel_flag(self):
+        body = (
+            "Это hypothesis и rough estimate для ранней оценки.\n\n"
+            "Бункеры переполнятся за 3-5 дней без дополнительных мер."
+        )
+        self.assertTrue(_has_unanchored_numeric_claims(body))
 
     def test_reporting_degrades_on_cross_case_contamination(self):
         with tempfile.TemporaryDirectory() as tmp:

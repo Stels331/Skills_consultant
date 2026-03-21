@@ -30,3 +30,14 @@ description: Навык для этапа Характеризации (Characte
 3. **Паритетность (`parity_plan.json`)**:
    Задайте условия честного сравнения (window, budgets). Сравнивать решения можно только при равенстве условий (например, стоимость внедрения за N месяцев).
 4. Оформите `characterization_passport.json` со всеми выбранными индикаторами.
+
+## OUTPUT RULES
+- Output raw Markdown directly.
+- Do NOT wrap the entire output in a fenced code block.
+- Required sections for Characterization Passport:
+  - `## optimization_goals`
+  - `## hard_constraints`
+  - `## risk_signals`
+  - `## weakest_link`
+  - `## anti_goodhart_risks`
+  - `## source_summary`

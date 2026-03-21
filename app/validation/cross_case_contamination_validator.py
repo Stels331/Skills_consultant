@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set
@@ -65,7 +66,15 @@ def _matched_domains(low_text: str, vocab_registry: Dict[str, Set[str]], exclude
     for domain, vocab in vocab_registry.items():
         if domain in excluded_domains:
             continue
-        terms = {term for term in vocab if term in low_text}
+        terms = set()
+        for term in vocab:
+            escaped = re.escape(term)
+            if " " in term or "-" in term:
+                pattern = escaped
+            else:
+                pattern = rf"\b{escaped}\b"
+            if re.search(pattern, low_text):
+                terms.add(term)
         if terms:
             matched[domain] = terms
     return matched

@@ -4,7 +4,7 @@ import re
 
 
 NUMERIC_CLAIM_RE = re.compile(
-    r"\b\d+(?:[.,]\d+)?\s*(?:%|квт|м³|м3|дн|дней|дня|недель|тиж|months?|мес|куб)\b",
+    r"\b\d+(?:[.,]\d+)?\s*(?:%|квт|м³|м3|дн|дней|дня|недель|тиж|months?|мес|куб)(?=$|[^\w])",
     flags=re.IGNORECASE,
 )
 
@@ -30,6 +30,8 @@ SOFTENING_MARKERS = [
     "requires verification",
     "требует проверки",
     "интерпретац",
+    "source:",
+    "source_ref",
 ]
 
 
@@ -38,6 +40,17 @@ def _should_soften_line(line: str) -> bool:
     if any(marker in low for marker in SOFTENING_MARKERS):
         return False
     return bool(NUMERIC_CLAIM_RE.search(low) or any(marker in low for marker in HARD_ASSERTION_MARKERS))
+
+
+def detect_unanchored_claim_lines(text: str) -> list[str]:
+    findings = []
+    for raw in text.splitlines():
+        stripped = raw.strip()
+        if not stripped:
+            continue
+        if _should_soften_line(stripped):
+            findings.append(stripped)
+    return findings
 
 
 def soften_unanchored_claims(text: str) -> str:

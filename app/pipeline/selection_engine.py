@@ -9,6 +9,7 @@ from app.pipeline.artifact_template import build_frontmatter, write_markdown_art
 from app.pipeline.epistemic_guard import assess_decision_readiness
 from app.pipeline.epistemic_projection import emit_projection
 from app.validation.conflict_validator import validate_unresolved_conflicts
+from app.validation.artifact_contract_validator import read_frontmatter_document
 from app.validation.fpf_comparison_validator import validate_selection_workspace
 
 
@@ -24,11 +25,22 @@ BULLET_RE = re.compile(r"^\s*[-*+]\s+(?:\*\*)?([a-zA-Z0-9_]+)(?:\*\*)?\s*:\s*[`'
 SELECTED_RE = re.compile(r"^\s*[-*+]\s+(?:\*\*)?[`'\"]?(sol_[a-z0-9_]+)[`'\"]?(?:\*\*)?(?:[\s:-].*)?$", re.IGNORECASE)
 INLINE_SELECTED_RE = re.compile(r"\b(sol_[a-z0-9_]+)\b", re.IGNORECASE)
 
+DIMENSION_LABELS = {
+    "flow_volume": "объем и профиль входящего потока",
+    "conversion": "качество прохождения кейсов по этапам решения",
+    "presales_economics": "операционная и экономическая структура процесса",
+}
+
 
 def _write_raw_llm_output(workspace: Path, artifact_name: str, raw_text: str) -> None:
     path = workspace / "analysis" / "debug" / "llm_raw" / artifact_name
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(raw_text, encoding="utf-8")
+
+
+def _format_missing_dimension(raw: object) -> str:
+    key = str(raw).strip().lower()
+    return DIMENSION_LABELS.get(key, str(raw).replace("_", " "))
 
 
 def _parse_portfolio_candidates(body: str) -> Dict[str, Dict[str, str]]:
@@ -194,7 +206,7 @@ def _canonicalize_selected_markdown_with_readiness(
         parts.append("")
 
     if provisional:
-        missing = [DIMENSION_LABELS.get(item, item) for item in readiness.get("missing_dimensions", [])]
+        missing = [_format_missing_dimension(item) for item in readiness.get("missing_dimensions", [])]
         parts.extend(
             [
                 "## Assumptions Register",
@@ -204,9 +216,9 @@ def _canonicalize_selected_markdown_with_readiness(
                 "",
                 "## Hypotheses to Validate",
                 "",
-                "- Текущие лиды действительно делятся на типовые и нетиповые классы с разной потребностью в экспертной эскалации.",
+                "- Входящий поток действительно делится на типовые и нетиповые классы с разной потребностью в экспертной эскалации.",
                 "- Экономический выигрыш от разгрузки узкого экспертного контура превысит стоимость временных или постоянных изменений.",
-                "- Выбранные решения не разрушат производственный SLA и не приведут к систематическим ошибкам оценки.",
+                "- Выбранные решения не разрушат операционный SLA и не приведут к систематическим ошибкам исполнения.",
                 "",
                 "## Decision Preconditions",
                 "",
@@ -239,17 +251,8 @@ def _canonicalize_selected_markdown_with_readiness(
     return "\n".join(parts).rstrip() + "\n"
 
 
-DIMENSION_LABELS = {
-    "flow_volume": "объем и ритм входящего потока",
-    "conversion": "конверсия и причины потерь по воронке",
-    "request_mix": "доля типовых и нетиповых запросов",
-    "presales_economics": "экономика пресейла и цена ошибки оценки",
-    "classification_logic": "критерии маршрутизации и квалификации заявок",
-}
-
-
 def _deferred_selected_markdown(readiness: Dict[str, object]) -> str:
-    missing = [DIMENSION_LABELS.get(item, item) for item in readiness.get("missing_dimensions", [])]
+    missing = [_format_missing_dimension(item) for item in readiness.get("missing_dimensions", [])]
     missing_lines = [f"- missing_input: {item}" for item in missing] if missing else [
         "- missing_input: фактические операционные и экономические параметры процесса"
     ]
@@ -299,7 +302,7 @@ def _deferred_selected_markdown(readiness: Dict[str, object]) -> str:
 
 
 def _deferred_adr_markdown(readiness: Dict[str, object]) -> str:
-    missing = ", ".join(DIMENSION_LABELS.get(item, item) for item in readiness.get("missing_dimensions", []))
+    missing = ", ".join(str(item).replace("_", " ") for item in readiness.get("missing_dimensions", []))
     return (
         "# ADR-001: Decision Deferred Pending Clarification\n\n"
         "## Context\n"
@@ -317,7 +320,7 @@ def _deferred_adr_markdown(readiness: Dict[str, object]) -> str:
 
 
 def _deferred_runbook_markdown(readiness: Dict[str, object]) -> str:
-    missing = [DIMENSION_LABELS.get(item, item) for item in readiness.get("missing_dimensions", [])]
+    missing = [str(item).replace("_", " ") for item in readiness.get("missing_dimensions", [])]
     lines = [
         "# Runbook",
         "",
@@ -386,7 +389,10 @@ def run_selection_engine(project_root: Path, workspace_id: str, llm_mode: str = 
         )
 
     skill_prompt = _load_skill(project_root)
-    portfolio_text = (workspace / "solutions" / "SolutionPortfolio.md").read_text(encoding="utf-8")
+    portfolio_doc = read_frontmatter_document(workspace / "solutions" / "SolutionPortfolio.md")
+    if str((portfolio_doc.frontmatter.get("parse_metadata") or {}).get("artifact_trust_level") or "") == "degraded":
+        raise ValueError("SELECTION_BLOCKED_DEGRADED_PORTFOLIO")
+    portfolio_text = portfolio_doc.body
     parity_text = (workspace / "solutions" / "ParityReport.md").read_text(encoding="utf-8")
     conflicts_text = (workspace / "solutions" / "ConflictRecords.md").read_text(encoding="utf-8")
     spec_text = (workspace / "problems" / "ComparisonAcceptanceSpec.md").read_text(encoding="utf-8")

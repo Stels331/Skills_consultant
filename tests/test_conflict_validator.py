@@ -111,6 +111,131 @@ class ConflictValidatorTests(unittest.TestCase):
         issues = validate_unresolved_conflicts(self.workspace)
         self.assertEqual(issues, [])
 
+    def test_compatible_type_pair_creates_duplicate_cluster_not_conflict(self):
+        save_graph(
+            self.workspace / "analysis" / "epistemic_graph.json",
+            {
+                "workspace_id": self.workspace.name,
+                "version": 1,
+                "updated_at": "2026-03-21T00:00:00+00:00",
+                "nodes": [
+                    {
+                        "id": "n1",
+                        "node_type": "normative_target",
+                        "statement": "target diesel dependence below 30%",
+                        "source_refs": ["characterization/CharacterizationPassport.md:L10"],
+                        "epistemic_status": "target",
+                        "stage": "characterization",
+                        "owner": "analyst",
+                        "created_at": "2026-03-21T00:00:00+00:00",
+                        "updated_at": "2026-03-21T00:00:00+00:00",
+                        "claim_key": "diesel_dependence_target",
+                    },
+                    {
+                        "id": "n2",
+                        "node_type": "derived_metric",
+                        "statement": "diesel dependence should remain under 30%",
+                        "source_refs": ["characterization/IndicatorSet.md:L8"],
+                        "epistemic_status": "derived",
+                        "stage": "characterization",
+                        "owner": "analyst",
+                        "created_at": "2026-03-21T00:00:00+00:00",
+                        "updated_at": "2026-03-21T00:00:00+00:00",
+                        "claim_key": "diesel_dependence_target",
+                    },
+                ],
+                "edges": [],
+            },
+        )
+
+        graph = materialize_conflicts(self.workspace)
+        self.assertTrue(any(node["node_type"] == "duplicate_claim_cluster" for node in graph["nodes"]))
+        self.assertFalse(any(node["node_type"] == "conflict_case" for node in graph["nodes"]))
+        self.assertEqual(validate_unresolved_conflicts(self.workspace), [])
+
+    def test_compatible_type_pair_with_opposite_polarity_is_conflict(self):
+        save_graph(
+            self.workspace / "analysis" / "epistemic_graph.json",
+            {
+                "workspace_id": self.workspace.name,
+                "version": 1,
+                "updated_at": "2026-03-21T00:00:00+00:00",
+                "nodes": [
+                    {
+                        "id": "n1",
+                        "node_type": "normative_target",
+                        "statement": "diesel dependence can remain under 30%",
+                        "source_refs": ["characterization/CharacterizationPassport.md:L10"],
+                        "epistemic_status": "target",
+                        "stage": "characterization",
+                        "owner": "analyst",
+                        "created_at": "2026-03-21T00:00:00+00:00",
+                        "updated_at": "2026-03-21T00:00:00+00:00",
+                        "claim_key": "diesel_dependence_target",
+                    },
+                    {
+                        "id": "n2",
+                        "node_type": "derived_metric",
+                        "statement": "diesel dependence cannot remain under 30%",
+                        "source_refs": ["characterization/IndicatorSet.md:L8"],
+                        "epistemic_status": "derived",
+                        "stage": "characterization",
+                        "owner": "analyst",
+                        "created_at": "2026-03-21T00:00:00+00:00",
+                        "updated_at": "2026-03-21T00:00:00+00:00",
+                        "claim_key": "diesel_dependence_target",
+                    },
+                ],
+                "edges": [],
+            },
+        )
+
+        graph = materialize_conflicts(self.workspace)
+        self.assertTrue(any(node["node_type"] == "conflict_case" for node in graph["nodes"]))
+        self.assertTrue(any(issue.code == "UNRESOLVED_SELECTION_CONFLICT" for issue in validate_unresolved_conflicts(self.workspace)))
+
+    def test_shared_negative_constraint_does_not_become_conflict(self):
+        save_graph(
+            self.workspace / "analysis" / "epistemic_graph.json",
+            {
+                "workspace_id": self.workspace.name,
+                "version": 1,
+                "updated_at": "2026-03-21T00:00:00+00:00",
+                "nodes": [
+                    {
+                        "id": "n1",
+                        "node_type": "normative_target",
+                        "statement": 'Do not use "zero energy cost" in the margin calculation.',
+                        "source_refs": ["characterization/CharacterizationPassport.md:L10"],
+                        "epistemic_status": "target",
+                        "stage": "characterization",
+                        "owner": "analyst",
+                        "created_at": "2026-03-21T00:00:00+00:00",
+                        "updated_at": "2026-03-21T00:00:00+00:00",
+                        "claim_key": "margin_calc_rule",
+                    },
+                    {
+                        "id": "n2",
+                        "node_type": "derived_metric",
+                        "statement": 'Do not use "zero energy cost" when calculating gross margin.',
+                        "source_refs": ["characterization/IndicatorSet.md:L8"],
+                        "epistemic_status": "derived",
+                        "stage": "characterization",
+                        "owner": "analyst",
+                        "created_at": "2026-03-21T00:00:00+00:00",
+                        "updated_at": "2026-03-21T00:00:00+00:00",
+                        "claim_key": "margin_calc_rule",
+                    },
+                ],
+                "edges": [],
+            },
+        )
+
+        graph = materialize_conflicts(self.workspace)
+        self.assertTrue(any(node["node_type"] == "duplicate_claim_cluster" for node in graph["nodes"]))
+        self.assertFalse(any(node["node_type"] == "conflict_case" for node in graph["nodes"]))
+        self.assertEqual(validate_unresolved_conflicts(self.workspace), [])
+
 
 if __name__ == "__main__":
     unittest.main()

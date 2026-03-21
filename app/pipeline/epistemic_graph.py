@@ -19,6 +19,7 @@ NODE_TYPES = {
     "decision_constraint",
     "disputed_claim",
     "conflict_case",
+    "duplicate_claim_cluster",
 }
 
 EDGE_TYPES = {
@@ -269,12 +270,26 @@ def extract_claims_from_artifact(
         title_match = re.search(r"(?m)^- title:\s+(.+)$", body)
         problem_titles = [title_match.group(1).strip()] if title_match else []
         problem_ids = add_nodes("problem", problem_titles, "inferred")
-        fact_ids = add_nodes("source_fact", _extract_bullets(_extract_md_section(body, "Facts")), "observed")
-        interpretation_ids = add_nodes("interpretation", _extract_bullets(_extract_md_section(body, "Interpretations")), "inferred")
-        hypothesis_ids = add_nodes("hypothesis", _extract_bullets(_extract_md_section(body, "Hypotheses to Validate")), "hypothesis")
+        fact_lines = _extract_bullets(_extract_md_section(body, "facts")) or _extract_bullets(_extract_md_section(body, "Facts"))
+        target_lines = _extract_bullets(_extract_md_section(body, "chr_targets"))
+        threshold_lines = _extract_bullets(_extract_md_section(body, "derived_thresholds"))
+        anti_goodhart_lines = _extract_bullets(_extract_md_section(body, "anti_goodhart_conditions"))
+        hypothesis_lines = _extract_bullets(_extract_md_section(body, "hypotheses_to_validate")) or _extract_bullets(
+            _extract_md_section(body, "Hypotheses to Validate")
+        )
+        interpretation_lines = _extract_bullets(_extract_md_section(body, "Interpretations"))
+        fact_ids = add_nodes("source_fact", fact_lines, "observed")
+        target_ids = add_nodes("normative_target", target_lines, "inferred")
+        threshold_ids = add_nodes("derived_metric", threshold_lines, "inferred")
+        interpretation_ids = add_nodes("interpretation", interpretation_lines + anti_goodhart_lines, "inferred")
+        hypothesis_ids = add_nodes("hypothesis", hypothesis_lines, "hypothesis")
         for problem_id in problem_ids:
             for fact_id in fact_ids:
                 edges.append(build_edge("DERIVED_FROM", problem_id, fact_id, artifact_rel))
+            for target_id in target_ids:
+                edges.append(build_edge("RELATES_TO", target_id, problem_id, artifact_rel))
+            for threshold_id in threshold_ids:
+                edges.append(build_edge("RELATES_TO", threshold_id, problem_id, artifact_rel))
             for interpretation_id in interpretation_ids:
                 edges.append(build_edge("SUPPORTS", interpretation_id, problem_id, artifact_rel))
             for hypothesis_id in hypothesis_ids:

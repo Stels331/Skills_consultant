@@ -116,6 +116,15 @@
 - инвалидирует stale chunks;
 - управляет source revisions и active retrieval set.
 
+`StructuredArtifactBoundary`:
+
+- обрабатывает raw LLM output для contract-sensitive stages;
+- возвращает `ParseResult`, а не только parsed body;
+- ведет field-level provenance через `FieldTrust` и `FieldTrustSource`;
+- различает `clean`, `normalized`, `inferred`, `failed`;
+- инициирует retry до fallback;
+- записывает `parse_metadata` и `artifact_trust_level`.
+
 ## 3. Dialogue runtime flow
 
 ### 3.1. Ответ на вопрос пользователя
@@ -211,7 +220,37 @@ LLM must be instructed to:
 - avoid referencing data outside the active case;
 - prefer asking clarification over hallucinating.
 
-## 4.4. Model routing policy
+### 4.4. Structured artifact parse boundary
+
+Для stages, где LLM генерирует machine-consumed artifact, backend обязан использовать parse boundary:
+
+```text
+raw llm output
+ -> write debug raw file
+ -> parse into ParseResult
+ -> if clean or normalized(key_only): continue
+ -> else retry with repair prompt
+ -> if retry still inferred/failed: mark degraded and fallback explicitly
+ -> write final artifact + parse_metadata + audit entry
+```
+
+Минимальные сущности:
+
+- `ParseResult`
+- `FieldTrust`
+- `FieldTrustSource`
+- `parse_metadata`
+- `artifact_trust_level`
+
+Правила:
+
+- `key_only` normalization допустим как trusted normalization;
+- `value_translated` не дает `decision_grade`;
+- `inferred_text` дает максимум `hypothesis`;
+- positional inference запрещен как trusted recovery path;
+- failed audit entry обязан содержать `raw_output_path`, `missing_fields`, `retry_outcome`.
+
+## 4.5. Model routing policy
 
 Система должна поддерживать policy-based выбор модели по типу задачи.
 
@@ -266,6 +305,17 @@ LLM must be instructed to:
 - repeated retry loops запрещены;
 - `premium` failure не триггерит дальнейшую escalation;
 - все retries логируются как governance/usage events.
+
+### 5.2.2. Downstream handling of degraded artifacts
+
+Если upstream stage записал `artifact_trust_level=degraded`, downstream не должен считать такой артефакт trusted contract input.
+
+Минимальные правила:
+
+- `contract_validator` обязан hard-fail degraded artifact там, где требуется trusted input;
+- `selection_engine` обязан блокироваться на degraded `SolutionPortfolio`;
+- degraded artifact допускается только как diagnostic/hypothesis-grade artifact;
+- orchestrator получает этот сигнал через обычный contract route.
 
 ### 5.3. Validator output
 

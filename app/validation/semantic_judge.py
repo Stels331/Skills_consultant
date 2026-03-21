@@ -90,9 +90,11 @@ def _contains_placeholder(text: str) -> bool:
     return any(m in low for m in markers)
 
 
+def _paragraphs(body: str) -> List[str]:
+    return [chunk.strip() for chunk in re.split(r"\n\s*\n", body) if chunk.strip()]
+
+
 def _has_unanchored_numeric_claims(body: str) -> bool:
-    low = body.lower()
-    numeric_claim = bool(re.search(r"\b\d+(?:[.,]\d+)?\s*(?:%|квт|м³|м3|дн|дней|дня|недель|тиж|months?)\b", low))
     hard_claim_markers = [
         "верифиц",
         "математическ",
@@ -104,8 +106,6 @@ def _has_unanchored_numeric_claims(body: str) -> bool:
         "строго =",
         ">15%",
     ]
-    if not numeric_claim and not any(marker in low for marker in hard_claim_markers):
-        return False
     softeners = [
         "hypothesis",
         "гипотез",
@@ -121,7 +121,13 @@ def _has_unanchored_numeric_claims(body: str) -> bool:
         "source_ref",
         "evidence_ref",
     ]
-    return not any(marker in low for marker in softeners)
+    for paragraph in _paragraphs(body):
+        low = paragraph.lower()
+        numeric_claim = bool(re.search(r"\b\d+(?:[.,]\d+)?\s*(?:%|квт|м³|м3|дн|дней|дня|недель|тиж|months?)\b", low))
+        if numeric_claim or any(marker in low for marker in hard_claim_markers):
+            if not any(marker in low for marker in softeners):
+                return True
+    return False
 
 
 def _local_rule_judge(

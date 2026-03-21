@@ -19,6 +19,98 @@ def _contains_any(text: str, keywords: List[str]) -> bool:
     return any(k in low for k in keywords)
 
 
+_PORTFOLIO_ID_RE = re.compile(r"^##\s+(sol_[a-z0-9_]+)\s*$", re.MULTILINE)
+
+
+def _portfolio_solution_ids(text: str) -> List[str]:
+    return [match.group(1) for match in _PORTFOLIO_ID_RE.finditer(text)]
+
+
+def _local_default_solution_candidates() -> List[Dict[str, str]]:
+    return [
+        {
+            "id": "sol_00_status_quo",
+            "type": "baseline",
+            "assurance_level": "low",
+            "intervention_force": "",
+            "relevance_basis": "",
+            "anti_goodhart_risk": "hidden structural waste remains unmeasured under status quo",
+            "solves_which_problems": "partial",
+            "assumptions": "no change",
+            "expected_effects": "low",
+            "risks": "continued degradation",
+            "constraints": "none",
+            "required_capabilities": "existing only",
+            "reversibility": "n/a",
+            "affected_viewpoints": "strategist, operator, analyst",
+        },
+        {
+            "id": "sol_01_process_stabilization",
+            "type": "process",
+            "assurance_level": "medium",
+            "intervention_force": "weak",
+            "relevance_basis": "rollout_relevant",
+            "anti_goodhart_risk": "local process speed may improve while unresolved gaps are simply moved downstream",
+            "solves_which_problems": "moderate",
+            "assumptions": "current team can adopt bounded process changes",
+            "expected_effects": "early reduction of noise and safer intake discipline",
+            "risks": "adoption friction and cosmetic compliance",
+            "constraints": "pilot window must remain bounded",
+            "required_capabilities": "process owner + analytics",
+            "reversibility": "high",
+            "affected_viewpoints": "operator, analyst",
+        },
+        {
+            "id": "sol_02_capability_transfer",
+            "type": "process",
+            "assurance_level": "medium",
+            "intervention_force": "medium",
+            "relevance_basis": "pareto_relevant",
+            "anti_goodhart_risk": "delegation can improve throughput while silently degrading decision quality",
+            "solves_which_problems": "strong",
+            "assumptions": "repeatable knowledge can be transferred into a reusable operating contour",
+            "expected_effects": "medium-high",
+            "risks": "handoff ambiguity and maintenance overhead",
+            "constraints": "quality guardrails must stay explicit",
+            "required_capabilities": "operations lead + domain analyst",
+            "reversibility": "medium",
+            "affected_viewpoints": "operator, analyst, architect",
+        },
+        {
+            "id": "sol_03_architecture_reframe",
+            "type": "architecture",
+            "assurance_level": "medium",
+            "intervention_force": "strong",
+            "relevance_basis": "pareto_relevant",
+            "anti_goodhart_risk": "delivery teams may optimize rollout velocity instead of stable outcome quality",
+            "solves_which_problems": "high",
+            "assumptions": "modular rollout is feasible without destabilizing the core system",
+            "expected_effects": "high",
+            "risks": "integration complexity",
+            "constraints": "budget and blast radius must be confirmed from actual case input",
+            "required_capabilities": "architect + delivery team",
+            "reversibility": "medium-high",
+            "affected_viewpoints": "architect, strategist",
+        },
+        {
+            "id": "sol_04_policy_guardrails",
+            "type": "policy",
+            "assurance_level": "medium",
+            "intervention_force": "strong",
+            "relevance_basis": "rollout_relevant",
+            "anti_goodhart_risk": "policy compliance can be gamed without improving actual operational behavior",
+            "solves_which_problems": "medium",
+            "assumptions": "governance support will remain consistent through the pilot",
+            "expected_effects": "medium",
+            "risks": "stakeholder pushback",
+            "constraints": "coordination overhead",
+            "required_capabilities": "leadership + PMO",
+            "reversibility": "medium",
+            "affected_viewpoints": "strategist, client, critic",
+        },
+    ]
+
+
 def _local_build_layer(payload: Dict[str, Any]) -> str:
     layer = payload.get("layer_name", "layer")
     normalized_case = str(payload.get("normalized_case", ""))
@@ -284,12 +376,19 @@ def _local_build_problem_bundle(payload: Dict[str, Any]) -> str:
             "# Selected Problem Card\n\n"
             f"- problem_id: {top['id']}\n"
             f"- title: {top['title']}\n"
-            "## Facts\n"
+            "## facts\n"
             "- strategy and execution are misaligned\n"
             "- decisions are made with unresolved evidence gaps\n"
-            "## Interpretations\n"
-            "- the project lacks a stable decision frame that connects strategy, execution, and ownership\n"
-            "## Hypotheses to Validate\n"
+            "## chr_targets\n"
+            "- decision frame must connect strategy, execution, and ownership without hidden handoffs\n"
+            "- acceptance basis must be explicit before downstream selection\n"
+            "## derived_thresholds\n"
+            "- unresolved evidence gaps must be reduced before final decision commitment\n"
+            "- rework remains unacceptable if ownership ambiguity persists across affected layers\n"
+            "## anti_goodhart_conditions\n"
+            "- do not treat rhetorical alignment as evidence of operational readiness\n"
+            "- do not collapse missing constraints into optimistic narrative summaries\n"
+            "## hypotheses_to_validate\n"
             "- missing explicit acceptance constraints are the main driver of decision drift\n"
             "- ownership clarification will materially reduce rework and ambiguity\n"
             "- affected_layers: business_model, requirements, allocation\n"
@@ -325,87 +424,38 @@ def _local_build_problem_bundle(payload: Dict[str, Any]) -> str:
 
 
 def _local_build_solution_portfolio(payload: Dict[str, Any]) -> str:
-    return (
-        "# Solution Portfolio\n\n"
-        "## sol_00_status_quo\n"
-        "- type: baseline\n"
-        "- assurance_level: low\n"
-        "- anti_goodhart_risk: hidden structural waste remains unmeasured under status quo\n"
-        "- solves_which_problems: partial\n"
-        "- assumptions: no change\n"
-        "- expected_effects: low\n"
-        "- risks: continued degradation\n"
-        "- constraints: none\n"
-        "- required_capabilities: existing only\n"
-        "- reversibility: n/a\n"
-        "- affected_viewpoints: strategist, operator, analyst\n"
-        "- evidence_refs: problems/SelectedProblemCard.md:L1\n\n"
-        "## sol_01_local_gatekeeping\n"
-        "- type: process\n"
-        "- assurance_level: medium\n"
-        "- intervention_force: weak\n"
-        "- relevance_basis: rollout_relevant\n"
-        "- anti_goodhart_risk: local process speed may improve while unresolved gaps are simply moved downstream\n"
-        "- solves_which_problems: moderate\n"
-        "- assumptions: governance alignment\n"
-        "- expected_effects: early reduction of noise and safer intake discipline\n"
-        "- risks: adoption friction and cosmetic compliance\n"
-        "- constraints: time window 30 days\n"
-        "- required_capabilities: ops lead + analytics\n"
-        "- reversibility: high\n"
-        "- affected_viewpoints: operator, analyst\n"
-        "- evidence_refs: problems/ComparisonAcceptanceSpec.md:L1\n\n"
-        "## sol_02_process_rewire\n"
-        "- type: process\n"
-        "- assurance_level: medium\n"
-        "- intervention_force: medium\n"
-        "- relevance_basis: pareto_relevant\n"
-        "- anti_goodhart_risk: local process speed may improve while unresolved gaps are simply moved downstream\n"
-        "- solves_which_problems: strong\n"
-        "- assumptions: governance alignment\n"
-        "- expected_effects: medium-high\n"
-        "- risks: adoption friction\n"
-        "- constraints: time window 30 days\n"
-        "- required_capabilities: ops lead + analytics\n"
-        "- reversibility: medium\n"
-        "- affected_viewpoints: operator, analyst\n"
-        "- evidence_refs: problems/ComparisonAcceptanceSpec.md:L1\n\n"
-        "## sol_03_architecture_slice\n"
-        "- type: architecture\n"
-        "- assurance_level: medium\n"
-        "- intervention_force: strong\n"
-        "- relevance_basis: pareto_relevant\n"
-        "- anti_goodhart_risk: delivery teams may optimize rollout velocity instead of stable outcome quality\n"
-        "- solves_which_problems: high\n"
-        "- assumptions: feasible modular rollout\n"
-        "- expected_effects: high\n"
-        "- risks: integration complexity\n"
-        "- constraints: integration complexity is known; budget cap must be confirmed from actual case input\n"
-        "- required_capabilities: architect + delivery team\n"
-        "- reversibility: medium-high\n"
-        "- affected_viewpoints: architect, strategist\n"
-        "- evidence_refs: problems/ComparisonAcceptanceSpec.md:L1\n\n"
-        "## sol_04_policy_reset\n"
-        "- type: policy\n"
-        "- assurance_level: medium\n"
-        "- intervention_force: strong\n"
-        "- relevance_basis: rollout_relevant\n"
-        "- anti_goodhart_risk: policy compliance can be gamed without improving actual operational behavior\n"
-        "- solves_which_problems: medium\n"
-        "- assumptions: executive support\n"
-        "- expected_effects: medium\n"
-        "- risks: stakeholder pushback\n"
-        "- constraints: coordination overhead\n"
-        "- required_capabilities: leadership + PMO\n"
-        "- reversibility: medium\n"
-        "- affected_viewpoints: strategist, client, critic\n"
-        "- evidence_refs: viewpoints/conflicts_index.md:L1\n\n"
-        "_Generated by local-llm mode._"
-    )
+    lines = ["# Solution Portfolio", ""]
+    for candidate in _local_default_solution_candidates():
+        lines.append(f"## {candidate['id']}")
+        lines.append(f"- type: {candidate['type']}")
+        lines.append(f"- assurance_level: {candidate['assurance_level']}")
+        if candidate["intervention_force"]:
+            lines.append(f"- intervention_force: {candidate['intervention_force']}")
+        if candidate["relevance_basis"]:
+            lines.append(f"- relevance_basis: {candidate['relevance_basis']}")
+        lines.append(f"- anti_goodhart_risk: {candidate['anti_goodhart_risk']}")
+        lines.append(f"- solves_which_problems: {candidate['solves_which_problems']}")
+        lines.append(f"- assumptions: {candidate['assumptions']}")
+        lines.append(f"- expected_effects: {candidate['expected_effects']}")
+        lines.append(f"- risks: {candidate['risks']}")
+        lines.append(f"- constraints: {candidate['constraints']}")
+        lines.append(f"- required_capabilities: {candidate['required_capabilities']}")
+        lines.append(f"- reversibility: {candidate['reversibility']}")
+        lines.append(f"- affected_viewpoints: {candidate['affected_viewpoints']}")
+        lines.append("- evidence_refs: problems/ComparisonAcceptanceSpec.md:L1")
+        lines.append("")
+    lines.append("_Generated by local-llm mode._")
+    return "\n".join(lines)
 
 
 def _local_build_parity_tradeoff(payload: Dict[str, Any]) -> str:
     mode = str(payload.get("solution_output", "parity_report"))
+    portfolio_text = str(payload.get("solution_portfolio", ""))
+    portfolio_ids = _portfolio_solution_ids(portfolio_text)
+    non_baseline = [sid for sid in portfolio_ids if sid != "sol_00_status_quo"]
+    primary = non_baseline[0] if non_baseline else "sol_01_primary_option"
+    support = non_baseline[1] if len(non_baseline) > 1 else primary
+    tertiary = non_baseline[2] if len(non_baseline) > 2 else support
     if mode == "parity_plan":
         return (
             "# Parity Plan\n\n"
@@ -423,28 +473,35 @@ def _local_build_parity_tradeoff(payload: Dict[str, Any]) -> str:
         )
 
     if mode == "tradeoff_table":
+        rows = [f"| sol_00_status_quo | low | high | high | n/a |"]
+        profiles = [
+            ("low-medium", "medium", "low", "high"),
+            ("medium", "medium", "medium", "medium"),
+            ("high", "low", "medium", "medium-high"),
+            ("medium", "medium", "medium-high", "medium"),
+        ]
+        for idx, sid in enumerate(non_baseline):
+            profile = profiles[min(idx, len(profiles) - 1)]
+            rows.append(f"| {sid} | {profile[0]} | {profile[1]} | {profile[2]} | {profile[3]} |")
         return (
             "# Tradeoff Table\n\n"
             "| solution | confidence_gain | unresolved_gaps | risk_exposure | reversibility |\n"
             "|---|---|---|---|---|\n"
-            "| sol_00_status_quo | low | high | high | n/a |\n"
-            "| sol_01_local_gatekeeping | low-medium | medium | low | high |\n"
-            "| sol_02_process_rewire | medium | medium | medium | medium |\n"
-            "| sol_03_architecture_slice | high | low | medium | medium-high |\n"
-            "| sol_04_policy_reset | medium | medium | medium-high | medium |\n\n"
+            + "\n".join(rows)
+            + "\n\n"
             "_Generated by local-llm mode._"
         )
 
     return (
         "# Parity Report\n\n"
         "## Findings\n"
-        "- sol_03_architecture_slice dominates sol_00_status_quo on target criteria.\n"
-        "- sol_02_process_rewire and sol_04_policy_reset remain viable with different tradeoffs.\n"
-        "- sol_01_local_gatekeeping remains rollout-relevant because it changes blast radius faster than the stronger alternatives.\n"
+        f"- {primary} dominates sol_00_status_quo on target criteria.\n"
+        f"- {support} and {tertiary} remain viable with different tradeoffs.\n"
+        f"- {primary} remains the leading candidate because it improves outcome quality without discarding reversibility.\n"
         "- parity validity: usable only with explicit penalties for missing budget/time data; these are not confirmed facts.\n\n"
         "## Decision Logic\n"
-        "- architecture-first move gives the strongest effect under current assumptions.\n"
-        "- process rewire remains a safer support option if risk tolerance is lower.\n\n"
+        f"- {primary} gives the strongest effect under current assumptions.\n"
+        f"- {support} remains a safer support option if risk tolerance is lower.\n\n"
         "## Traceability\n"
         "- solutions/SolutionPortfolio.md:L1\n"
         "- problems/ComparisonAcceptanceSpec.md:L1\n\n"
@@ -475,28 +532,36 @@ def _local_build_conflict_routing(payload: Dict[str, Any]) -> str:
 
 def _local_build_selection_bundle(payload: Dict[str, Any]) -> str:
     mode = str(payload.get("solution_output", "selected_solutions"))
+    portfolio_text = str(payload.get("solution_portfolio", ""))
+    portfolio_ids = _portfolio_solution_ids(portfolio_text)
+    non_baseline = [sid for sid in portfolio_ids if sid != "sol_00_status_quo"]
+    primary = non_baseline[0] if non_baseline else "sol_01_primary_option"
+    support = non_baseline[1] if len(non_baseline) > 1 else primary
+    rejected = non_baseline[2:] if len(non_baseline) > 2 else []
     if mode == "selected_solutions":
+        rejected_lines = [f"- {sid} (kept as lower-priority alternative under current horizon)" for sid in rejected]
+        rejected_block = "\n".join(rejected_lines) + "\n\n" if rejected_lines else "\n"
         return (
             "# Selected Solutions\n\n"
-            "- sol_03_architecture_slice\n"
-            "- sol_02_process_rewire\n\n"
+            f"- {primary}\n"
+            f"- {support}\n\n"
             "Rejected:\n"
             "- sol_00_status_quo (fails acceptance constraints)\n"
-            "- sol_04_policy_reset (higher risk exposure under current horizon)\n"
-            "- sol_01_local_gatekeeping (kept as rollout-relevant fallback, but weaker than the selected pair)\n\n"
+            f"{rejected_block}"
             "_Generated by local-llm mode._"
         )
     if mode == "adr":
+        rejected_text = "\n".join(f"- {sid}: lower parity score under current assumptions." for sid in rejected)
+        rejected_block = rejected_text + "\n\n" if rejected_text else "\n"
         return (
             "# ADR-001: Solution Selection\n\n"
             "## Context\n"
             "- Selection based on ComparisonAcceptanceSpec and parity/conflict outputs.\n\n"
             "## Decision\n"
-            "- Choose sol_03_architecture_slice as primary and sol_02_process_rewire as support.\n\n"
+            f"- Choose {primary} as primary and {support} as support.\n\n"
             "## Rejected Alternatives\n"
             "- sol_00_status_quo: does not satisfy constraints.\n"
-            "- sol_04_policy_reset: weaker parity score.\n"
-            "- sol_01_local_gatekeeping: useful as a low-force fallback, but insufficient as the primary move.\n\n"
+            f"{rejected_block}"
             "## Risks\n"
             "- integration complexity; adoption lag.\n\n"
             "## Evidence Basis\n"
@@ -617,10 +682,6 @@ def _short_lines(text: str, max_lines: int = 4) -> List[str]:
     return lines[:max_lines]
 
 
-def _td_bottleneck_case(artifacts: Dict[str, Any]) -> bool:
-    return False
-
-
 def _market_viewpoint_required_from_artifacts(artifacts: Dict[str, Any]) -> bool:
     raw = str(artifacts.get("analysis/domain_profile.json", "")).strip()
     if not raw:
@@ -679,7 +740,6 @@ def _local_analytical_section_body(
     parity = _short_lines(str(artifacts.get("solutions/ParityReport.md", "")), max_lines=8)
     runbook = _short_lines(str(artifacts.get("operation/Runbook.md", "")), max_lines=8)
     evidence = _short_lines(str(artifacts.get("evidence/evidence_graph.md", "")), max_lines=8)
-    td_case = _td_bottleneck_case(artifacts)
 
     if title == "Action Context":
         return _epistemic_triplet(
@@ -689,12 +749,6 @@ def _local_analytical_section_body(
         )
 
     if title == "Bounded Context":
-        if td_case:
-            return _epistemic_triplet(
-                "В фокусе узкое место в контуре пресейла: типовые и нетиповые запросы без развилки попадают на одного перегруженного технического эксперта.",
-                "Решение должно ускорить выдачу оценки, удержать точность расчета, не ухудшить производственный SLA и остаться обратимым в пределах пилота.",
-                "Менять нужно не всю компанию, а конкретный узел маршрутизации, оценки и эскалации.",
-            )
         focus = _join_sentences(
             _pick_lines(lines, ["problem", "узк", "bottleneck", "маршрут", "заяв", "director", "технич"]),
             "В фокусе находится ограниченный контур принятия решения и прохождения заявки через узкое место.",
@@ -706,16 +760,10 @@ def _local_analytical_section_body(
         return _epistemic_triplet(
             focus,
             constraints,
-            "Менять нужно не всю систему сразу, а конкретный узел маршрутизации, оценки и эскалации.",
+            "Решение должно касаться конкретной проблемной зоны, не переписывая всю систему.",
         )
 
     if title == "Normalized Case":
-        if td_case:
-            return _epistemic_triplet(
-                "Небольшая производственная компания передает оценку почти всех клиентских запросов Техническому директору, из-за чего ответ клиенту задерживается на несколько дней.",
-                "Продажи зависят от скорости реакции, но самый дорогой производственный ресурс отвлекается на пресейл и перестает выполнять свою основную функцию.",
-                "Требуется отделить типовую оценку от перегруженного экспертного контура и ввести управляемую маршрутизацию.",
-            )
         observed = _join_sentences(lines[:3], "Кейс описывает операционный разрыв между входящим спросом и скоростью ответа.")
         impact = _join_sentences(
             _pick_lines(lines, ["проблем", "delay", "дн", "клієн", "client", "втра", "lost", "конкур"]),
@@ -724,16 +772,10 @@ def _local_analytical_section_body(
         return _epistemic_triplet(
             observed,
             impact,
-            "Требуется отделить типовую оценку от перегруженного экспертного контура.",
+            "Требуется системное устранение корневой причины разрыва.",
         )
 
     if title == "4-Layer Model":
-        if td_case:
-            return (
-                "- Как выглядит сбой по слоям: бизнес-модель страдает из-за дорогого пресейла и потери клиентов, процесс не имеет L1-маршрутизации, инструменты оценки не отчуждают знания, а роли продаж и производства конфликтуют между собой.\n"
-                "- Почему это важно: проблема не локальна и не сводится к одному человеку, поэтому точечный административный нажим не даст устойчивого результата.\n"
-                "- Что из этого следует: нужно одновременно перепроектировать процесс маршрутизации, инструменты оценки и распределение полномочий."
-            )
         return (
             f"- Как выглядит сбой по слоям: {_join_sentences(lines[:4], 'Разрыв проявляется на уровне бизнес-модели, процесса, инструментов и ролей.', limit=4)}\n"
             "- Почему это важно: проблема не локальна и не сводится к одному человеку, поэтому точечный административный нажим не даст устойчивого результата.\n"
@@ -778,12 +820,6 @@ def _local_analytical_section_body(
         )
 
     if title == "Characterization Passport":
-        if td_case:
-            return (
-                "- Что признано слабым звеном: система не умеет автономно обрабатывать типовые кейсы и поэтому пропускает весь входящий поток через перегруженный экспертный контур.\n"
-                "- Почему это важно: пока автономность равна нулю, масштабирование потока автоматически разрушает срок реакции и качество исполнения.\n"
-                "- Что это означает для дальнейших стадий: решение должно повышать автономность, но не ломать защиту производственного ядра."
-            )
         return (
             f"- Что признано слабым звеном: {_join_sentences(_pick_lines(lines, ['weak', 'слаб', 'triage', 'автоном', 'routing', 'маршрути']), 'Система не умеет автономно обрабатывать типовые кейсы без входа в экспертный контур.')}\n"
             "- Почему это важно: пока автономность равна нулю, масштабирование потока автоматически разрушает срок реакции и качество исполнения.\n"
@@ -791,54 +827,30 @@ def _local_analytical_section_body(
         )
 
     if title == "Indicator Set":
-        if td_case:
-            return (
-                "- Какие метрики взяты в управление: скорость выдачи оценки, точность расчета, доля автономной маршрутизации, конверсия в продажу и защита производственного SLA.\n"
-                "- Почему это важно: без измеримых индикаторов команда будет спорить о впечатлениях вместо контроля реального эффекта.\n"
-                "- Что делать дальше: привязать переходы между фазами решения к этим метрикам, а не к субъективной уверенности участников."
-            )
-        metrics = _pick_lines(lines, ["time", "quote", "sla", "conversion", "qualification", "rate", "стоим", "срок", "конверс"])
+        metrics = _pick_lines(lines, ["time", "sla", "throughput", "accuracy", "qualification", "rate", "стоим", "срок", "точност", "поток"])
         return (
-            f"- Какие метрики взяты в управление: {_join_sentences(metrics, 'Скорость ответа, точность оценки, доля автономной маршрутизации, конверсия и защита производственного SLA.', limit=4)}\n"
+            f"- Какие метрики взяты в управление: {_join_sentences(metrics, 'Скорость цикла, точность решения, доля автономной маршрутизации и защита операционного SLA.', limit=4)}\n"
             "- Почему это важно: без измеримых индикаторов команда будет спорить о впечатлениях вместо контроля реального эффекта.\n"
             "- Что делать дальше: привязать переходы между фазами решения к этим метрикам, а не к субъективной уверенности участников."
         )
 
     if title == "Problem Archive":
-        if td_case:
-            return (
-                "- Корневая причина: в системе отсутствует отдельный контур типовой оценки и фильтрации входящих запросов, поэтому вся нагрузка стягивается на одного эксперта.\n"
-                "- Механизм поломки: даже стандартные заявки без предварительной квалификации попадают к Техническому директору, из-за чего очередь растет быстрее, чем система успевает ее обрабатывать.\n"
-                "- К чему это ведет: компания теряет скорость ответа, перегружает производственный контур и превращает пресейл в источник скрытых убытков."
-            )
         cause = _join_sentences(_pick_lines(lines, ["причин", "cause", "отсутств", "нет", "missing"]), "Корневая причина связана с отсутствием отчужденной логики и фильтрации на входе.")
         mechanism = _join_sentences(_pick_lines(lines, ["mechan", "влиян", "100%", "маршрут", "эскалац", "triage"]), "Все заявки проходят через единый экспертный узел без промежуточного отбора.")
         return (
             f"- Корневая причина: {cause}\n"
             f"- Механизм поломки: {mechanism}\n"
-            "- К чему это ведет: растет очередь оценки, ухудшается конверсия и появляется прямой ущерб производственному контуру."
+            "- К чему это ведет: растет очередь обработки, ухудшается предсказуемость выхода и появляется прямой ущерб операционному контуру."
         )
 
     if title == "Problem Portfolio":
-        if td_case:
-            return (
-                "- Какие проблемы отобраны в работу: в портфель вошли три связанных проблемы: bottleneck на Техническом директоре, эскалация неквалифицированных лидов в экспертный контур и отсутствие инструментов для отчуждения логики оценки.\n"
-                "- Почему это важно: портфель показывает, что лечить нужно не только скорость оценки, но и качество входящего потока и перенос знаний из головы эксперта в воспроизводимую систему.\n"
-                "- Что из этого следует: решение должно сочетать делегирование типовых кейсов, квалификацию нестандартных кейсов и формализацию правил расчета."
-            )
         return (
-            f"- Какие проблемы отобраны в работу: {_join_sentences(lines[:3], 'В работу взяты проблема централизации оценки и проблема слепой эскалации неквалифицированных лидов.', limit=3)}\n"
-            "- Почему это важно: портфель показывает, что лечить нужно не только узкое место в оценке, но и качество входящего потока.\n"
-            "- Что из этого следует: решение должно сочетать делегирование типовых кейсов и фильтрацию сложных кейсов до входа в экспертный контур."
+            f"- Какие проблемы отобраны в работу: {_join_sentences(lines[:3], 'В работу взяты проблема централизации решения и проблема слепой эскалации неподготовленного входа.', limit=3)}\n"
+            "- Почему это важно: портфель показывает, что лечить нужно не только узкое место в экспертном контуре, но и качество входящего потока.\n"
+            "- Что из этого следует: решение должно сочетать делегирование типовых кейсов и фильтрацию сложных случаев до входа в экспертный контур."
         )
 
     if title == "Selected Problem Card":
-        if td_case:
-            return (
-                "- Какая проблема выбрана как ключевая: выбрана проблема отчуждения типовой оценки от Технического директора, потому что именно она является главным bottleneck и единой точкой отказа в пресейле.\n"
-                "- Почему именно она: эта проблема одновременно влияет на скорость ответа, стоимость пресейла, загрузку производства и потерю клиентов, а значит дает наибольший системный эффект при корректном решении.\n"
-                "- Что это означает для решения: приоритет отдан проблеме, которая расшивает основное узкое горлышко и допускает поэтапное, обратимое внедрение."
-            )
         selected = _join_sentences(selected_problem[:3] or lines[:3], "Выбрана проблема отчуждения типовой оценки от самого дорогого производственного ресурса.", limit=3)
         targets = _join_sentences(acceptance[:3], "Цель состоит в отделении типовой оценки от экспертного контура без потери точности.", limit=2)
         return (
@@ -848,12 +860,6 @@ def _local_analytical_section_body(
         )
 
     if title == "Comparison & Acceptance Spec":
-        if td_case:
-            return (
-                "- Какие условия считаются обязательными: решение должно ускорить обработку типовых запросов, удержать точность расчета в допустимом коридоре, не просадить производственный SLA и проходить через проверяемый пилот.\n"
-                "- Почему это важно: критерии приемки отсекают решения, которые ускоряют продажи ценой убытков на производстве или потери контроля над качеством оценки.\n"
-                "- Что это означает для выбора: победит не самое быстрое решение, а то, которое одновременно проходит по скорости, точности, бюджету и обратимости."
-            )
         return (
             f"- Какие условия считаются обязательными: {_join_sentences(acceptance[:4], 'Решение должно ускорить типовые ответы, удержать точность, не просадить SLA и пройти теневую проверку.', limit=4)}\n"
             "- Почему это важно: критерии приемки отсекают решения, которые красивы на бумаге, но опасны для маржи или для производства.\n"
@@ -861,12 +867,6 @@ def _local_analytical_section_body(
         )
 
     if title == "Solution Portfolio":
-        if td_case:
-            return (
-                "- Какие альтернативы рассмотрены: рассмотрены четыре класса действий: сохранить статус-кво, сначала извлечь эвристики в Shadow Mode, быстро передать типовые расчеты на L1-контур или радикально вынести оценку в клиентский CPQ-портал.\n"
-                "- Почему это важно: наличие альтернатив разного масштаба позволяет сравнить не только скорость эффекта, но и стоимость внедрения, риск ошибки и обратимость.\n"
-                "- Что из этого следует: финальное решение должно быть выбрано через trade-off между скоростью, точностью и управляемостью внедрения."
-            )
         return (
             f"- Какие альтернативы рассмотрены: {_join_sentences(lines[:4], 'Рассмотрены статус-кво, постепенное отчуждение оценки, немедленное делегирование и радикальная ИТ-автоматизация.', limit=4)}\n"
             "- Почему это важно: наличие разных классов альтернатив позволяет сравнить не только стоимость, но и обратимость, риск и скорость эффекта.\n"
@@ -874,12 +874,6 @@ def _local_analytical_section_body(
         )
 
     if title == "Parity Plan/Report":
-        if td_case:
-            return (
-                "- Что показало сравнение альтернатив: статус-кво проваливает целевые метрики, CPQ-портал выглядит слишком дорогим и радикальным, L1-делегирование дает самый быстрый эффект, но без калибровки несет риск ошибки, а Shadow Mode лучше всего проходит по критериям точности и обратимости.\n"
-                "- Почему это важно: parity-проверка отделяет реально приемлемые решения от тех, которые либо слишком рискованны, либо не проходят текущие ограничения по бюджету и качеству.\n"
-                "- Что это означает для отбора: безопасный пошаговый сценарий выигрывает у быстрых, но плохо контролируемых ускорителей."
-            )
         return (
             f"- Что показало сравнение альтернатив: {_join_sentences(parity[:4] or lines[:4], 'Часть вариантов проваливается по бюджету, часть по точности, а безопасный вариант выигрывает за счет управляемости.', limit=4)}\n"
             "- Почему это важно: parity-проверка отделяет реально приемлемые решения от тех, которые нарушают жесткие ограничения.\n"
@@ -887,12 +881,6 @@ def _local_analytical_section_body(
         )
 
     if title == "Tradeoff Resolution":
-        if td_case:
-            return (
-                "- Какой конфликт пришлось разрешать: главный конфликт проходит между скоростью ответа клиенту и защитой точности, маржи и производственного SLA.\n"
-                "- Почему решение принято именно так: при жестком ограничении на точность скорость не может быть первичной ценностью, поэтому сначала выбран безопасный этап верификации, а затем ускорение.\n"
-                "- Что из этого следует: выбран поэтапный сценарий, где сначала снимается неопределенность, а потом масштабируется эффект."
-            )
         return (
             f"- Какой конфликт пришлось разрешать: {_join_sentences(lines[:3], 'Главный конфликт проходит между скоростью ответа и защитой точности/маржи.', limit=3)}\n"
             "- Почему решение принято именно так: при жестком ограничении на точность скорость не может быть первичной ценностью.\n"
@@ -900,12 +888,6 @@ def _local_analytical_section_body(
         )
 
     if title == "ADR":
-        if td_case:
-            return (
-                "- Какое решение зафиксировано: принят гибридный сценарий `Shadow Mode -> L1 Estimator + BANT`, где сначала формализуются правила расчета и подтверждается точность, а затем запускается автономная обработка типовых кейсов.\n"
-                "- Почему это важно: ADR связывает альтернативы, ограничения, причины выбора и последствия в одну управленческую рамку.\n"
-                "- Что делать дальше: реализовать решение как контролируемый пилот, а не как мгновенную тотальную реформу."
-            )
         adr_core = _join_sentences(lines[:4], "Зафиксирован поэтапный архитектурный выбор, который сначала снижает неопределенность, затем делегирует типовые операции.", limit=4)
         return (
             f"- Какое решение зафиксировано: {adr_core}\n"
@@ -914,12 +896,6 @@ def _local_analytical_section_body(
         )
 
     if title == "Runbook/Rollback/Impact Plan":
-        if td_case:
-            return (
-                "- Как выглядит операционный план: сначала идет теневое тестирование матрицы расчета на реальных заявках, затем при подтверждении точности включается L1-контур для типовых кейсов и BANT-гейт для сложных.\n"
-                "- Почему это важно: внедрение обратимо и не требует необратимого организационного прыжка в начале.\n"
-                "- Что это означает для управления: пилот должен сопровождаться заранее утвержденным rollback-сценарием и метриками эффекта."
-            )
         plan = _join_sentences(runbook[:4] or lines[:4], "План внедрения разбит на ограниченные фазы с явными триггерами запуска и отката.", limit=4)
         return (
             f"- Как выглядит операционный план: {plan}\n"
@@ -928,12 +904,6 @@ def _local_analytical_section_body(
         )
 
     if title == "Evidence Status":
-        if td_case:
-            return (
-                "- Что показывает доказательная база: ключевые выводы подтверждаются цепочкой артефактов от нормализации кейса и проблемной спецификации до parity-анализа, ADR и runbook.\n"
-                "- Почему это важно: решение подтверждается не одним документом, а цепочкой согласованных артефактов.\n"
-                "- Что это означает для качества вывода: уровень защищенности решения выше, чем при изолированном экспертном мнении."
-            )
         if not evidence and not lines:
             return (
                 "- Что зафиксировано: доказательная база неполна и не собрана в отдельный граф.\n"
@@ -1307,6 +1277,16 @@ def _call_gemini_responses(system_prompt: str, user_payload: Dict[str, Any]) -> 
     return ""
 
 
+def _strip_fenced_wrapper(text: str) -> str:
+    stripped = str(text or "").strip()
+    if not stripped:
+        return str(text or "")
+    match = re.match(r"^```(?:markdown|md|text)?\n(.*?)\n```\s*$", stripped, flags=re.S)
+    if match:
+        return match.group(1).strip()
+    return str(text)
+
+
 def generate_markdown_with_skill(
     system_skill_prompt: str,
     user_payload: Dict[str, Any],
@@ -1318,17 +1298,17 @@ def generate_markdown_with_skill(
     if selected == "antigravity":
         text = _call_antigravity_adapter(system_skill_prompt, user_payload)
         if text.strip():
-            return text
+            return _strip_fenced_wrapper(text)
 
     if selected == "openai":
         text = _call_openai_responses(system_skill_prompt, user_payload)
         if text.strip():
-            return text
+            return _strip_fenced_wrapper(text)
 
     if selected == "gemini":
         text = _call_gemini_responses(system_skill_prompt, user_payload)
         if text.strip():
-            return text
+            return _strip_fenced_wrapper(text)
 
     if task_type == "build_layer":
         return _local_build_layer(user_payload)

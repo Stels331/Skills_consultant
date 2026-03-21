@@ -179,6 +179,25 @@
 
 Система должна быть спроектирована так, чтобы vendor routing не был захардкожен в бизнес-логике. Подключение внешнего gateway, включая OmniRoute, допускается только как optional transport/routing layer поверх внутреннего `LLMProviderAdapter`.
 
+### 6.7. Contract-first LLM boundaries
+
+Критические pipeline stages, где LLM генерирует структурные артефакты, должны работать по принципу:
+
+- raw LLM output сохраняется до любой обработки;
+- парсинг возвращает не только payload, но и machine-readable trust metadata;
+- normalizing key aliases допустим как `trusted normalization`;
+- value reinterpretation и text inference не могут молча повышать epistemic quality артефакта;
+- retry выполняется до fallback;
+- degraded artifact не должен незаметно проходить дальше как trusted input.
+
+Минимальный референсный контракт для `solution_portfolio`:
+
+- `parse_quality`: `clean | normalized | inferred | failed`
+- `artifact_trust_level`: `trusted | degraded | blocked`
+- field-level provenance (`FieldTrust`, `FieldTrustSource`)
+- `parse_metadata` во frontmatter
+- append-only audit entry в `governance/contract_audit.jsonl`
+
 ## 7. Целевая архитектура системы
 
 Система должна состоять из следующих слоев:

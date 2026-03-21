@@ -8,6 +8,11 @@ from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
 from app.pipeline.epistemic_sanitizer import soften_unanchored_claims
 from app.pipeline.epistemic_store import sync_artifact_to_epistemic_store
+from app.pipeline.section_contract_guard import (
+    build_repair_prompt,
+    load_required_sections,
+    repair_sections_with_retry,
+)
 
 
 def _read_text(path: Path) -> str:
@@ -21,6 +26,33 @@ def _load_skill_prompt(project_root: Path) -> str:
     if path.is_file():
         return path.read_text(encoding="utf-8")
     return "name: ec-characterization\ndescription: characterization"
+
+
+CHARACTERIZATION_OUTPUT_CONTRACT = """
+
+## OUTPUT STRUCTURE — REQUIRED SECTIONS
+Output must contain exactly these sections in this order:
+
+## optimization_goals
+- <item>
+
+## hard_constraints
+- <item>
+
+## risk_signals
+- <item>
+
+## weakest_link
+- <item>
+
+## anti_goodhart_risks
+- <item>
+
+## source_summary
+- <item>
+
+Do not wrap the entire output in a fenced code block.
+"""
 
 
 def run_characterization(project_root: Path, workspace_id: str, llm_mode: str = "local") -> Dict[str, object]:
@@ -46,16 +78,32 @@ def run_characterization(project_root: Path, workspace_id: str, llm_mode: str = 
         layer_texts.append(_read_text(layers_dir / name))
 
     skill_prompt = _load_skill_prompt(project_root)
+    passport_payload = {
+        "task_type": "build_characterization",
+        "workspace_id": workspace_id,
+        "viewpoint_summary": "\n".join(vp_texts),
+        "layer_summary": "\n".join(layer_texts),
+    }
     passport_body = generate_markdown_with_skill(
-        system_skill_prompt=skill_prompt,
-        user_payload={
-            "task_type": "build_characterization",
-            "workspace_id": workspace_id,
-            "viewpoint_summary": "\n".join(vp_texts),
-            "layer_summary": "\n".join(layer_texts),
-        },
+        system_skill_prompt=skill_prompt + CHARACTERIZATION_OUTPUT_CONTRACT,
+        user_payload=passport_payload,
         mode=llm_mode,
     )
+    required_sections = load_required_sections(project_root, "characterization_passport")
+    section_check = repair_sections_with_retry(
+        body=passport_body,
+        required_sections=required_sections,
+        repair_fn=lambda missing: generate_markdown_with_skill(
+            system_skill_prompt=build_repair_prompt(skill_prompt + CHARACTERIZATION_OUTPUT_CONTRACT, "characterization_passport", missing),
+            user_payload=passport_payload,
+            mode=llm_mode,
+        ),
+    )
+    if section_check.outcome == "failed":
+        raise ValueError(
+            f"SECTION_CONTRACT_VIOLATED_AFTER_REPAIR: characterization_passport, missing={section_check.missing_sections}"
+        )
+    passport_body = section_check.body
 
     passport_fm = build_frontmatter(
         artifact_id=f"{workspace_id}__characterization_passport",

@@ -337,6 +337,11 @@ Definition of done:
 - routing policy tests
 - direct mode vs OmniRoute mode compatibility tests
 - provider fallback tests
+- solution portfolio parse-quality tests
+- retry-before-fallback tests for contract-sensitive LLM stages
+- degraded artifact contract-fail tests
+- selection blocked by degraded portfolio tests
+- field provenance / contract audit trail tests
 
 ## 6. Acceptance checklist
 
@@ -355,6 +360,8 @@ Definition of done:
 - Optional OmniRoute integration не ломает direct-provider execution path.
 - Tenant-aware authorization защищает API, retrieval и dialogue runtime.
 - Embedding pipeline и claim history auditability формально покрыты.
+- Contract-sensitive LLM stages сохраняют raw output, parse metadata и failed audit trail.
+- `SolutionPortfolio` не проходит в selection как trusted input при `artifact_trust_level=degraded`.
 
 ## 7. Рекомендуемый порядок практической реализации
 

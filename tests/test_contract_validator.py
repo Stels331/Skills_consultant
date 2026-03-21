@@ -30,11 +30,15 @@ next_expected_artifacts: []
 created_at: 2026-03-19T12:00:00+00:00
 updated_at: 2026-03-19T12:00:00+00:00
 ---
-## Facts
+## facts
 - a fact
-## Interpretations
-- an interpretation
-## Hypotheses to Validate
+## chr_targets
+- a target
+## derived_thresholds
+- a threshold
+## anti_goodhart_conditions
+- an anti-goodhart condition
+## hypotheses_to_validate
 - a hypothesis
 """
 
@@ -82,7 +86,7 @@ class ContractValidatorTests(unittest.TestCase):
         artifact.write_text(
             FRONTMATTER.replace("selected_problem_card", "analytical_full_report", 1)
             .replace("problem_factory", "reporting", 1)
-            .replace("## Facts", "## Notes", 1),
+            .replace("## facts", "## Notes", 1),
             encoding="utf-8",
         )
 
@@ -214,6 +218,39 @@ updated_at: 2026-03-19T12:00:00+00:00
             ]
         )
         self.assertEqual(route, "degrade")
+
+    def test_degraded_artifact_hard_fails_contract_validation(self):
+        artifact = self.workspace / "solutions" / "SolutionPortfolio.md"
+        artifact.parent.mkdir(parents=True, exist_ok=True)
+        artifact.write_text(
+            """---
+id: case__solution_portfolio
+artifact_type: solution_portfolio
+stage: solution_factory
+state: draft
+parent_refs: []
+source_refs: ["problems/ComparisonAcceptanceSpec.md:L1"]
+evidence_refs: ["problems/SelectedProblemCard.md:L1"]
+viewpoints: []
+epistemic_status: hypothesis
+assurance_level: medium
+valid_until: 2026-12-31
+owner_role: analyst
+gate_status: pending
+violated_principles: []
+next_expected_artifacts: []
+parse_metadata: {"parse_quality": "failed", "artifact_trust_level": "degraded", "retry_attempted": true, "retry_outcome": "failed", "missing_fields": {"sol_01_fix": ["intervention_force"]}, "inferred_fields": {}}
+created_at: 2026-03-19T12:00:00+00:00
+updated_at: 2026-03-19T12:00:00+00:00
+---
+# Solution Space Meta-Model
+""",
+            encoding="utf-8",
+        )
+
+        result = validate_artifact_against_contract(self.root, self.workspace, artifact)
+        self.assertFalse(result.is_valid)
+        self.assertTrue(any(issue.code == "DEGRADED_ARTIFACT_IN_PIPELINE" for issue in result.issues))
 
 
 if __name__ == "__main__":

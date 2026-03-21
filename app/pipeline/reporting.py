@@ -9,6 +9,7 @@ from typing import Dict, List, Optional, Tuple
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
 from app.pipeline.epistemic_projection import emit_projection
+from app.pipeline.epistemic_sanitizer import detect_unanchored_claim_lines, soften_unanchored_claims
 from app.pipeline.epistemic_sanitizer import soften_unanchored_claims
 from app.validation.artifact_contract_validator import read_frontmatter_document
 
@@ -378,7 +379,7 @@ def _build_intervention_ladder_note(portfolio_text: str) -> str:
 
 def _collect_constraint_markers(*texts: str) -> List[str]:
     patterns = [
-        (r"\bbudget\b|бюджет|opex|capex", "бюджет / OPEX"),
+        (r"\bbudget\b|бюджет|operating cost|capital cost|capex", "бюджет / операционные затраты"),
         (r"time_horizon|horizon|pilot window|30-day|30 days|6 months|срок|горизонт|пилот|месяц|дн", "срок / горизонт пилота"),
         (r"sla|service level|ttq|time-to-quote", "операционный SLA / целевое время"),
     ]
@@ -916,6 +917,8 @@ def compose_analytical_full_report(project_root: Path, workspace_id: str, llm_mo
         body = _normalize_terms(_sanitize_prohibited_content(_fallback_analytical(workspace, artifacts, missing)).rstrip() + "\n")
         _validate_analytical_sections(body)
     body = _augment_analytical_report(body, artifacts)
+    if detect_unanchored_claim_lines(body):
+        body = soften_unanchored_claims(body)
 
     fm = build_frontmatter(
         artifact_id=f"{workspace_id}__analytical_full_report",
@@ -978,6 +981,8 @@ def compose_executive_summary(project_root: Path, workspace_id: str, llm_mode: O
         body = _normalize_terms(_sanitize_prohibited_content(_fallback_executive(artifacts)).rstrip() + "\n")
         _validate_executive_sections(body)
     body = _augment_executive_summary(body, artifacts, missing)
+    if detect_unanchored_claim_lines(body):
+        body = soften_unanchored_claims(body)
 
     fm = build_frontmatter(
         artifact_id=f"{workspace_id}__executive_summary",

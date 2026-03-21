@@ -10,6 +10,11 @@ from app.pipeline.artifact_template import build_frontmatter, write_markdown_art
 from app.pipeline.epistemic_projection import emit_projection
 from app.pipeline.epistemic_sanitizer import soften_unanchored_claims
 from app.pipeline.epistemic_store import sync_artifact_to_epistemic_store
+from app.pipeline.section_contract_guard import (
+    build_repair_prompt,
+    load_required_sections,
+    repair_sections_with_retry,
+)
 
 
 LINE_BULLET = re.compile(r"^\s*-\s+(.+)$")
@@ -27,6 +32,30 @@ def _load_skill_prompt(project_root: Path) -> str:
     if path.is_file():
         return path.read_text(encoding="utf-8")
     return "name: ec-problem-factory\ndescription: problem factory"
+
+
+SELECTED_CARD_OUTPUT_CONTRACT = """
+
+## OUTPUT STRUCTURE — REQUIRED SECTIONS
+Output must contain exactly these sections:
+
+## facts
+- <source_fact>
+
+## chr_targets
+- <normative_target>
+
+## derived_thresholds
+- <derived threshold with explicit basis>
+
+## anti_goodhart_conditions
+- <condition>
+
+## hypotheses_to_validate
+- <hypothesis>
+
+Do not wrap the entire output in a fenced code block.
+"""
 
 
 def _sanitize_problem_artifact_body(text: str) -> str:
@@ -136,19 +165,36 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         body=portfolio_body,
     )
 
+    card_payload = {
+        "task_type": "build_problem_bundle",
+        "problem_output": "selected_card",
+        "workspace_id": workspace_id,
+        "characterization_passport": char_passport,
+        "indicator_set": indicator_set,
+        "conflicts_index": conflicts,
+        "projection": projection,
+    }
     card_body = generate_markdown_with_skill(
-        system_skill_prompt=skill_prompt,
+        system_skill_prompt=skill_prompt + SELECTED_CARD_OUTPUT_CONTRACT,
         user_payload={
-            "task_type": "build_problem_bundle",
-            "problem_output": "selected_card",
-            "workspace_id": workspace_id,
-            "characterization_passport": char_passport,
-            "indicator_set": indicator_set,
-            "conflicts_index": conflicts,
-            "projection": projection,
+            **card_payload,
         },
         mode=llm_mode,
     )
+    section_check = repair_sections_with_retry(
+        body=card_body,
+        required_sections=load_required_sections(project_root, "selected_problem_card"),
+        repair_fn=lambda missing: generate_markdown_with_skill(
+            system_skill_prompt=build_repair_prompt(skill_prompt + SELECTED_CARD_OUTPUT_CONTRACT, "selected_problem_card", missing),
+            user_payload=card_payload,
+            mode=llm_mode,
+        ),
+    )
+    if section_check.outcome == "failed":
+        raise ValueError(
+            f"SECTION_CONTRACT_VIOLATED_AFTER_REPAIR: selected_problem_card, missing={section_check.missing_sections}"
+        )
+    card_body = section_check.body
     card_body = _sanitize_problem_artifact_body(card_body)
     card_body = soften_unanchored_claims(card_body)
     card_fm = build_frontmatter(
