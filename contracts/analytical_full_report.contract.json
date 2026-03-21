@@ -1,0 +1,8 @@
+{
+  "artifact_type": "analytical_full_report",
+  "format": "markdown",
+  "expected_stage": "reporting",
+  "required_sections": [
+    "# Аналитический полный отчет"
+  ]
+}

@@ -5,6 +5,7 @@ from typing import Dict, List, Tuple
 
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
+from app.pipeline.domain_profiler import build_domain_profile
 
 
 VIEWPOINTS: List[Tuple[str, str]] = [
@@ -31,6 +32,22 @@ def _load_viewpoint_skill(project_root: Path, viewpoint: str) -> str:
     return f"name: ec-vp-{viewpoint}\ndescription: viewpoint analyzer"
 
 
+def _market_required(domain_profile: Dict[str, object]) -> bool:
+    axes = {
+        str(item.get("axis"))
+        for item in domain_profile.get("domain_axes", [])
+        if isinstance(item, dict) and str(item.get("axis") or "").strip()
+    }
+    return bool({"market_validation", "commercial_presales_bottleneck"} & axes)
+
+
+def _active_viewpoints(domain_profile: Dict[str, object]) -> List[Tuple[str, str]]:
+    viewpoints = list(VIEWPOINTS)
+    if _market_required(domain_profile):
+        viewpoints.append(("market", "sales funnel, demand proof, alternatives, status quo defense"))
+    return viewpoints
+
+
 VIEWPOINT_EPISTEMIC_GUARD = """
 
 ## Epistemic Guard
@@ -48,6 +65,7 @@ def run_viewpoints(project_root: Path, workspace_id: str, llm_mode: str = "local
     layers_dir = workspace / "layers"
     out_dir = workspace / "viewpoints"
     out_dir.mkdir(parents=True, exist_ok=True)
+    domain_profile = build_domain_profile(project_root, workspace_id)
 
     layer_payload = {
         "layer_1": _read_layer(layers_dir / "layer_1_business_model.md"),
@@ -56,10 +74,11 @@ def run_viewpoints(project_root: Path, workspace_id: str, llm_mode: str = "local
         "layer_4": _read_layer(layers_dir / "layer_4_allocation_model.md"),
     }
 
+    active_viewpoints = _active_viewpoints(domain_profile)
     artifacts: List[str] = []
     conflicts: List[str] = []
 
-    for viewpoint, focus in VIEWPOINTS:
+    for viewpoint, focus in active_viewpoints:
         skill_prompt = _load_viewpoint_skill(project_root, viewpoint) + VIEWPOINT_EPISTEMIC_GUARD
         body = generate_markdown_with_skill(
             system_skill_prompt=skill_prompt,
@@ -109,15 +128,18 @@ def run_viewpoints(project_root: Path, workspace_id: str, llm_mode: str = "local
         stage="viewpoints",
         parent_refs=artifacts,
         source_refs=["viewpoints/strategist.md:L1"],
-        viewpoints=[name for name, _ in VIEWPOINTS],
+        viewpoints=[name for name, _ in active_viewpoints],
         next_expected_artifacts=["characterization/CharacterizationPassport.md"],
     )
     write_markdown_artifact(out_dir / "conflicts_index.md", index_frontmatter, index_body)
 
     return {
         "workspace_id": workspace_id,
-        "viewpoint_count": len(VIEWPOINTS),
+        "viewpoint_count": len(active_viewpoints),
         "artifacts": artifacts,
         "conflicts_index": "viewpoints/conflicts_index.md",
+        "domain_profile": "analysis/domain_profile.json",
+        "domain_axes": [axis["axis"] for axis in domain_profile.get("domain_axes", [])],
+        "market_required": _market_required(domain_profile),
         "llm_mode": llm_mode,
     }

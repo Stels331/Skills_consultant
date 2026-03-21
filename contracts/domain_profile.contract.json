@@ -1,0 +1,11 @@
+{
+  "artifact_type": "domain_profile",
+  "format": "json",
+  "required_json_fields": [
+    "workspace_id",
+    "domain_axes",
+    "allowed_ontological_domains",
+    "forbidden_template_markers",
+    "reasoning_scope"
+  ]
+}

@@ -1,5 +1,6 @@
 import unittest
 import tempfile
+import json
 from pathlib import Path
 from unittest.mock import patch
 
@@ -72,6 +73,15 @@ class CharacterizationProblemFactoryTests(unittest.TestCase):
             res = validate_artifact_contract(self.root, self.ref.path / rel, self.ref.path)
             self.assertTrue(res.is_valid, rel)
 
+        graph = json.loads((self.ref.path / "analysis" / "epistemic_graph.json").read_text(encoding="utf-8"))
+        node_types = {node["node_type"] for node in graph["nodes"]}
+        self.assertIn("source_fact", node_types)
+        self.assertIn("derived_metric", node_types)
+        self.assertIn("normative_target", node_types)
+
+        ledger = (self.ref.path / "governance" / "epistemic_ledger.jsonl").read_text(encoding="utf-8")
+        self.assertIn("claim_created", ledger)
+
     def test_s3_t2_t3_problem_factory_outputs(self):
         run_characterization(self.root, self.ref.workspace_id, llm_mode="local")
         out = run_problem_factory(self.root, self.ref.workspace_id, llm_mode="local")
@@ -103,6 +113,20 @@ class CharacterizationProblemFactoryTests(unittest.TestCase):
         self.assertIn("selection_policy", spec_text)
 
         self.assertIn("comparison_acceptance_spec", out)
+
+        graph = json.loads((self.ref.path / "analysis" / "epistemic_graph.json").read_text(encoding="utf-8"))
+        node_types = {node["node_type"] for node in graph["nodes"]}
+        edge_types = {edge["edge_type"] for edge in graph["edges"]}
+        self.assertIn("problem", node_types)
+        self.assertIn("decision_constraint", node_types)
+        self.assertTrue(edge_types & {"DERIVED_FROM", "CONSTRAINS", "SUPPORTS", "RELATES_TO"})
+
+        hypotheses = [node for node in graph["nodes"] if node["node_type"] == "hypothesis"]
+        self.assertTrue(hypotheses)
+        self.assertFalse(any("Hypotheses to Validate" in node["statement"] and node["node_type"] == "source_fact" for node in graph["nodes"]))
+
+        ledger = (self.ref.path / "governance" / "epistemic_ledger.jsonl").read_text(encoding="utf-8")
+        self.assertIn("constraint_compiled", ledger)
 
     def test_s3_t4_skill_prompts_exist(self):
         project_root = Path(__file__).resolve().parents[1]

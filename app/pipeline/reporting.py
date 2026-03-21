@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Tuple
 
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
+from app.pipeline.epistemic_projection import emit_projection
 from app.pipeline.epistemic_sanitizer import soften_unanchored_claims
 from app.validation.artifact_contract_validator import read_frontmatter_document
 
@@ -135,6 +136,40 @@ def _artifact_context(workspace: Path, rel: str, max_chars: int = 5500) -> str:
     return text
 
 
+def _load_domain_profile(workspace: Path) -> Dict[str, object]:
+    path = workspace / "analysis" / "domain_profile.json"
+    if not path.is_file():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _market_viewpoint_required(domain_profile: Dict[str, object]) -> bool:
+    axes = {
+        str(item.get("axis"))
+        for item in domain_profile.get("domain_axes", [])
+        if isinstance(item, dict) and str(item.get("axis") or "").strip()
+    }
+    return bool({"market_validation", "commercial_presales_bottleneck"} & axes)
+
+
+def _viewpoint_coverage_policy(workspace: Path) -> Dict[str, object]:
+    domain_profile = _load_domain_profile(workspace)
+    required = ["strategist", "analyst", "operator", "architect", "critic", "client"]
+    optional: List[str] = []
+    if _market_viewpoint_required(domain_profile):
+        required.append("market")
+    else:
+        optional.append("market")
+    return {
+        "required": required,
+        "optional": optional,
+        "domain_profile": domain_profile,
+    }
+
+
 def _collect_artifact_context(workspace: Path) -> Tuple[Dict[str, str], List[str]]:
     artifacts: Dict[str, str] = {}
     missing: List[str] = []
@@ -144,12 +179,14 @@ def _collect_artifact_context(workspace: Path) -> Tuple[Dict[str, str], List[str
         if not body:
             missing.append(rel)
 
-    # Ensure all 6 viewpoints are explicitly visible in reporting context.
-    for vp in ["strategist", "analyst", "operator", "architect", "critic", "client"]:
+    policy = _viewpoint_coverage_policy(workspace)
+    artifacts["analysis/domain_profile.json"] = _artifact_context(workspace, "analysis/domain_profile.json")
+
+    for vp in policy["required"] + policy["optional"]:
         rel = f"viewpoints/{vp}.md"
         body = _artifact_context(workspace, rel)
         artifacts[rel] = body
-        if not body:
+        if not body and vp in policy["required"]:
             missing.append(rel)
 
     selected_raw = _md_body(workspace / "solutions" / "SelectedSolutions.md")
@@ -215,6 +252,34 @@ def _extract_rejected_summary(selected_text: str) -> Dict[str, List[str]]:
         elif s.startswith("- reason:") and current_sid:
             continue
     return {"dominated": dominated, "rollout": rollout}
+
+
+def _coverage_note(artifacts: Dict[str, str]) -> str:
+    domain_profile_raw = artifacts.get("analysis/domain_profile.json", "")
+    try:
+        domain_profile = json.loads(domain_profile_raw) if domain_profile_raw else {}
+    except Exception:
+        domain_profile = {}
+    required = ["strategist", "analyst", "operator", "architect", "critic", "client"]
+    optional: List[str] = []
+    if _market_viewpoint_required(domain_profile):
+        required.append("market")
+    else:
+        optional.append("market")
+
+    missing_required = [vp for vp in required if not str(artifacts.get(f"viewpoints/{vp}.md", "")).strip()]
+    missing_optional = [vp for vp in optional if not str(artifacts.get(f"viewpoints/{vp}.md", "")).strip()]
+
+    notes: List[str] = []
+    if missing_required:
+        notes.append(
+            "Отсутствуют обязательные точки зрения: " + ", ".join(missing_required) + ". Это понижает надежность решения и требует добора viewpoint coverage."
+        )
+    if missing_optional:
+        notes.append(
+            "Не собраны optional-точки зрения: " + ", ".join(missing_optional) + ". Это снижает полноту анализа, но не считается критическим дефектом для текущего профиля кейса."
+        )
+    return " ".join(notes)
 
 
 def _parse_solution_portfolio(text: str) -> List[Dict[str, object]]:
@@ -498,6 +563,7 @@ def _augment_analytical_report(body: str, artifacts: Dict[str, str]) -> str:
     selected_raw = str(artifacts.get("solutions/SelectedSolutions.md", ""))
     intervention_note = _build_intervention_ladder_note(str(artifacts.get("solutions/SolutionPortfolio.md", "")))
     constraint_note = _build_constraint_assumption_note(artifacts)
+    coverage_note = _coverage_note(artifacts)
     if "deferred_pending_data_collection" in selected or "decision deferred" in selected:
         missing_inputs = _extract_bullet_values(selected_raw, "Decision Preconditions", "missing_input")
         clarifications = "; ".join(missing_inputs) if missing_inputs else "критические операционные и экономические параметры процесса"
@@ -558,6 +624,9 @@ def _augment_analytical_report(body: str, artifacts: Dict[str, str]) -> str:
                 "## 15. ADR",
                 "Выбранные решения следует трактовать как предварительные рекомендации, а не как окончательно утвержденную архитектуру. Они сохраняют силу только до момента повторной переоценки после поступления недостающих данных."
             )
+    if coverage_note:
+        body = _upsert_section_suffix(body, "## 5. Viewpoint Matrix", coverage_note)
+        body = _upsert_section_suffix(body, "## 17. Evidence Status", coverage_note)
     return body
 
 
@@ -572,48 +641,26 @@ def _augment_executive_summary(body: str, artifacts: Dict[str, str], missing_sou
     selected = str(artifacts.get("solutions/SelectedSolutions.md", ""))
     rejected = _extract_rejected_summary(selected)
     missing_inputs = _extract_bullet_values(selected, "Decision Preconditions", "missing_input")
+    coverage_note = _coverage_note(artifacts)
 
     analytical_problem = _extract_section_body(analytical, "Problem Archive")
     analytical_layers = _extract_section_body(analytical, "4-Layer Model")
     analytical_parity = _extract_section_body(analytical, "Parity Plan/Report")
     analytical_tradeoff = _extract_section_body(analytical, "Tradeoff Resolution")
     analytical_open_questions = _extract_section_body(analytical, "Open Questions")
-    td_case_blob = " ".join(
-        [analytical_problem, analytical_layers, analytical_parity, analytical_tradeoff, problem_archive, parity, conflicts]
-    ).lower()
-    td_case = any(
-        token in td_case_blob
-        for token in ["технического директора", "тд", "time_to_quote", "7-10", "shadow mode", "l1", "bant"]
+    section_2_suffix = "\n".join(
+        [
+            "**Где возникает сбой:** он локализован в конкретном рабочем контуре, где входящий поток, оценка, согласование или исполнение завязаны на ограниченный набор ролей и правил.",
+            f"**Цепочка возникновения:** {_executive_snippet(analytical_problem or problem_archive, 'причина -> механизм влияния -> симптом -> последствие описаны неполно, но ядро проблемы связано с отсутствием устойчивой логики маршрутизации, оценки или принятия решения.')}",
+            f"**Архитектурное место отказа:** {_executive_snippet(analytical_layers or layers, 'сбой распределен между бизнес-моделью, процессом, инструментами и распределением ролей.')}",
+        ]
     )
-
-    if td_case:
-        section_2_suffix = "\n".join(
-            [
-                "**Где возникает сбой:** он локализован в связке `пресейл -> ручная оценка -> производство`, где 100% входящих заявок проходят через единственную экспертную точку принятия решения.",
-                "**Цепочка возникновения:** отсутствие L1-маршрутизации и отчужденных правил расчета вынуждает передавать даже типовые кейсы Техническому директору; из-за этого растет очередь оценки, задерживается ответ клиенту и ухудшается производственный SLA.",
-                "**Архитектурное место отказа:** сбой распределен между бизнес-моделью, процессом маршрутизации, отсутствием инструментов оценки и конфликтом ролей между продажами и производством.",
-            ]
-        )
-        section_5_suffix = "\n".join(
-            [
-                "**Логика отказа от альтернатив:** статус-кво отвергнут, потому что сохраняет узкое горлышко и прямо нарушает целевые метрики по скорости и защите ядра; радикальный CPQ-портал отвергнут как избыточный и дорогой для текущей стадии.",
-                "**Как разрешен конфликт выбора:** скорость не была выбрана как первый приоритет сама по себе. Сначала фиксируется точность через Shadow Mode и только затем включается ускорение через L1-оценку и BANT-гейт.",
-            ]
-        )
-    else:
-        section_2_suffix = "\n".join(
-            [
-                "**Где возникает сбой:** он локализован не в одном сотруднике как таковом, а в связке `пресейл -> ручная оценка -> производство`, где 100% входящих заявок упираются в единственную точку принятия решения.",
-                f"**Цепочка возникновения:** {_executive_snippet(analytical_problem or problem_archive, 'причина -> механизм влияния -> симптом -> последствие описаны неполно, но ядро проблемы связано с отсутствием отчужденной логики оценки и фильтрации лидов.')}",
-                f"**Архитектурное место отказа:** {_executive_snippet(analytical_layers or layers, 'сбой распределен между бизнес-моделью, процессом маршрутизации и распределением ролей.')}",
-            ]
-        )
-        section_5_suffix = "\n".join(
-            [
-                f"**Логика отказа от альтернатив:** {_executive_snippet(analytical_parity or parity, 'альтернативы сравниваются не по симпатии, а по жестким ограничениям цикла, бюджета, точности и обратимости.')}",
-                f"**Как разрешен конфликт выбора:** {_executive_snippet(analytical_tradeoff or conflicts, 'безопасность маржи и управляемость внедрения поставлены выше мгновенного ускорения, поэтому выбран поэтапный сценарий.')}",
-            ]
-        )
+    section_5_suffix = "\n".join(
+        [
+            f"**Логика отказа от альтернатив:** {_executive_snippet(analytical_parity or parity, 'альтернативы сравниваются не по симпатии, а по жестким ограничениям цикла, бюджета, точности, обратимости и blast radius.')}",
+            f"**Как разрешен конфликт выбора:** {_executive_snippet(analytical_tradeoff or conflicts, 'безопасность ядра и управляемость внедрения поставлены выше мгновенного ускорения, поэтому выбран сценарий с приемлемым риском и контролируемым rollout.')}",
+        ]
+    )
 
     section_6_suffix = "\n".join(
         [
@@ -651,6 +698,9 @@ def _augment_executive_summary(body: str, artifacts: Dict[str, str], missing_sou
     body = _upsert_section_suffix(body, "## 5. Почему выбраны", section_5_suffix)
     body = _upsert_section_suffix(body, "## 6. Главные риски", section_6_suffix)
     body = _upsert_section_suffix(body, "## 10. Epistemic status", section_10_suffix)
+    if coverage_note:
+        body = _upsert_section_suffix(body, "## 10. Epistemic status", coverage_note)
+        body = _upsert_section_suffix(body, "## 2. Главная проблема", coverage_note)
     portfolio_note = _build_intervention_ladder_note(str(artifacts.get("solutions/SolutionPortfolio.md", "")))
     if portfolio_note:
         summary_lines = []
@@ -731,6 +781,7 @@ def _build_reporting_payload(
     analytical_sections: List[Tuple[str, str, str]],
     artifacts: Dict[str, str],
     missing_sources: List[str],
+    projection: Dict[str, object],
 ) -> Dict[str, object]:
     if report_type == "analytical":
         return {
@@ -741,6 +792,7 @@ def _build_reporting_payload(
                 {"index": idx, "title": title, "source": rel} for idx, title, rel in analytical_sections
             ],
             "artifact_context": artifacts,
+            "reporting_projection": projection,
             "missing_sources": missing_sources,
             "rules": {
                 "must_be_traceable": True,
@@ -758,6 +810,7 @@ def _build_reporting_payload(
             {"index": str(i), "title": title} for i, title in enumerate(EXEC_SECTIONS, start=1)
         ],
         "artifact_context": artifacts,
+        "reporting_projection": projection,
         "missing_sources": missing_sources,
         "rules": {
             "must_be_traceable": True,
@@ -842,12 +895,14 @@ def compose_analytical_full_report(project_root: Path, workspace_id: str, llm_mo
     artifacts, missing = _collect_artifact_context(workspace)
     skill_prompt = _load_reporting_skill(project_root)
     mode = _resolve_llm_mode(llm_mode)
+    projection = emit_projection(workspace, "reporting_projection")
     payload = _build_reporting_payload(
         workspace_id=workspace_id,
         report_type="analytical",
         analytical_sections=ANALYTICAL_SECTIONS,
         artifacts=artifacts,
         missing_sources=missing,
+        projection=projection,
     )
 
     generated = generate_markdown_with_skill(skill_prompt, payload, mode=mode).strip()
@@ -902,12 +957,14 @@ def compose_executive_summary(project_root: Path, workspace_id: str, llm_mode: O
     artifacts, missing = _collect_artifact_context(workspace)
     skill_prompt = _load_reporting_skill(project_root)
     mode = _resolve_llm_mode(llm_mode)
+    projection = emit_projection(workspace, "reporting_projection")
     payload = _build_reporting_payload(
         workspace_id=workspace_id,
         report_type="executive",
         analytical_sections=ANALYTICAL_SECTIONS,
         artifacts=artifacts,
         missing_sources=missing,
+        projection=projection,
     )
 
     generated = generate_markdown_with_skill(skill_prompt, payload, mode=mode).strip()

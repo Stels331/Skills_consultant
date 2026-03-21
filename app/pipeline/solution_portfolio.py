@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple
 
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
+from app.pipeline.epistemic_projection import emit_projection
 
 
 def _load_skill(project_root: Path) -> str:
@@ -287,6 +288,7 @@ def run_solution_portfolio(project_root: Path, workspace_id: str, llm_mode: str 
         raise ValueError("SOLUTION_PORTFOLIO_REQUIRES_PROBLEM_CARD_AND_ACCEPTANCE_SPEC")
 
     skill_prompt = _load_skill(project_root)
+    projection = emit_projection(workspace, "solution_factory_projection")
     body = generate_markdown_with_skill(
         system_skill_prompt=skill_prompt,
         user_payload={
@@ -294,6 +296,7 @@ def run_solution_portfolio(project_root: Path, workspace_id: str, llm_mode: str 
             "workspace_id": workspace_id,
             "selected_problem_card": selected_problem.read_text(encoding="utf-8"),
             "comparison_acceptance_spec": acceptance_spec.read_text(encoding="utf-8"),
+            "projection": projection,
         },
         mode=llm_mode,
     )

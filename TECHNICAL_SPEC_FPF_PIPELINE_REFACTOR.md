@@ -1,26 +1,28 @@
-# Техническое задание: Усиление FPF-дисциплины, изоляции кейсов и контрактов pipeline
+# Техническое задание: Рефакторинг FPF-aware pipeline
 
 ## 1. Цель
 
-Доработать проект так, чтобы pipeline:
+Перестроить pipeline проекта так, чтобы он:
 
-- не переносил шаблоны и решения из одного кейса в другой;
-- различал факт, интерпретацию, гипотезу, допущение, нормативную цель и hard constraint;
-- поддерживал смешанные кейсы, где одновременно присутствуют стратегические, операционные, governance и market-задачи;
+- не переносил narrative fragments и решения из одного кейса в другой;
+- различал факт, вывод, гипотезу, допущение, нормативную цель и decision constraint;
+- поддерживал mixed-case, где одновременно присутствуют стратегические, операционные, governance и market-задачи;
 - соблюдал явные контракты входов и выходов между stages;
-- проверял соблюдение ключевых FPF-принципов не только через prompt discipline, но и через машинные validators;
-- включал отдельный market-viewpoint как first-class skill.
+- проверял соблюдение ключевых FPF-принципов машинно, а не только через prompt discipline;
+- использовал отдельный market-viewpoint как first-class skill;
+- был audit-ready: любая promotion/degradation claim должна быть восстановима по истории.
 
 
 ## 2. Основание
 
 Текущее поведение системы показало несколько системных дефектов:
 
-- cross-case contamination: в отчеты одного кейса попадают narrative fragments и решения из другого домена;
-- promotion error: гипотезы и расчетные оценки повышаются до hard constraints;
-- mixed-case collapse: кейс со стратегическим и операционным измерением схлопывается в один режим мышления;
-- markdown-first drift: статус утверждения определяется не типом claim, а тем, как он оформлен в тексте;
-- слабая contract discipline между stages.
+- `cross-case contamination`: в отчет одного кейса попадают narrative fragments и решения из другого домена;
+- `unlawful promotion`: гипотезы и расчетные прикидки повышаются до hard constraints;
+- `mixed-case collapse`: кейс со стратегическим и операционным измерением схлопывается в одну логику;
+- `markdown-first drift`: статус утверждения определяется не типом claim, а формулировкой в markdown;
+- `weak contract discipline`: stage принимает и отдает артефакты без строгой проверки допустимых переходов;
+- `poor provenance`: после перезаписи файла трудно понять, кто и когда превратил hypothesis в confirmed assumption или constraint.
 
 Для исправления используется архитектурное усиление, опирающееся на FPF-Spec.
 
@@ -37,8 +39,8 @@
 Что должно проверяться:
 
 - boundary statements не смешивают факты, admissibility gates, deontics и evidence-effects;
-- hard constraints, normative targets, commitments и evidence claims хранятся раздельно;
-- каждое boundary-утверждение имеет тип и provenance.
+- hard constraints, commitments, normative targets и evidence claims хранятся раздельно;
+- каждое boundary-утверждение имеет тип, provenance и ownered route.
 
 ### 3.2 Evidence and traceability
 
@@ -50,7 +52,8 @@
 
 - сильные claims имеют source anchor или явный epistemic marker;
 - stale evidence понижает confidence и decision readiness;
-- reporting и selection используют только traceable claims.
+- reporting и selection используют только traceable claims;
+- любое изменение статуса claim сохраняется в append-only журнале.
 
 ### 3.3 Characteristics, comparability and lawful selection
 
@@ -93,61 +96,23 @@
 
 - viewpoints остаются lawful projections, а не случайными “мнениями”;
 - cross-domain reuse разрешен только через явный bridge;
-- violation контракта или contamination становится предметом regression harness.
+- contamination и contract violations становятся предметом regression harness.
 
 
-## 4. Целевое архитектурное решение
+## 4. Целевая архитектура данных
 
-### 4.1 Новые first-class артефакты
+### 4.1 Канонический источник истины: единый эпистемический граф
 
-Добавить в workspace следующие артефакты:
+Вместо нескольких независимых registry-файлов каноническим source of truth должен стать:
 
-- `analysis/domain_profile.json`
-- `analysis/claims_registry.json`
-- `analysis/constraints_registry.json`
-- `analysis/assumptions_registry.json`
-- `analysis/decision_readiness.json`
-- `governance/contract_audit.jsonl`
+- `analysis/epistemic_graph.json`
 
-### 4.2 Назначение артефактов
+Структура:
 
-`domain_profile.json`
+- `nodes[]`: claims, targets, assumptions, constraints, recommendations, conflicts, artifacts, provenance events;
+- `edges[]`: typed relations между узлами.
 
-- хранит multi-label профиль кейса;
-- задает набор доменных осей, их веса и confidence;
-- определяет разрешенные reasoning modes и запрещенные template markers.
-
-`claims_registry.json`
-
-- хранит атомарные утверждения с типом, источником и epistemic class;
-- становится главным semantic source вместо произвольного markdown.
-
-`constraints_registry.json`
-
-- хранит только lawful decision constraints;
-- constraint может быть создан только из `source_fact` или `confirmed_assumption`.
-
-`assumptions_registry.json`
-
-- хранит допущения, которые влияют на выбор;
-- отделяет `assumption` от `constraint`.
-
-`decision_readiness.json`
-
-- отвечает, разрешено ли переходить к optimization/selection;
-- фиксирует, какие доменные контуры готовы к решению, а какие нет.
-
-`contract_audit.jsonl`
-
-- фиксирует проверки контрактов на каждом stage;
-- хранит нарушения, degradation events, sanitizer actions, version contracts.
-
-
-## 5. Новая типизация claims
-
-Ввести обязательную типизацию утверждений.
-
-Минимальный набор:
+Базовые типы узлов:
 
 - `source_fact`
 - `derived_metric`
@@ -158,25 +123,193 @@
 - `confirmed_assumption`
 - `decision_constraint`
 - `recommendation`
+- `conflict_case`
+- `artifact_ref`
 
-Правила:
+Базовые типы связей:
 
-- `source_fact` должен иметь `source_ref`;
-- `derived_metric` должен иметь `derivation_basis`;
+- `DERIVED_FROM`
+- `SUPPORTED_BY`
+- `CONSTRAINS`
+- `CONTRADICTS`
+- `PROMOTED_FROM`
+- `DEGRADED_FROM`
+- `PROJECTED_INTO`
+- `BLOCKS`
+- `WAIVED_BY`
+
+### 4.2 Materialized projections
+
+Допускаются производные представления, но не как отдельные primary stores, а как materialized projections из графа:
+
+- `analysis/claims_projection.json`
+- `analysis/constraints_projection.json`
+- `analysis/assumptions_projection.json`
+- `analysis/decision_readiness.json`
+
+Назначение:
+
+- дать lightweight view для validator-ов и reporting;
+- уменьшить связанность кода с сырым graph traversal;
+- не потерять referential integrity.
+
+### 4.3 Append-only provenance ledger
+
+Для аудита и replay должен быть отдельный append-only журнал:
+
+- `governance/epistemic_ledger.jsonl`
+
+Каждое событие фиксирует:
+
+- `event_id`
+- `timestamp`
+- `stage`
+- `actor`
+- `action`
+- `target_id`
+- `old_type`
+- `new_type`
+- `reason`
+- `source_refs`
+
+Примеры событий:
+
+- `claim_created`
+- `claim_promoted`
+- `claim_degraded`
+- `constraint_compiled`
+- `conflict_marked`
+- `conflict_resolved`
+- `projection_emitted`
+- `validator_failed`
+
+### 4.4 Почему chosen architecture именно такая
+
+Нужно совместить два свойства:
+
+- удобство runtime access;
+- полноценную auditability.
+
+Поэтому:
+
+- `epistemic_graph.json` хранит текущее canonical state;
+- `epistemic_ledger.jsonl` хранит историю изменений;
+- projections дают компактные срезы для stages.
+
+
+## 5. Типизация claims и правила lawful promotion
+
+### 5.1 Минимальный набор claim types
+
+- `source_fact`
+- `derived_metric`
+- `normative_target`
+- `interpretation`
+- `hypothesis`
+- `assumption`
+- `confirmed_assumption`
+- `decision_constraint`
+- `recommendation`
+- `disputed_claim`
+
+### 5.2 Обязательные поля
+
+Для `source_fact`:
+
+- `id`
+- `claim_type`
+- `statement`
+- `source_ref`
+- `source_anchor_type=explicit_source`
+
+Для `derived_metric`:
+
+- `id`
+- `claim_type`
+- `statement`
+- `derivation_basis`
+- `source_ref[]`
+
+Для `normative_target`:
+
+- `id`
+- `claim_type`
+- `statement`
+- `target_of`
+- `justification`
+
+Для `decision_constraint`:
+
+- `id`
+- `claim_type`
+- `statement`
+- `compiled_from[]`
+- `constraint_class`
+- `admissibility_status`
+
+### 5.3 Правила lawful promotion
+
 - `normative_target` не может автоматически считаться фактом кейса;
-- `decision_constraint` разрешен только если источник:
+- `decision_constraint` может быть скомпилирован только из:
   - `source_fact`, или
   - `confirmed_assumption`;
-- `hypothesis` и `interpretation` не могут быть source для `decision_constraint`.
+- `hypothesis` и `interpretation` не могут быть source для `decision_constraint`;
+- `derived_metric` может участвовать в constraint compilation только если:
+  - derivation explicit,
+  - source chain замкнута,
+  - validator подтвердил lawful derivation;
+- `disputed_claim` не может участвовать в selection и parity, пока не получит status:
+  - `resolved`, или
+  - `waived_with_note`.
 
 
-## 6. Domain Profile: mixed-case routing вместо single-mode routing
+## 6. Модель конфликтов и противоречий
 
-### 6.1 Требование
+### 6.1 Проблема
+
+Разные viewpoints могут дать противоречащие claims по одному и тому же вопросу.
+
+Это нельзя оставлять как обычный markdown noise.
+
+### 6.2 Решение
+
+Добавить formal conflict layer в graph.
+
+Новые сущности:
+
+- `conflict_case`
+- `disputed_claim`
+- `resolution_status`
+- `resolution_basis`
+
+Новые связи:
+
+- `CONTRADICTS`
+- `RESOLVED_BY`
+- `WAIVED_BY`
+
+### 6.3 Правило pipeline
+
+Если в graph есть contradiction между claims, relevant to readiness or selection:
+
+- orchestrator не имеет права silently компилировать это в constraint;
+- должен быть запущен conflict resolution path:
+  - либо аналитическое разрешение;
+  - либо запрос к пользователю;
+  - либо явная waiver-пометка.
+
+
+## 7. Domain Profile: mixed-case routing вместо single-mode routing
+
+### 7.1 Требование
 
 Система не должна классифицировать кейс в один exclusive domain mode.
 
 Вместо этого используется `multi-label domain profile`.
+
+Новый first-class artifact:
+
+- `analysis/domain_profile.json`
 
 Пример:
 
@@ -194,6 +327,11 @@
     "market_proof",
     "operational_containment"
   ],
+  "allowed_ontological_domains": [
+    "industrial_plant",
+    "governance",
+    "market_demand"
+  ],
   "forbidden_template_markers": [
     "BANT",
     "Shadow Mode",
@@ -203,31 +341,68 @@
 }
 ```
 
-### 6.2 Что это решает
+### 7.2 Что это решает
 
 - mixed-case не схлопывается в одну логику;
-- downstream stages знают, какие solution classes обязательны;
-- чужие case-templates можно отлавливать автоматически.
+- downstream stages знают, какие reasoning modes и solution classes обязательны;
+- contamination можно ловить не только по blacklist, но и по ontological mismatch.
 
-### 6.3 Что изменить в проекте
+### 7.3 Whitelist + blacklist + semantic drift check
 
-Добавить:
+Контроль contamination не должен опираться только на blacklist.
 
-- `app/pipeline/domain_profiler.py`
-- новый artifact contract для `domain_profile.json`
+Нужна комбинация:
 
-Интегрировать в:
+- `allowed_ontological_domains`
+- `forbidden_template_markers`
+- `semantic drift validator`
 
-- `orchestrator`
-- `viewpoint_runner`
-- `problem_factory`
-- `solution_factory`
-- `reporting`
+`semantic drift validator` выполняет soft-check:
+
+- слишком ли используемые термины и решения удалены от allowed domains текущего кейса.
 
 
-## 7. Новый skill: `ec-vp-market`
+## 8. Projection layer для защиты контекстного окна
 
-### 7.1 Назначение
+### 8.1 Проблема
+
+LLM не должна получать целиком `epistemic_graph.json`, если он содержит сотни nodes и edges.
+
+### 8.2 Решение
+
+Перед каждым skill invocation orchestrator должен строить typed projection.
+
+Примеры projections:
+
+- `problem_factory_projection.json`
+  - facts
+  - unresolved contradictions
+  - admissible assumptions
+  - domain profile
+
+- `selection_projection.json`
+  - lawful constraints
+  - admissible alternatives
+  - unresolved assumptions
+  - parity inputs
+
+- `reporting_projection.json`
+  - human-facing facts
+  - interpretations
+  - hypotheses
+  - assumptions
+  - chosen recommendations
+
+### 8.3 Правило
+
+LLM stage работает только с projection, а не с raw graph.
+
+Это должно быть обязательным системным свойством, а не оптимизацией “по возможности”.
+
+
+## 9. Новый skill: `ec-vp-market`
+
+### 9.1 Назначение
 
 Добавить отдельный skill для анализа market-side логики кейса:
 
@@ -240,9 +415,11 @@
 - price realization;
 - market proof;
 - pipeline leakage;
-- условия покупки и повторяемости спроса.
+- условия покупки и повторяемости спроса;
+- альтернативы на рынке;
+- status quo defense.
 
-### 7.2 Почему отдельный skill нужен
+### 9.2 Почему отдельный skill нужен
 
 Сейчас market-измерение размыто между `client` и `strategist`.
 
@@ -250,9 +427,10 @@
 
 - слабая диагностика воронки и продаж;
 - отсутствие first-class артефакта для market proof;
-- недоразличение “клиентской ценности” и “рыночной доказанности спроса”.
+- недоразличение “клиентской ценности” и “рыночной доказанности спроса”;
+- отсутствие явного анализа substitutes и switching friction.
 
-### 7.3 Что должен делать skill
+### 9.3 Что должен делать skill
 
 Skill должен анализировать:
 
@@ -263,19 +441,24 @@ Skill должен анализировать:
 - где ломается воронка;
 - чем подтверждены объем, цена и частота покупки;
 - есть ли LOI, предконтракты, повторяемые заказы, pipeline discipline;
-- есть ли product-market drift.
+- есть ли product-market drift;
+- какие существуют `next best alternatives`;
+- как выглядит `status quo defense`;
+- что мешает пользователю/покупателю переключиться.
 
-### 7.4 Ожидаемый выход
+### 9.4 Ожидаемый выход
 
 В `viewpoints/market.md` должны быть разделы:
 
 - `market reality`
 - `demand gaps`
 - `funnel failure points`
+- `current alternatives`
+- `status quo defense`
 - `proof requirements`
 - `market-side risks`
 
-### 7.5 Что добавить в проект
+### 9.5 Что добавить в проект
 
 Добавить:
 
@@ -284,17 +467,18 @@ Skill должен анализировать:
 Изменить:
 
 - `app/pipeline/viewpoint_runner.py`
-- проверки coverage в reporting
+- coverage checks в reporting
 - `domain_profile` builder
+- `viewpoints/conflicts_index.md` synthesis
 
 
-## 8. Контракты между stages
+## 10. Контракты между stages
 
-### 8.1 Цель
+### 10.1 Цель
 
 Каждый stage должен иметь машиночитаемый input/output contract.
 
-### 8.2 Структура contracts
+### 10.2 Структура contracts
 
 Добавить папку:
 
@@ -303,7 +487,10 @@ Skill должен анализировать:
 Добавить schema/contracts минимум для:
 
 - `domain_profile`
+- `epistemic_graph`
+- `projection`
 - `viewpoint_report`
+- `market_viewpoint_report`
 - `characterization_passport`
 - `indicator_set`
 - `problem_portfolio`
@@ -317,7 +504,7 @@ Skill должен анализировать:
 - `analytical_full_report`
 - `executive_summary`
 
-### 8.3 Что должны проверять contracts
+### 10.3 Что должны проверять contracts
 
 - required artifacts on input;
 - required fields on output;
@@ -326,35 +513,33 @@ Skill должен анализировать:
 - prohibition of unlawful promotion:
   - `hypothesis -> decision_constraint`
   - `normative_target -> source_fact`
-  - `interpretation -> hard constraint`
-- allowed domain markers from `domain_profile`.
+  - `interpretation -> hard constraint`;
+- allowed domain markers from `domain_profile`;
+- отсутствие unresolved contradictions в selection-critical paths.
 
-### 8.4 Новый validator stack
 
-Нужны 3 слоя проверок:
+## 11. Validator stack
+
+Нужны 4 слоя проверок:
 
 - `schema validator`
 - `epistemic validator`
 - `FPF-principle validator`
+- `semantic drift / contamination validator`
 
-
-## 9. FPF-principle validators
-
-Добавить отдельные validators:
-
-### 9.1 Boundary validator
+### 11.1 Boundary validator
 
 Проверяет:
 
 - boundary statements не смешивают law / admissibility / deontic / evidence;
-- section `hard_constraints` не содержит assumptions без anchor.
+- section `hard_constraints` не содержит assumptions без lawful anchor.
 
 Основание:
 
 - `A.6`
 - `A.6.B`
 
-### 9.2 Evidence validator
+### 11.2 Evidence validator
 
 Проверяет:
 
@@ -368,7 +553,7 @@ Skill должен анализировать:
 - `B.3.4`
 - `G.6`
 
-### 9.3 Characteristic validator
+### 11.3 Characteristic validator
 
 Проверяет:
 
@@ -382,7 +567,7 @@ Skill должен анализировать:
 - `A.18`
 - `C.16`
 
-### 9.4 Comparison legality validator
+### 11.4 Comparison legality validator
 
 Проверяет:
 
@@ -397,12 +582,13 @@ Skill должен анализировать:
 - `A.19.SelectorMechanism`
 - `G.9`
 
-### 9.5 Cross-case contamination validator
+### 11.5 Cross-case contamination validator
 
 Проверяет:
 
 - в кейсе не появляются markers чужого домена без разрешения `domain_profile`;
-- reporting/client не вставляют narrative fragments из другого кейса.
+- reporting/client не вставляют narrative fragments из другого кейса;
+- текст не уходит семантически за пределы `allowed_ontological_domains`.
 
 Основание:
 
@@ -411,9 +597,9 @@ Skill должен анализировать:
 - `F.15`
 
 
-## 10. Очистка case-specific логики
+## 12. Очистка case-specific логики
 
-### 10.1 `reporting.py`
+### 12.1 `reporting.py`
 
 Нужно убрать:
 
@@ -423,10 +609,10 @@ Skill должен анализировать:
 Нужно заменить на:
 
 - synthesis from `domain_profile.json`
-- synthesis from `claims_registry.json`
-- synthesis from selected problem / selected solutions / assumptions / constraints
+- synthesis from `epistemic_graph.json`
+- synthesis from projections
 
-### 10.2 `client.py`
+### 12.2 `client.py`
 
 Нужно убрать:
 
@@ -438,16 +624,16 @@ Skill должен анализировать:
 
 - generic generators;
 - dispatch by domain profile;
-- contract-aware rendering from typed artifacts.
+- contract-aware rendering from graph projections.
 
 
-## 11. Перепись biased fragments в skills
+## 13. Перепись biased fragments в skills
 
-### 11.1 Текущая проблема
+### 13.1 Текущая проблема
 
 Часть skills содержит examples, которые задают скрытый domain bias.
 
-### 11.2 Что переписать
+### 13.2 Что переписать
 
 В следующих skills заменить кейсовые примеры на мета-принципы:
 
@@ -456,38 +642,41 @@ Skill должен анализировать:
 - `.agent/skills/ec-vp-analyst/SKILL.md`
 - `.agent/skills/ec-vp-client/SKILL.md`
 
-### 11.3 Принцип замены
+### 13.3 Принцип замены
 
-Вместо:
-
-- “1500 кубов на входе, 500 на выходе”
-- “кому продавать сухую доску”
-- “500 кубов термодерева”
-
-использовать:
+Вместо частных примеров использовать:
 
 - flow conservation;
 - strategic drift after loss of key module;
 - evidence sufficiency for market viability;
 - buyer / payer / user decomposition;
-- proof-of-demand requirements;
+- substitutes and switching friction;
 - operational buffer and throughput logic.
 
 
-## 12. Изменения по модулям проекта
+## 14. Изменения по модулям проекта
 
 Добавить новые модули:
 
 - `app/pipeline/domain_profiler.py`
-- `app/pipeline/claims_registry.py`
-- `app/pipeline/constraints_registry.py`
-- `app/pipeline/assumptions_registry.py`
+- `app/pipeline/epistemic_graph.py`
+- `app/pipeline/epistemic_projection.py`
 - `app/pipeline/decision_readiness.py`
 - `app/validation/contract_validator.py`
 - `app/validation/fpf_boundary_validator.py`
 - `app/validation/fpf_characteristic_validator.py`
 - `app/validation/fpf_comparison_validator.py`
 - `app/validation/cross_case_contamination_validator.py`
+- `app/validation/conflict_validator.py`
+
+Добавить журналы и projections:
+
+- `analysis/epistemic_graph.json`
+- `analysis/claims_projection.json`
+- `analysis/constraints_projection.json`
+- `analysis/assumptions_projection.json`
+- `governance/epistemic_ledger.jsonl`
+- `governance/contract_audit.jsonl`
 
 Изменить существующие модули:
 
@@ -501,37 +690,63 @@ Skill должен анализировать:
 - `app/router/orchestrator.py`
 
 
-## 13. Порядок внедрения
+## 15. Порядок внедрения
 
 ### Фаза 1. Быстрое снижение contamination
 
 Сделать:
 
 - ввести `domain_profile.json`;
+- добавить `ec-vp-market`;
 - убрать hardcoded presales-template из `reporting.py`;
-- убрать case-specific ветки из `client.py`;
-- добавить `ec-vp-market`.
+- убрать case-specific ветки из `client.py`.
 
 Результат:
 
-- снизится перетекание кейсов;
+- снизится cross-case contamination;
 - появится market-viewpoint;
 - reporting станет case-faithful.
 
-### Фаза 2. Контрактная дисциплина
+### Фаза 2. Граф и ledger
+
+Сделать:
+
+- ввести `epistemic_graph.json`;
+- ввести `epistemic_ledger.jsonl`;
+- перевести ключевые claims в graph model.
+
+Результат:
+
+- появится referential integrity;
+- сохранится история promotion/degradation;
+- станет возможен graph-based validation.
+
+### Фаза 3. Projection layer
+
+Сделать:
+
+- реализовать stage-specific projections;
+- ограничить LLM contexts только projections.
+
+Результат:
+
+- снизится перегрузка контекстного окна;
+- reasoning станет более stage-specific.
+
+### Фаза 4. Контрактная дисциплина
 
 Сделать:
 
 - добавить `contracts/`;
 - реализовать `contract_validator`;
-- ввести `claims_registry`, `constraints_registry`, `assumptions_registry`.
+- внедрить stage gates.
 
 Результат:
 
 - unlawful promotion станет машинно фиксируемой ошибкой;
 - hard constraints перестанут рождаться из narrative drift.
 
-### Фаза 3. FPF validators
+### Фаза 5. FPF validators и conflict model
 
 Сделать:
 
@@ -539,27 +754,25 @@ Skill должен анализировать:
 - evidence validator extension;
 - characteristic validator;
 - comparison legality validator;
-- cross-case contamination validator.
+- contamination validator;
+- conflict validator.
 
 Результат:
 
 - pipeline начнет проверяться в терминах FPF, а не только по форме markdown.
 
-### Фаза 4. Regression harness
+### Фаза 6. Regression harness
 
 Сделать:
 
 - integration tests for mixed-cases;
 - negative tests for contamination;
 - negative tests for unlawful constraints;
+- negative tests for unresolved contradictions;
 - regression checks for market coverage.
 
-Результат:
 
-- нарушения будут ловиться до попадания в пользовательский отчет.
-
-
-## 14. Критерии приемки
+## 16. Критерии приемки
 
 Изменение считается принятым, если выполняются условия:
 
@@ -567,6 +780,7 @@ Skill должен анализировать:
 - mixed-case сохраняет несколько reasoning modes;
 - `budget`, `time horizon`, `quality threshold`, `capacity limit` не становятся hard constraints без lawful anchor;
 - `CHR target` отображается как `normative_target`, а не как факт кейса;
+- contradictory claims не протаскиваются в selection как resolved facts;
 - reporting умеет явно отделять:
   - факты,
   - интерпретации,
@@ -574,12 +788,13 @@ Skill должен анализировать:
   - assumptions,
   - constraints,
   - normative targets;
-- viewpoint coverage включает `market` там, где market-side logic релевантна;
+- viewpoint coverage включает `market`, если market-side logic релевантна;
 - selector и parity не нарушают set-return / no hidden scalarization discipline;
-- contract violations логируются в `contract_audit.jsonl`.
+- contract violations логируются в `contract_audit.jsonl`;
+- promotion/degradation history восстанавливается по `epistemic_ledger.jsonl`.
 
 
-## 15. Ожидаемый результат для проекта
+## 17. Ожидаемый результат для проекта
 
 После внедрения проект должен перейти:
 
@@ -593,5 +808,7 @@ Skill должен анализировать:
 - где reasoning modes composable,
 - evidence traceable,
 - domain contamination ограничено,
-- а market/governance/strategy/operations могут сосуществовать в одном кейсе без взаимного разрушения.
+- market/governance/strategy/operations могут сосуществовать в одном кейсе без взаимного разрушения,
+- а любой сильный вывод можно разложить назад до lawful chain:
+  `source -> graph -> projection -> decision`.
 

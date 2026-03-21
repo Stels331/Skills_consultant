@@ -1,0 +1,15 @@
+{
+  "artifact_type": "viewpoint_report",
+  "format": "markdown",
+  "expected_stage": "viewpoints",
+  "required_sections": [
+    "## viewpoint_name",
+    "## primary_concerns",
+    "## layer_findings",
+    "## key_risks",
+    "## supported_actions",
+    "## objections",
+    "## evidence_gaps",
+    "## non_negotiables"
+  ]
+}

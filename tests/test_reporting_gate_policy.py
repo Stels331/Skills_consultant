@@ -88,7 +88,14 @@ class ReportingGatePolicyTests(unittest.TestCase):
         self.assertIn("**Факты:**", a_body)
         self.assertIn("**Интерпретации:**", a_body)
         self.assertIn("**Гипотезы / следующий шаг:**", a_body)
-        self.assertTrue("Подтвержденное действие" in e_body or "Гипотеза пилота" in e_body)
+        self.assertTrue(
+            "Подтвержденное действие" in e_body
+            or "Гипотеза пилота" in e_body
+            or "Предварительная рекомендация" in e_body
+        )
+        for token in ["BANT", "Shadow Mode", "CPQ", "пресейл -> ручная оценка -> производство"]:
+            self.assertNotIn(token, a_body)
+            self.assertNotIn(token, e_body)
 
         self.assertTrue(validate_artifact_contract(self.root, analytical, self.ref.path).is_valid)
         self.assertTrue(validate_artifact_contract(self.root, executive, self.ref.path).is_valid)

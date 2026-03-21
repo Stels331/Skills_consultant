@@ -18,6 +18,11 @@ from app.validation.artifact_contract_validator import (
     write_frontmatter_document,
 )
 from app.validation.assurance_engine import evaluate_assurance
+from app.validation.contract_validator import (
+    route_contract_status,
+    validate_artifact_against_contract,
+    validate_stage_input_contract,
+)
 from app.validation.semantic_judge import run_semantic_judge
 from app.validation.validation_matrix import evaluate_validation_matrix
 
@@ -167,8 +172,6 @@ class StageOrchestrator:
                 raise ValueError("degrade requires explicit rationale")
             return "degrade"
         if semantic_result == "degrade":
-            if not rationale:
-                raise ValueError("degrade requires explicit rationale")
             return "degrade"
         if assurance_result == "degrade":
             return "degrade"
@@ -210,6 +213,8 @@ class StageOrchestrator:
         doc: Optional[FrontmatterDocument] = None
         if artifact_path.is_file():
             doc = read_frontmatter_document(artifact_path)
+        input_contract = validate_stage_input_contract(self.project_root, workspace_path, stage_name)
+        output_contract = validate_artifact_against_contract(self.project_root, workspace_path, artifact_path)
         principles: List[Principle] = load_principles_for_stage(self.project_root, stage_name)
 
         # Fast-path reuse: accepted and fresh artifacts can skip expensive checks.
@@ -335,7 +340,28 @@ class StageOrchestrator:
 
             write_frontmatter_document(artifact_path, doc)
 
+        contract_input_hard_issues = [issue for issue in input_contract.issues if issue.severity == "hard_fail"]
+        contract_output_hard_issues = [issue for issue in output_contract.issues if issue.severity == "hard_fail"]
+
         stage_guard_violations = self._stage_specific_violations(workspace_id, stage_name) + stage_guard_violations
+        stage_guard_violations.extend(
+            {
+                "path": issue.path,
+                "expected": "stage input contract",
+                "actual": issue.code,
+                "message": issue.message,
+            }
+            for issue in contract_input_hard_issues
+        )
+        stage_guard_violations.extend(
+            {
+                "path": issue.path,
+                "expected": "artifact contract",
+                "actual": issue.code,
+                "message": issue.message,
+            }
+            for issue in contract_output_hard_issues
+        )
         contract_ok = validation.is_valid and not stage_guard_violations
 
         assurance_level = ""
@@ -405,6 +431,7 @@ class StageOrchestrator:
         artifact = dict(doc.frontmatter) if doc is not None else {}
         prev_state = str(artifact.get("state") or "draft")
 
+        contract_route = route_contract_status(input_contract.issues + output_contract.issues)
         if matrix.waive_used:
             gate_result = "pass"
         else:
@@ -418,6 +445,8 @@ class StageOrchestrator:
                 signals=signals,
                 rationale=rationale,
             )
+            if gate_result == "pass" and contract_route in {"degrade", "sanitize"}:
+                gate_result = "degrade"
 
         if validation.is_valid:
             next_state = suggest_next_state(prev_state, gate_result)
@@ -456,6 +485,16 @@ class StageOrchestrator:
             for issue in validation.issues
         ]
         violations.extend(stage_guard_violations)
+        violations.extend(
+            {
+                "path": issue.path,
+                "expected": "contract policy handling",
+                "actual": issue.code,
+                "message": issue.message,
+            }
+            for issue in input_contract.issues + output_contract.issues
+            if issue.severity != "hard_fail"
+        )
         violations.extend(
             {
                 "path": "$.assurance",
@@ -538,6 +577,11 @@ class StageOrchestrator:
                     }
                     for f in matrix.findings
                 ],
+            },
+            "contract_validation": {
+                "input_issues": [issue.__dict__ for issue in input_contract.issues],
+                "output_issues": [issue.__dict__ for issue in output_contract.issues],
+                "route": contract_route,
             },
         }
         log_path = self._append_decision_log(workspace_id, payload)

@@ -7,6 +7,9 @@ from typing import Dict
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
 from app.pipeline.epistemic_guard import assess_decision_readiness
+from app.pipeline.epistemic_projection import emit_projection
+from app.validation.conflict_validator import validate_unresolved_conflicts
+from app.validation.fpf_comparison_validator import validate_selection_workspace
 
 
 def _load_skill(project_root: Path) -> str:
@@ -361,12 +364,28 @@ def run_selection_engine(project_root: Path, workspace_id: str, llm_mode: str = 
     if missing:
         raise ValueError(f"SELECTION_REQUIRES_PARITY_AND_CONFLICTS: missing {missing}")
 
+    unresolved_conflicts = validate_unresolved_conflicts(workspace)
+    if unresolved_conflicts:
+        raise ValueError(
+            "SELECTION_BLOCKED_BY_UNRESOLVED_CONFLICTS: "
+            + ", ".join(issue.conflict_id for issue in unresolved_conflicts)
+        )
+
+    comparison_issues = validate_selection_workspace(workspace)
+    hard_comparison = [issue for issue in comparison_issues if issue.severity == "high"]
+    if hard_comparison:
+        raise ValueError(
+            "SELECTION_INVALID_COMPARISON_BASIS: "
+            + ", ".join(issue.code for issue in hard_comparison)
+        )
+
     skill_prompt = _load_skill(project_root)
     portfolio_text = (workspace / "solutions" / "SolutionPortfolio.md").read_text(encoding="utf-8")
     parity_text = (workspace / "solutions" / "ParityReport.md").read_text(encoding="utf-8")
     conflicts_text = (workspace / "solutions" / "ConflictRecords.md").read_text(encoding="utf-8")
     spec_text = (workspace / "problems" / "ComparisonAcceptanceSpec.md").read_text(encoding="utf-8")
     readiness = assess_decision_readiness(workspace)
+    projection = emit_projection(workspace, "selection_projection")
 
     selected = generate_markdown_with_skill(
         skill_prompt,
@@ -378,6 +397,7 @@ def run_selection_engine(project_root: Path, workspace_id: str, llm_mode: str = 
             "parity_report": parity_text,
             "conflict_records": conflicts_text,
             "acceptance_spec": spec_text,
+            "projection": projection,
         },
         mode=llm_mode,
     )
@@ -420,6 +440,7 @@ def run_selection_engine(project_root: Path, workspace_id: str, llm_mode: str = 
             "parity_report": parity_text,
             "conflict_records": conflicts_text,
             "acceptance_spec": spec_text,
+            "projection": projection,
         },
         mode=llm_mode,
     )
@@ -430,6 +451,7 @@ def run_selection_engine(project_root: Path, workspace_id: str, llm_mode: str = 
             "solution_output": "runbook",
             "workspace_id": workspace_id,
             "selected_solutions": selected,
+            "projection": projection,
         },
         mode=llm_mode,
     )
@@ -440,6 +462,7 @@ def run_selection_engine(project_root: Path, workspace_id: str, llm_mode: str = 
             "solution_output": "rollback",
             "workspace_id": workspace_id,
             "selected_solutions": selected,
+            "projection": projection,
         },
         mode=llm_mode,
     )

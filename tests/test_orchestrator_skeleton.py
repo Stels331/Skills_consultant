@@ -41,6 +41,11 @@ class OrchestratorSkeletonTests(unittest.TestCase):
             schema_src.read_text(encoding="utf-8"),
             encoding="utf-8",
         )
+        contracts_src = Path(__file__).resolve().parents[1] / "contracts"
+        contracts_dst = self.root / "contracts"
+        contracts_dst.mkdir(parents=True, exist_ok=True)
+        for path in contracts_src.glob("*.json"):
+            (contracts_dst / path.name).write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
 
         self.workspace_id = "case_20260303_001"
         self.workspace = self.root / "cases" / self.workspace_id
@@ -95,6 +100,53 @@ class OrchestratorSkeletonTests(unittest.TestCase):
         self.assertTrue(
             any(v.get("message") == "MISSING_REQUIRED_PROBLEM_ARTIFACTS" for v in payload["violations"])
         )
+
+    def test_reporting_stage_degrades_on_output_contract_warning_and_logs_route(self):
+        (self.workspace / "reports").mkdir(parents=True, exist_ok=True)
+        (self.workspace / "solutions").mkdir(parents=True, exist_ok=True)
+        (self.workspace / "decisions").mkdir(parents=True, exist_ok=True)
+        (self.workspace / "operation").mkdir(parents=True, exist_ok=True)
+
+        (self.workspace / "reports" / "Analytical_Full_Report.md").write_text(
+            """---
+id: analytical_report_1
+artifact_type: analytical_full_report
+stage: reporting
+state: draft
+parent_refs: []
+source_refs: ["solutions/SelectedSolutions.md:L1"]
+evidence_refs: []
+viewpoints: []
+epistemic_status: inferred
+assurance_level: medium
+valid_until: 2026-12-31
+owner_role: analyst
+gate_status: pending
+violated_principles: []
+next_expected_artifacts: []
+created_at: 2026-03-03T12:00:00+00:00
+updated_at: 2026-03-03T12:00:00+00:00
+---
+This body intentionally misses the required analytical heading.
+""",
+            encoding="utf-8",
+        )
+        for rel in [
+            "solutions/SelectedSolutions.md",
+            "decisions/ADR-001.md",
+            "operation/Runbook.md",
+            "operation/RollbackPlan.md",
+        ]:
+            path = self.workspace / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("placeholder", encoding="utf-8")
+
+        result = self.orchestrator.run_stage(self.workspace_id, "reporting", signals={"skip_semantic_checks": True})
+        self.assertEqual(result.gate_result, "degrade")
+
+        payload = json.loads((self.workspace / "governance" / "decision_log.jsonl").read_text(encoding="utf-8").strip().splitlines()[-1])
+        self.assertEqual(payload["contract_validation"]["route"], "degrade")
+        self.assertTrue((self.workspace / "governance" / "contract_audit.jsonl").is_file())
 
 
 if __name__ == "__main__":

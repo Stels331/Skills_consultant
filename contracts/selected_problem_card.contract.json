@@ -1,0 +1,10 @@
+{
+  "artifact_type": "selected_problem_card",
+  "format": "markdown",
+  "expected_stage": "problem_factory",
+  "required_sections": [
+    "## Facts",
+    "## Interpretations",
+    "## Hypotheses to Validate"
+  ]
+}

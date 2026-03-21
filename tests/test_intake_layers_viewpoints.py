@@ -76,6 +76,15 @@ Operational process has bottleneck in delivery stage.
 
         self.assertEqual(out["viewpoint_count"], 6)
         self.assertTrue((self.ref.path / "viewpoints" / "conflicts_index.md").is_file())
+        self.assertEqual(out["domain_profile"], "analysis/domain_profile.json")
+
+        profile_path = self.ref.path / "analysis" / "domain_profile.json"
+        self.assertTrue(profile_path.is_file())
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        self.assertEqual(profile["workspace_id"], self.ref.workspace_id)
+        self.assertTrue(profile["domain_axes"])
+        self.assertTrue(profile["allowed_ontological_domains"])
+        self.assertIn("reasoning_scope", profile)
 
         for vp in ["strategist", "analyst", "operator", "architect", "critic", "client"]:
             p = self.ref.path / "viewpoints" / f"{vp}.md"
@@ -108,6 +117,7 @@ Operational process has bottleneck in delivery stage.
             "ec-vp-architect",
             "ec-vp-critic",
             "ec-vp-client",
+            "ec-vp-market",
         ]
         for name in expected:
             skill = project_root / ".agent" / "skills" / name / "SKILL.md"

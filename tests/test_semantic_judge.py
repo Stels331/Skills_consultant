@@ -1,4 +1,5 @@
 import unittest
+import tempfile
 from pathlib import Path
 
 from app.principles.library import Principle
@@ -61,6 +62,75 @@ class SemanticJudgeTests(unittest.TestCase):
         )
         self.assertEqual(result.recommendation, "block")
         self.assertTrue(any(i.code == "UNANCHORED_NUMERIC_CLAIMS" for i in result.issues))
+
+    def test_reporting_degrades_on_cross_case_contamination(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            workspace = root / "cases" / "case_20260319_703"
+            (workspace / "analysis").mkdir(parents=True, exist_ok=True)
+            artifact = workspace / "reports" / "Executive_Summary.md"
+            artifact.parent.mkdir(parents=True, exist_ok=True)
+            artifact.write_text("# summary\n", encoding="utf-8")
+            (workspace / "analysis" / "domain_profile.json").write_text(
+                """
+{
+  "workspace_id": "case_20260319_703",
+  "domain_axes": [{"axis": "industrial_transformation", "score": 3, "confidence": 0.7}],
+  "allowed_ontological_domains": ["industrial_transformation"],
+  "forbidden_template_markers": ["BANT", "Shadow Mode", "CPQ"]
+}
+""".strip()
+                + "\n",
+                encoding="utf-8",
+            )
+
+            result = run_semantic_judge(
+                stage_name="reporting",
+                artifact_path=artifact,
+                frontmatter={
+                    "epistemic_status": "inferred",
+                    "source_refs": ["reports/Analytical_Full_Report.md:L1"],
+                    "evidence_refs": [],
+                },
+                body_text="Внедрить Shadow Mode, затем BANT-гейт и CPQ.",
+                principles=[],
+                mode="local",
+            )
+
+        self.assertEqual(result.recommendation, "degrade")
+        self.assertTrue(any(i.code == "CROSS_CASE_CONTAMINATION" for i in result.issues))
+
+    def test_reporting_degrades_on_boundary_soup(self):
+        result = run_semantic_judge(
+            stage_name="reporting",
+            artifact_path=Path("/tmp/report.md"),
+            frontmatter={
+                "epistemic_status": "inferred",
+                "source_refs": ["reports/Analytical_Full_Report.md:L1"],
+                "evidence_refs": [],
+            },
+            body_text="The gate is legally required, must be enforced, and is accepted only with evidence_ref.",
+            principles=[],
+            mode="local",
+        )
+        self.assertEqual(result.recommendation, "degrade")
+        self.assertTrue(any(i.code == "FPF_BOUNDARY_SOUP" for i in result.issues))
+
+    def test_characteristic_target_as_fact_is_blocked(self):
+        result = run_semantic_judge(
+            stage_name="characterization",
+            artifact_path=Path("/tmp/chr.md"),
+            frontmatter={
+                "epistemic_status": "inferred",
+                "source_refs": ["characterization/CharacterizationPassport.md:L1"],
+                "evidence_refs": [],
+            },
+            body_text="CHR-02-WASTE-ACCUM should be 0 and is currently a confirmed fact.",
+            principles=[],
+            mode="local",
+        )
+        self.assertEqual(result.recommendation, "block")
+        self.assertTrue(any(i.code == "CHR_TARGET_PRESENTED_AS_FACT" for i in result.issues))
 
 
 if __name__ == "__main__":

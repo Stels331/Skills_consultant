@@ -1,0 +1,12 @@
+{
+  "artifact_type": "comparison_acceptance_spec",
+  "format": "markdown",
+  "expected_stage": "problem_factory",
+  "required_sections": [
+    "## indicators",
+    "## hard_constraints",
+    "## assumptions_to_confirm",
+    "## selection_policy",
+    "## reversibility"
+  ]
+}

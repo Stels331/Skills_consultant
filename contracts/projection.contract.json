@@ -1,0 +1,12 @@
+{
+  "artifact_type": "projection",
+  "format": "json",
+  "required_json_fields": [
+    "projection_id",
+    "projection_type",
+    "source_graph_version",
+    "included_node_ids",
+    "included_edge_ids",
+    "projection_payload"
+  ]
+}

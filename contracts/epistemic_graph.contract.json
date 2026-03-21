@@ -1,0 +1,11 @@
+{
+  "artifact_type": "epistemic_graph",
+  "format": "json",
+  "required_json_fields": [
+    "workspace_id",
+    "version",
+    "updated_at",
+    "nodes",
+    "edges"
+  ]
+}

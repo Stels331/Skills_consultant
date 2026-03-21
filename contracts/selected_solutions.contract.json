@@ -1,0 +1,10 @@
+{
+  "artifact_type": "selected_solutions",
+  "format": "markdown",
+  "expected_stage": "solution_factory",
+  "required_sections": [
+    "## Selected Solutions",
+    "## Decision Status",
+    "## Recommendation Status"
+  ]
+}

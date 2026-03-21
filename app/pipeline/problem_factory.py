@@ -7,7 +7,9 @@ from typing import Dict, List
 
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
+from app.pipeline.epistemic_projection import emit_projection
 from app.pipeline.epistemic_sanitizer import soften_unanchored_claims
+from app.pipeline.epistemic_store import sync_artifact_to_epistemic_store
 
 
 LINE_BULLET = re.compile(r"^\s*-\s+(.+)$")
@@ -64,6 +66,7 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
     char_passport = _read(workspace / "characterization" / "CharacterizationPassport.md")
     indicator_set = _read(workspace / "characterization" / "IndicatorSet.md")
     conflicts = _read(workspace / "viewpoints" / "conflicts_index.md")
+    projection = emit_projection(workspace, "problem_factory_projection")
 
     skill_prompt = _load_skill_prompt(project_root)
 
@@ -76,6 +79,7 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
             "characterization_passport": char_passport,
             "indicator_set": indicator_set,
             "conflicts_index": conflicts,
+            "projection": projection,
         },
         mode=llm_mode,
     )
@@ -94,6 +98,12 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         next_expected_artifacts=["problems/ProblemPortfolio.md"],
     )
     write_markdown_artifact(out_dir / "ProblemArchive.md", archive_fm, archive_body)
+    sync_artifact_to_epistemic_store(
+        workspace_path=workspace,
+        artifact_rel="problems/ProblemArchive.md",
+        frontmatter=archive_fm,
+        body=archive_body,
+    )
 
     portfolio_body = generate_markdown_with_skill(
         system_skill_prompt=skill_prompt,
@@ -104,6 +114,7 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
             "characterization_passport": char_passport,
             "indicator_set": indicator_set,
             "conflicts_index": conflicts,
+            "projection": projection,
         },
         mode=llm_mode,
     )
@@ -118,6 +129,12 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         next_expected_artifacts=["problems/SelectedProblemCard.md"],
     )
     write_markdown_artifact(out_dir / "ProblemPortfolio.md", portfolio_fm, portfolio_body)
+    sync_artifact_to_epistemic_store(
+        workspace_path=workspace,
+        artifact_rel="problems/ProblemPortfolio.md",
+        frontmatter=portfolio_fm,
+        body=portfolio_body,
+    )
 
     card_body = generate_markdown_with_skill(
         system_skill_prompt=skill_prompt,
@@ -128,6 +145,7 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
             "characterization_passport": char_passport,
             "indicator_set": indicator_set,
             "conflicts_index": conflicts,
+            "projection": projection,
         },
         mode=llm_mode,
     )
@@ -143,6 +161,12 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         next_expected_artifacts=["problems/ComparisonAcceptanceSpec.md"],
     )
     write_markdown_artifact(out_dir / "SelectedProblemCard.md", card_fm, card_body)
+    sync_artifact_to_epistemic_store(
+        workspace_path=workspace,
+        artifact_rel="problems/SelectedProblemCard.md",
+        frontmatter=card_fm,
+        body=card_body,
+    )
 
     indicators = _extract_indicator_ids(indicator_set)
     spec_body = generate_markdown_with_skill(
@@ -153,6 +177,7 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
             "workspace_id": workspace_id,
             "indicator_ids": indicators,
             "selected_problem_card": card_body,
+            "projection": projection,
         },
         mode=llm_mode,
     )
@@ -168,6 +193,12 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         next_expected_artifacts=["solutions/SolutionPortfolio.md"],
     )
     write_markdown_artifact(out_dir / "ComparisonAcceptanceSpec.md", spec_fm, spec_body)
+    sync_artifact_to_epistemic_store(
+        workspace_path=workspace,
+        artifact_rel="problems/ComparisonAcceptanceSpec.md",
+        frontmatter=spec_fm,
+        body=spec_body,
+    )
 
     summary = {
         "workspace_id": workspace_id,

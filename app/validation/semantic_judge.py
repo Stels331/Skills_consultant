@@ -9,6 +9,10 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from app.principles.library import Principle
+from app.validation.cross_case_contamination_validator import validate_cross_case_contamination
+from app.validation.cross_case_markers import check_cross_case_markers
+from app.validation.fpf_boundary_validator import validate_boundary_discipline
+from app.validation.fpf_characteristic_validator import validate_characteristic_legality
 
 
 @dataclass(frozen=True)
@@ -69,6 +73,7 @@ def _has_unanchored_numeric_claims(body: str) -> bool:
 
 def _local_rule_judge(
     stage_name: str,
+    artifact_path: Path,
     body_text: str,
     frontmatter: Dict[str, object],
     principles: List[Principle],
@@ -102,6 +107,34 @@ def _local_rule_judge(
                     "high" if stage == "viewpoints" else "medium",
                 )
             )
+
+    if stage in {"viewpoints", "problem_factory", "solution_factory", "reporting"}:
+        contamination_issues = check_cross_case_markers(artifact_path, body)
+        for issue in contamination_issues:
+            issues.append(
+                SemanticIssue(
+                    code=issue.code,
+                    message=f"{issue.message}: {', '.join(issue.markers)}",
+                    severity=issue.severity,
+                )
+            )
+        semantic_drift_issues = validate_cross_case_contamination(artifact_path, body)
+        for issue in semantic_drift_issues:
+            issues.append(
+                SemanticIssue(
+                    code=issue.code,
+                    message=f"{issue.message}: {', '.join(issue.matched_terms)}",
+                    severity=issue.severity,
+                )
+            )
+
+    if stage in {"problem_factory", "solution_factory", "reporting"}:
+        for issue in validate_boundary_discipline(body):
+            issues.append(SemanticIssue(code=issue.code, message=issue.message, severity=issue.severity))
+
+    if stage in {"characterization", "problem_factory", "reporting"}:
+        for issue in validate_characteristic_legality(body):
+            issues.append(SemanticIssue(code=issue.code, message=issue.message, severity=issue.severity))
 
     principle_ids = {p.principle_id for p in principles}
 
@@ -249,5 +282,4 @@ def run_semantic_judge(
 
     if selected_mode == "openai":
         return _openai_judge(stage_name, body_text, frontmatter, principles)
-
-    return _local_rule_judge(stage_name, body_text, frontmatter, principles)
+    return _local_rule_judge(stage_name, artifact_path, body_text, frontmatter, principles)

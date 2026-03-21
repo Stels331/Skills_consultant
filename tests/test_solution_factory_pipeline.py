@@ -3,9 +3,11 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+import json
 
 from app.pipeline.characterization import run_characterization
 from app.pipeline.conflict_router import run_conflict_router
+from app.pipeline.epistemic_graph import save_graph
 from app.pipeline.intake_parser import run_intake_parser
 from app.pipeline.layer_builder import build_layers
 from app.pipeline.parity_tradeoff import run_parity_tradeoff
@@ -264,6 +266,33 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
         self.assertIn("parity_report", out1)
         self.assertIn("tradeoff_table", out2)
 
+    def test_parity_fallback_rejects_embedded_raw_portfolio_with_foreign_solution_ids(self):
+        run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
+        bad_parity_report = """```markdown
+## sol_01_opex_generator_and_waste_barter
+- type: process
+## sol_02_toll_manufacturing_outsource
+- type: architecture
+```"""
+        with patch("app.pipeline.parity_tradeoff.generate_markdown_with_skill") as mocked:
+            mocked.side_effect = [
+                "# Parity Plan\n\n## assumptions\n- same baseline\n\n## evaluation_window\n- 30 days\n\n## indicators_in_scope\n- confidence_gain\n",
+                bad_parity_report,
+                "# Tradeoff Table\n\n| solution | confidence_gain | unresolved_gaps | risk_exposure | reversibility |\n|---|---|---|---|---|\n| sol_00_status_quo | low | high | high | n/a |\n",
+            ]
+            run_parity_tradeoff(self.root, self.ref.workspace_id, llm_mode="local")
+
+        parity_txt = read_frontmatter_document(self.ref.path / "solutions" / "ParityReport.md").body
+        portfolio_ids = re.findall(
+            r"^##\s+(sol_[a-z0-9_]+)$",
+            read_frontmatter_document(self.ref.path / "solutions" / "SolutionPortfolio.md").body,
+            flags=re.MULTILINE,
+        )
+        self.assertIn("# Parity Report", parity_txt)
+        self.assertTrue(any(sid in parity_txt for sid in portfolio_ids if sid != "sol_00_status_quo"))
+        self.assertNotIn("sol_01_opex_generator_and_waste_barter", parity_txt)
+        self.assertNotIn("```markdown", parity_txt)
+
     def test_s4_t3_conflict_router_fallback_for_unsupported_type(self):
         run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
         run_parity_tradeoff(self.root, self.ref.workspace_id, llm_mode="local")
@@ -364,6 +393,43 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
         self.assertIn("## Revalidation Trigger", selected_txt)
         self.assertIn("## Decision", adr_txt)
         self.assertIn("selected_solutions", out)
+
+    def test_selection_blocks_on_unresolved_conflict(self):
+        run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
+        run_parity_tradeoff(self.root, self.ref.workspace_id, llm_mode="local")
+        run_conflict_router(self.root, self.ref.workspace_id, llm_mode="local")
+        graph_path = self.ref.path / "analysis" / "epistemic_graph.json"
+        graph = json.loads(graph_path.read_text(encoding="utf-8"))
+        graph["nodes"].append(
+            {
+                "id": "conflict_case_critical",
+                "node_type": "conflict_case",
+                "statement": "Selection-critical contradiction",
+                "source_refs": ["viewpoints/conflicts_index.md:L1"],
+                "epistemic_status": "disputed",
+                "stage": "validation",
+                "owner": "validator",
+                "created_at": "2026-03-19T00:00:00+00:00",
+                "updated_at": "2026-03-19T00:00:00+00:00",
+                "resolution_status": "open",
+            }
+        )
+        save_graph(graph_path, graph)
+
+        with self.assertRaisesRegex(ValueError, "SELECTION_BLOCKED_BY_UNRESOLVED_CONFLICTS"):
+            run_selection_engine(self.root, self.ref.workspace_id, llm_mode="local")
+
+    def test_selection_blocks_on_invalid_comparison_basis(self):
+        run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
+        run_parity_tradeoff(self.root, self.ref.workspace_id, llm_mode="local")
+        run_conflict_router(self.root, self.ref.workspace_id, llm_mode="local")
+        (self.ref.path / "solutions" / "ParityReport.md").write_text(
+            "Overall weighted score decides the winner without explicit comparison frame.\n",
+            encoding="utf-8",
+        )
+
+        with self.assertRaisesRegex(ValueError, "SELECTION_INVALID_COMPARISON_BASIS"):
+            run_selection_engine(self.root, self.ref.workspace_id, llm_mode="local")
 
     def test_s4_end_to_end_solution_factory_outputs(self):
         out = run_solution_factory(self.root, self.ref.workspace_id, llm_mode="local")

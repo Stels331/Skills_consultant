@@ -1,0 +1,13 @@
+{
+  "artifact_type": "characterization_passport",
+  "format": "markdown",
+  "expected_stage": "characterization",
+  "required_sections": [
+    "## optimization_goals",
+    "## hard_constraints",
+    "## risk_signals",
+    "## weakest_link",
+    "## anti_goodhart_risks",
+    "## source_summary"
+  ]
+}

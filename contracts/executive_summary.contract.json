@@ -1,0 +1,8 @@
+{
+  "artifact_type": "executive_summary",
+  "format": "markdown",
+  "expected_stage": "reporting",
+  "required_sections": [
+    "# Краткая управленческая записка"
+  ]
+}

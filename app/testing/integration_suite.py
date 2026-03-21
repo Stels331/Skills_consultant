@@ -14,6 +14,7 @@ from app.pipeline.solution_factory import run_solution_factory
 from app.pipeline.viewpoint_runner import run_viewpoints
 from app.router.orchestrator import StageOrchestrator
 from app.state.workspace_manager import WorkspaceManager
+from app.testing.acceptance_checklist import run_acceptance_checklist
 from app.validation.artifact_contract_validator import read_frontmatter_document, validate_workspace_artifact_contracts
 
 
@@ -123,6 +124,10 @@ def _run_positive_case(project_root: Path, manager: WorkspaceManager, case_name:
     if any(not r.is_valid for r in contracts.values()):
         status = "fail"
         notes = "contract validation failed"
+    acceptance = run_acceptance_checklist(project_root, ref.path)
+    if not acceptance["acceptance_pass"]:
+        status = "fail"
+        notes = "acceptance checklist failed"
 
     return CaseResult(
         case_id=workspace_id,

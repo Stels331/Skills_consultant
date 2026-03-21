@@ -7,6 +7,7 @@ from typing import Dict, List
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
 from app.pipeline.epistemic_sanitizer import soften_unanchored_claims
+from app.pipeline.epistemic_store import sync_artifact_to_epistemic_store
 
 
 def _read_text(path: Path) -> str:
@@ -61,18 +62,20 @@ def run_characterization(project_root: Path, workspace_id: str, llm_mode: str = 
         artifact_type="characterization_passport",
         stage="characterization",
         parent_refs=[
-            "viewpoints/strategist.md",
-            "viewpoints/analyst.md",
-            "viewpoints/operator.md",
-            "viewpoints/architect.md",
-            "viewpoints/critic.md",
-            "viewpoints/client.md",
+            str(p.relative_to(workspace)).replace("\\", "/")
+            for p in sorted(viewpoints_dir.glob("*.md"))
         ],
         source_refs=["viewpoints/conflicts_index.md:L1"],
         next_expected_artifacts=["problems/ProblemArchive.md"],
     )
     passport_body = soften_unanchored_claims(passport_body)
     write_markdown_artifact(out_dir / "CharacterizationPassport.md", passport_fm, passport_body)
+    sync_artifact_to_epistemic_store(
+        workspace_path=workspace,
+        artifact_rel="characterization/CharacterizationPassport.md",
+        frontmatter=passport_fm,
+        body=passport_body,
+    )
 
     indicator_set_body = generate_markdown_with_skill(
         system_skill_prompt=skill_prompt,
@@ -94,6 +97,12 @@ def run_characterization(project_root: Path, workspace_id: str, llm_mode: str = 
     )
     indicator_set_body = soften_unanchored_claims(indicator_set_body)
     write_markdown_artifact(out_dir / "IndicatorSet.md", indicator_fm, indicator_set_body)
+    sync_artifact_to_epistemic_store(
+        workspace_path=workspace,
+        artifact_rel="characterization/IndicatorSet.md",
+        frontmatter=indicator_fm,
+        body=indicator_set_body,
+    )
 
     parity_plan_body = generate_markdown_with_skill(
         system_skill_prompt=skill_prompt,
