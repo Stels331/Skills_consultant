@@ -27,6 +27,7 @@
 
 - создать users/organizations/memberships schema;
 - создать базовую схему таблиц;
+- внедрить Alembic migration workflow;
 - реализовать repositories;
 - написать importer из файловых workspace;
 - добавить dual-write для новых кейсов;
@@ -41,6 +42,7 @@ Definition of done:
 - artifacts/claims/events читаются из БД;
 - file exports остаются рабочими.
 - приложение собирается в базовый production image.
+- есть documented migration and rollback policy.
 
 ### Этап 1.5. Auth and tenant foundation
 
@@ -71,14 +73,17 @@ Definition of done:
 Работы:
 
 - нормализовать claim types;
+- ввести immutable claim version history;
 - реализовать claim relations;
 - materialize projections из БД;
 - адаптировать validators к БД read model;
 - добавить anti-cross-case retrieval guards.
+- описать и реализовать embedding lifecycle.
 
 Definition of done:
 
 - claims and relations живут в БД;
+- claim updates не затирают историю;
 - projections собираются без файлового graph traversal;
 - validators работают на canonical model.
 
@@ -92,6 +97,7 @@ Definition of done:
 
 - dialogue sessions/messages;
 - retrieval service;
+- quota preflight checks;
 - prompt builder;
 - answer schema;
 - FPF response validator;
@@ -106,6 +112,7 @@ Definition of done:
 - ответ проходит validation;
 - результат сохраняется в dialogue history.
 - direct mode и routing tier selection работают через конфигурацию.
+- provider call без quota reservation невозможен.
 
 ### Этап 4. Clarification and model updates
 
@@ -120,6 +127,7 @@ Definition of done:
 - typed answer ingestion;
 - model update engine;
 - re-entry planner;
+- async re-entry jobs and worker flow;
 - diff visualization.
 
 Definition of done:
@@ -127,7 +135,8 @@ Definition of done:
 - система умеет задавать уточняющий вопрос;
 - пользователь отвечает типизированно;
 - модель обновляется;
-- affected stages rechecked без полного rerun.
+- affected stages rechecked без полного rerun;
+- re-entry выполняется асинхронно и наблюдаем через job status.
 
 ### Этап 5. Multi-case isolation
 
@@ -192,7 +201,9 @@ Definition of done:
 - auth/session foundation
 - organization switcher basics
 - claims/relations canonicalization
+- claim versioning
 - projections
+- embedding lifecycle
 - validator migration to DB read model
 
 ### Sprint 3
@@ -202,6 +213,7 @@ Definition of done:
 - answer grounding schema
 - LLM provider adapter
 - routing policy tiers
+- quota enforcement preflight
 
 ### Sprint 4
 
@@ -215,6 +227,7 @@ Definition of done:
 - clarification flow
 - model update engine
 - re-entry planner
+- re-entry worker and job status API
 
 ### Sprint 6
 
@@ -283,10 +296,27 @@ Definition of done:
 - flexible payloads in JSONB;
 - iterative normalization.
 
+### 4.5. Retrieval staleness risk
+
+Риск:
+
+- outdated embeddings/chunks отравляют grounding после claim updates и re-entry.
+
+Снижение риска:
+
+- embedding jobs;
+- revisioned chunks;
+- active/stale separation;
+- worker-driven rebuild.
+
 ## 5. Тестовая стратегия
 
 Обязательные тесты:
 
+- migration upgrade/rollback tests
+- claim version history tests
+- embedding invalidation tests
+- quota enforcement tests
 - auth tests
 - membership/role tests
 - tenant boundary tests
@@ -297,7 +327,9 @@ Definition of done:
 - FPF validator tests on answers
 - clarification update tests
 - incremental re-entry tests
+- async re-entry job tests
 - multi-case contamination tests
+- archived workspace policy tests
 - UI workflow smoke tests
 - Docker image build tests
 - Railway smoke deployment tests
@@ -322,6 +354,7 @@ Definition of done:
 - Подключение разных LLM работает через env configuration.
 - Optional OmniRoute integration не ломает direct-provider execution path.
 - Tenant-aware authorization защищает API, retrieval и dialogue runtime.
+- Embedding pipeline и claim history auditability формально покрыты.
 
 ## 7. Рекомендуемый порядок практической реализации
 

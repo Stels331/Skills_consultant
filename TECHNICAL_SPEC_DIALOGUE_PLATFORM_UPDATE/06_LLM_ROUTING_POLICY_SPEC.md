@@ -252,6 +252,13 @@ Rule:
 - mixed-case complexity detected;
 - unresolved conflicts exceed threshold.
 
+Ограничения escalation:
+
+- максимум один escalation step на запрос;
+- `cheap -> balanced` или `balanced -> premium`;
+- повторный retry после `premium` запрещен;
+- escalation допустима только если quota policy и budget profile это разрешают.
+
 ### 9.2. Fallback rules
 
 Fallback на альтернативный provider/model допускается, если:
@@ -268,7 +275,11 @@ Fallback не допускается, если:
 
 ## 10. OmniRoute policy
 
-### 10.1. Когда использовать OmniRoute
+### 10.1. Роль OmniRoute
+
+OmniRoute рассматривается как optional gateway, а не как core dependency MVP.
+
+### 10.2. Когда использовать OmniRoute
 
 OmniRoute целесообразен, если нужны:
 
@@ -277,7 +288,7 @@ OmniRoute целесообразен, если нужны:
 - cost-aware routing;
 - централизованное управление несколькими моделями.
 
-### 10.2. Когда не использовать OmniRoute
+### 10.3. Когда не использовать OmniRoute
 
 Не делать OmniRoute обязательным, если:
 
@@ -285,12 +296,17 @@ OmniRoute целесообразен, если нужны:
 - нет реальной потребности в automated routing;
 - operational complexity gateway превышает выигрыш.
 
-### 10.3. OmniRoute integration rules
+### 10.4. OmniRoute integration rules
 
 - приложение определяет routing tier;
 - приложение определяет risk class;
 - приложение определяет, допускается ли gateway usage;
 - OmniRoute получает уже выбранный policy envelope, а не сам решает бизнес-логику.
+
+Для MVP достаточно:
+
+- direct mode как primary path;
+- gateway mode как optional extension after core stability.
 
 ## 11. Policy envelope
 

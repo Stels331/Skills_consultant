@@ -27,9 +27,12 @@
 - `ClarificationEngine`
 - `ModelUpdateEngine`
 - `ReentryPlanner`
+- `ReentryWorker`
 - `ExportMaterializer`
 - `LLMProviderAdapter`
 - `DeploymentHealthService`
+- `QuotaEnforcementService`
+- `EmbeddingLifecycleManager`
 
 ### 2.2. Обязанности компонентов
 
@@ -75,9 +78,15 @@
 `ReentryPlanner`:
 
 - определяет affected stages;
-- запускает incremental checks;
-- создает re-entry tasks;
+- создает async re-entry tasks;
 - логирует downgrade/block decisions.
+
+`ReentryWorker`:
+
+- исполняет queued re-entry jobs;
+- берет workspace-level lock;
+- обновляет reentry status и job state;
+- публикует completion/failure events.
 
 `LLMProviderAdapter`:
 
@@ -94,6 +103,19 @@
 - проверяет готовность критических backend dependencies;
 - используется Railway для health checks.
 
+`QuotaEnforcementService`:
+
+- выполняет preflight quota/budget checks;
+- резервирует usage до внешнего provider call;
+- закрывает reservation после завершения вызова;
+- блокирует запросы при исчерпании лимитов.
+
+`EmbeddingLifecycleManager`:
+
+- создает embedding jobs;
+- инвалидирует stale chunks;
+- управляет source revisions и active retrieval set.
+
 ## 3. Dialogue runtime flow
 
 ### 3.1. Ответ на вопрос пользователя
@@ -103,8 +125,10 @@ UserQuestion
  -> load active workspace/session
  -> retrieve workspace-grounded context
  -> build prompt bundle
+ -> run quota preflight
  -> call LLM
  -> validate answer against FPF rules
+ -> optional escalation retry loop
  -> persist answer + validation + governance events
  -> return grounded answer package
 ```
@@ -118,9 +142,19 @@ Validator/Retrieval detects uncertainty
  -> UI shows controlled clarification form
  -> user submits typed answer
  -> ModelUpdateEngine creates claims/events
- -> ReentryPlanner computes affected stages
- -> orchestrator runs incremental recheck
- -> updated model becomes active
+ -> ReentryPlanner creates async job
+ -> worker executes re-entry
+ -> updated model becomes active after job completion
+
+### 3.3. Embedding lifecycle flow
+
+```text
+Claim/Artifact change
+ -> create embedding job
+ -> mark old chunks stale by revision
+ -> worker computes embeddings
+ -> active retrieval set switches to fresh revision
+```
 ```
 
 ## 4. Prompting model
@@ -221,6 +255,18 @@ LLM must be instructed to:
 - `degrade` — answer shown with warning and uncertainty marker
 - `block` — answer is not shown as valid; user gets clarification path or error state
 
+### 5.2.1. Escalation retry loop
+
+Если validator возвращает `block` по причине недостаточного reasoning quality, policy layer может инициировать escalation retry.
+
+Правила:
+
+- escalation допускается только если routing policy разрешает более сильный tier;
+- максимальное число retries: 1 переход на следующий tier;
+- repeated retry loops запрещены;
+- `premium` failure не триггерит дальнейшую escalation;
+- все retries логируются как governance/usage events.
+
 ### 5.3. Validator output
 
 ```json
@@ -289,6 +335,17 @@ LLM must be instructed to:
 - записать governance events;
 - показать diff пользователю.
 
+### 7.4. Async execution model
+
+Re-entry считается асинхронной операцией.
+
+Требования:
+
+- API возвращает `reentry_job_id`, а не ждет completion;
+- UI показывает `reentry_in_progress`;
+- worker исполняет re-entry вне request cycle;
+- completion/failure отражается через polling или event update.
+
 ## 8. API specification
 
 ### 8.1. Workspace API
@@ -322,6 +379,11 @@ LLM must be instructed to:
 - `POST /api/workspaces/{workspaceId}/reentry/plan`
 - `POST /api/workspaces/{workspaceId}/reentry/execute`
 
+### 8.5.1. Re-entry job API
+
+- `GET /api/workspaces/{workspaceId}/reentry-jobs`
+- `GET /api/workspaces/{workspaceId}/reentry-jobs/{jobId}`
+
 ### 8.6. Operations API
 
 - `GET /health`
@@ -331,6 +393,11 @@ LLM must be instructed to:
 
 - `GET /api/llm/providers`
 - `GET /api/llm/routing-policy`
+
+### 8.8. Quota API
+
+- `GET /api/account/quota`
+- `GET /api/workspaces/{workspaceId}/usage`
 
 ## 9. Multi-case runtime isolation
 
@@ -429,6 +496,15 @@ Backend должен конфигурироваться через environment v
 - единый интерфейс `embed(...)`, если embeddings делает тот же провайдер
 - provider selection без пересборки контейнера
 - graceful failure при недоступности конкретного провайдера
+
+### 11.4.1. Quota enforcement point
+
+`QuotaEnforcementService` должен вызываться:
+
+- перед `generate_response(...)`
+- перед `embed(...)`
+
+Проверка post-factum недостаточна и не допускается как единственный контроль.
 
 ### 11.5. OmniRoute integration
 
