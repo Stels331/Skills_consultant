@@ -65,6 +65,58 @@ def _artifact_body(workspace_path: Path, rel: str) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def _select_projection_nodes(nodes: List[Dict[str, object]], projection_type: str) -> List[Dict[str, object]]:
+    if projection_type == "problem_factory_projection":
+        return [
+            node
+            for node in nodes
+            if _node_rel(node, "characterization/")
+            and str(node.get("node_type")) in {"source_fact", "derived_metric", "normative_target", "interpretation", "decision_constraint"}
+        ]
+    if projection_type in {"solution_factory_projection", "selection_projection"}:
+        selected = [
+            node
+            for node in nodes
+            if _node_rel(node, "problems/")
+            and str(node.get("node_type")) in {"problem", "decision_constraint", "source_fact", "interpretation", "derived_metric"}
+        ]
+        return _exclude_unresolved(selected) if projection_type == "selection_projection" else selected
+    if projection_type == "reporting_projection":
+        return _exclude_unresolved(nodes)
+    if projection_type == "characterization_projection":
+        return [node for node in nodes if _node_rel(node, "viewpoints/")]
+    if projection_type == "viewpoint_projection":
+        return [node for node in nodes if _node_rel(node, "intake/") or _node_rel(node, "layers/")]
+    return []
+
+
+def _extract_included_node_ids(payload: Dict[str, object]) -> List[str]:
+    explicit_keys = [
+        "claims",
+        "relevant_claims",
+        "human_facing_claims",
+        "viewpoint_claims",
+        "supporting_claims",
+        "lawful_constraints",
+    ]
+    node_ids: List[str] = []
+    for key in explicit_keys:
+        value = payload.get(key)
+        if not isinstance(value, list):
+            continue
+        for item in value:
+            if isinstance(item, dict) and item.get("id") is not None:
+                node_ids.append(str(item["id"]))
+    seen = set()
+    ordered: List[str] = []
+    for node_id in node_ids:
+        if node_id in seen:
+            continue
+        seen.add(node_id)
+        ordered.append(node_id)
+    return ordered
+
+
 def _build_projection_payload(
     workspace_path: Path,
     projection_type: str,
@@ -74,12 +126,7 @@ def _build_projection_payload(
     edges = list(graph.get("edges") or [])
 
     if projection_type == "problem_factory_projection":
-        selected_nodes = [
-            node
-            for node in nodes
-            if _node_rel(node, "characterization/")
-            and str(node.get("node_type")) in {"source_fact", "derived_metric", "normative_target", "interpretation", "decision_constraint"}
-        ]
+        selected_nodes = _select_projection_nodes(nodes, projection_type)
         selected_ids = {str(node["id"]) for node in selected_nodes}
         selected_edges = [edge for edge in edges if str(edge.get("from")) in selected_ids and str(edge.get("to")) in selected_ids]
         return {
@@ -93,14 +140,7 @@ def _build_projection_payload(
     if projection_type == "solution_factory_projection":
         compiled = compile_lawful_constraints(workspace_path)
         lawful_ids = {str(node["id"]) for node in compiled.lawful_constraints}
-        selected_nodes = [
-            node
-            for node in nodes
-            if (
-                _node_rel(node, "problems/")
-                and str(node.get("node_type")) in {"problem", "decision_constraint", "source_fact", "interpretation", "derived_metric"}
-            )
-        ]
+        selected_nodes = _select_projection_nodes(nodes, projection_type)
         selected_ids = {str(node["id"]) for node in selected_nodes}
         selected_edges = [edge for edge in edges if str(edge.get("from")) in selected_ids and str(edge.get("to")) in selected_ids]
         return {
@@ -115,14 +155,7 @@ def _build_projection_payload(
     if projection_type == "selection_projection":
         compiled = compile_lawful_constraints(workspace_path)
         lawful_ids = {str(node["id"]) for node in compiled.lawful_constraints}
-        selected_nodes = _exclude_unresolved(
-            [
-                node
-                for node in nodes
-                if _node_rel(node, "problems/")
-                and str(node.get("node_type")) in {"problem", "decision_constraint", "source_fact", "interpretation", "derived_metric"}
-            ]
-        )
+        selected_nodes = _select_projection_nodes(nodes, projection_type)
         selected_ids = {str(node["id"]) for node in selected_nodes}
         selected_edges = [edge for edge in edges if str(edge.get("from")) in selected_ids and str(edge.get("to")) in selected_ids]
         return {
@@ -137,7 +170,7 @@ def _build_projection_payload(
         }
 
     if projection_type == "reporting_projection":
-        selected_nodes = _exclude_unresolved(nodes)
+        selected_nodes = _select_projection_nodes(nodes, projection_type)
         selected_ids = {str(node["id"]) for node in selected_nodes}
         selected_edges = [edge for edge in edges if str(edge.get("from")) in selected_ids and str(edge.get("to")) in selected_ids]
         return {
@@ -154,7 +187,7 @@ def _build_projection_payload(
         }
 
     if projection_type == "characterization_projection":
-        selected_nodes = [node for node in nodes if _node_rel(node, "viewpoints/")]
+        selected_nodes = _select_projection_nodes(nodes, projection_type)
         selected_ids = {str(node["id"]) for node in selected_nodes}
         selected_edges = [edge for edge in edges if str(edge.get("from")) in selected_ids and str(edge.get("to")) in selected_ids]
         return {
@@ -169,8 +202,10 @@ def _build_projection_payload(
         }
 
     if projection_type == "viewpoint_projection":
+        selected_nodes = _select_projection_nodes(nodes, projection_type)
         return {
             "normalized_case": _artifact_body(workspace_path, "intake/normalized_case.md"),
+            "supporting_claims": selected_nodes,
             "layers": {
                 "layer_1": _artifact_body(workspace_path, "layers/layer_1_business_model.md"),
                 "layer_2": _artifact_body(workspace_path, "layers/layer_2_requirements.md"),
@@ -186,7 +221,7 @@ def build_projection(workspace_path: Path, projection_type: str) -> Dict[str, ob
     graph = load_graph(workspace_path / "analysis" / "epistemic_graph.json", workspace_path.name)
     payload = _build_projection_payload(workspace_path, projection_type, graph)
 
-    node_ids = [str(node["id"]) for node in payload.get("claims", payload.get("relevant_claims", payload.get("human_facing_claims", payload.get("viewpoint_claims", []))))]
+    node_ids = _extract_included_node_ids(payload)
     edge_ids = [
         f"{edge['edge_type']}::{edge['from']}::{edge['to']}"
         for edge in payload.get("edges", [])

@@ -73,6 +73,26 @@ class EpistemicLedgerTests(unittest.TestCase):
                     },
                 )
 
+    def test_conflict_resolved_event_is_supported(self):
+        event = build_event(
+            event_type="conflict_resolved",
+            workspace_id="case_1",
+            stage="solution_factory",
+            target_id="conflict_1",
+            payload={"resolution": "selected_solution_changed"},
+        )
+        self.assertEqual(event["event_type"], "conflict_resolved")
+
+    def test_claim_updated_event_is_supported(self):
+        event = build_event(
+            event_type="claim_updated",
+            workspace_id="case_1",
+            stage="characterization",
+            target_id="node_1",
+            payload={"changed_fields": {"statement": {"before": "a", "after": "b"}}},
+        )
+        self.assertEqual(event["event_type"], "claim_updated")
+
 
 if __name__ == "__main__":
     unittest.main()

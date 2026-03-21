@@ -40,7 +40,10 @@ def compile_lawful_constraints(workspace_path: Path) -> ConstraintCompilationRes
             reasons.append("constraint_status_not_lawful")
 
         incoming_edges = incoming.get(node_id, [])
-        if any(str(nodes.get(str(edge["from"]), {}).get("node_type")) == "hypothesis" for edge in incoming_edges):
+        if any(
+            str(nodes.get(str(edge["from"]), {}).get("node_type")) in {"hypothesis", "assumption"}
+            for edge in incoming_edges
+        ):
             reasons.append("hypothesis_to_decision_constraint_forbidden")
         if any(str(nodes.get(str(edge["from"]), {}).get("node_type")) == "interpretation" for edge in incoming_edges):
             reasons.append("interpretation_to_hard_constraint_forbidden")
@@ -53,7 +56,7 @@ def compile_lawful_constraints(workspace_path: Path) -> ConstraintCompilationRes
                 continue
             target_sources = outgoing.get(str(target["id"]), [])
             if any(
-                str(nodes.get(str(src["to"]), {}).get("node_type")) in {"source_fact", "derived_metric"}
+                str(nodes.get(str(src["to"]), {}).get("node_type")) in {"source_fact", "derived_metric", "confirmed_assumption"}
                 for src in target_sources
                 if str(src.get("edge_type")) == "DERIVED_FROM"
             ):

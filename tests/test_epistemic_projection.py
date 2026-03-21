@@ -114,6 +114,32 @@ class EpistemicProjectionTests(unittest.TestCase):
         self.assertIn("n1", ids)
         self.assertNotIn("n2", ids)
 
+    def test_viewpoint_projection_tracks_supporting_claims_when_present(self):
+        graph = default_graph(self.ref.workspace_id)
+        graph["updated_at"] = "2026-03-19T00:00:00+00:00"
+        graph["nodes"] = [
+            {
+                "id": "layer_1_claim",
+                "artifact_rel": "layers/layer_1_business_model.md",
+                "node_type": "source_fact",
+                "statement": "core revenue model is unstable",
+                "source_refs": ["layers/layer_1_business_model.md:L1"],
+                "epistemic_status": "observed",
+                "stage": "layers",
+                "owner": "analyst",
+                "created_at": "2026-03-19T00:00:00+00:00",
+                "updated_at": "2026-03-19T00:00:00+00:00",
+            }
+        ]
+        save_graph(self.ref.path / "analysis" / "epistemic_graph.json", graph)
+
+        projection = build_projection(self.ref.path, "viewpoint_projection")
+        self.assertEqual(projection["included_node_ids"], ["layer_1_claim"])
+        self.assertEqual(
+            projection["projection_payload"]["supporting_claims"][0]["id"],
+            "layer_1_claim",
+        )
+
     def test_selection_projection_keeps_only_lawful_constraints(self):
         graph = default_graph(self.ref.workspace_id)
         graph["updated_at"] = "2026-03-19T00:00:00+00:00"

@@ -11,6 +11,8 @@ NODE_TYPES = {
     "source_fact",
     "derived_metric",
     "normative_target",
+    "assumption",
+    "confirmed_assumption",
     "interpretation",
     "hypothesis",
     "problem",
@@ -26,6 +28,9 @@ EDGE_TYPES = {
     "RELATES_TO",
     "CONTRADICTS",
 }
+
+NON_SUBSTANTIVE_NODE_FIELDS = {"created_at", "updated_at"}
+LEGACY_NODE_ID_RE = re.compile(r"^(?P<artifact_rel>.+?)::(?P<node_type>[^:]+)::(?P<claim_order>\d{3})(?:::.*)?$")
 
 
 def _utc_now_iso() -> str:
@@ -115,8 +120,29 @@ def _slug(text: str) -> str:
     return cleaned or "claim"
 
 
+def _parse_claim_order(node: Dict[str, object]) -> int:
+    raw = node.get("claim_order")
+    if raw is not None:
+        try:
+            return int(raw)
+        except (TypeError, ValueError):
+            pass
+    match = LEGACY_NODE_ID_RE.match(str(node.get("id") or ""))
+    if match:
+        return int(match.group("claim_order"))
+    return 0
+
+
+def _stable_node_identity(node: Dict[str, object]) -> Tuple[str, str, int]:
+    return (
+        str(node.get("artifact_rel") or ""),
+        str(node.get("node_type") or ""),
+        _parse_claim_order(node),
+    )
+
+
 def make_node_id(artifact_rel: str, node_type: str, statement: str, index: int) -> str:
-    return f"{artifact_rel}::{node_type}::{index:03d}::{_slug(statement)[:40]}"
+    return f"{artifact_rel}::{node_type}::{index:03d}"
 
 
 def build_node(
@@ -135,6 +161,7 @@ def build_node(
         "id": make_node_id(artifact_rel, node_type, statement, index),
         "artifact_rel": artifact_rel,
         "node_type": node_type,
+        "claim_order": index,
         "statement": statement,
         "source_refs": source_refs,
         "epistemic_status": epistemic_status,
@@ -256,7 +283,7 @@ def extract_claims_from_artifact(
     elif artifact_type == "comparison_acceptance_spec":
         metric_ids = add_nodes("derived_metric", _extract_bullets(_extract_md_section(body, "indicators")), "inferred")
         constraint_ids = add_nodes("decision_constraint", _extract_bullets(_extract_md_section(body, "hard_constraints")), epi)
-        assumption_ids = add_nodes("hypothesis", _extract_bullets(_extract_md_section(body, "assumptions_to_confirm")), "hypothesis")
+        assumption_ids = add_nodes("assumption", _extract_bullets(_extract_md_section(body, "assumptions_to_confirm")), "hypothesis")
         for constraint_id in constraint_ids:
             for metric_id in metric_ids:
                 edges.append(build_edge("CONSTRAINS", constraint_id, metric_id, artifact_rel))
@@ -271,18 +298,73 @@ def merge_graph_entities(
     graph: Dict[str, object],
     nodes: List[Dict[str, object]],
     edges: List[Dict[str, object]],
-) -> Tuple[Dict[str, object], Dict[str, Dict[str, object]], Dict[str, Dict[str, object]]]:
+) -> Tuple[Dict[str, object], Dict[str, Dict[str, object]], Dict[str, Dict[str, object]], List[Dict[str, object]]]:
     existing_nodes = {str(node["id"]): dict(node) for node in graph.get("nodes", [])}
+    existing_nodes_by_identity = {_stable_node_identity(node): dict(node) for node in graph.get("nodes", [])}
     existing_edges = {
         (str(edge["edge_type"]), str(edge["from"]), str(edge["to"])): dict(edge)
         for edge in graph.get("edges", [])
     }
     previous_nodes = dict(existing_nodes)
+    node_diffs: List[Dict[str, object]] = []
+    node_id_remap: Dict[str, str] = {}
 
     for node in nodes:
-        existing_nodes[str(node["id"])] = node
+        incoming = dict(node)
+        node_id = str(incoming["id"])
+        identity = _stable_node_identity(incoming)
+        previous = existing_nodes.get(node_id)
+        if previous is None:
+            previous = existing_nodes_by_identity.get(identity)
+        if previous is not None:
+            previous_id = str(previous["id"])
+            if previous_id != node_id:
+                node_id_remap[previous_id] = node_id
+            # Keep stable creation timestamp for the same logical node id.
+            if previous.get("created_at") and incoming.get("created_at") != previous.get("created_at"):
+                incoming["created_at"] = previous.get("created_at")
+            changed_fields = {
+                key: {
+                    "before": previous.get(key),
+                    "after": incoming.get(key),
+                }
+                for key in sorted(set(previous) | set(incoming))
+                if key not in NON_SUBSTANTIVE_NODE_FIELDS and previous.get(key) != incoming.get(key)
+            }
+            if changed_fields:
+                node_diffs.append(
+                    {
+                        "node_id": node_id,
+                        "change_type": "updated",
+                        "changed_fields": changed_fields,
+                    }
+                )
+        else:
+            node_diffs.append(
+                {
+                    "node_id": node_id,
+                    "change_type": "created",
+                    "changed_fields": {
+                        key: {"before": None, "after": incoming.get(key)}
+                        for key in sorted(incoming)
+                    },
+                }
+            )
+        existing_nodes[node_id] = incoming
+        existing_nodes_by_identity[identity] = incoming
+        if previous is not None and str(previous["id"]) != node_id:
+            existing_nodes.pop(str(previous["id"]), None)
     for edge in edges:
         existing_edges[(str(edge["edge_type"]), str(edge["from"]), str(edge["to"]))] = edge
+
+    if node_id_remap:
+        remapped_edges: Dict[Tuple[str, str, str], Dict[str, object]] = {}
+        for edge in existing_edges.values():
+            new_edge = dict(edge)
+            new_edge["from"] = node_id_remap.get(str(new_edge["from"]), str(new_edge["from"]))
+            new_edge["to"] = node_id_remap.get(str(new_edge["to"]), str(new_edge["to"]))
+            remapped_edges[(str(new_edge["edge_type"]), str(new_edge["from"]), str(new_edge["to"]))] = new_edge
+        existing_edges = remapped_edges
 
     merged = {
         "workspace_id": graph["workspace_id"],
@@ -292,4 +374,4 @@ def merge_graph_entities(
         "edges": list(existing_edges.values()),
     }
     validate_graph(merged)
-    return merged, previous_nodes, existing_nodes
+    return merged, previous_nodes, existing_nodes, node_diffs

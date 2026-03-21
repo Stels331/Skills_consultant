@@ -190,7 +190,8 @@ class StageOrchestrator:
         rationale: Optional[str] = None,
     ) -> StageRunResult:
         started_at = perf_counter()
-        signals = signals or {}
+        incoming_signals = dict(signals or {})
+        effective_signals = dict(incoming_signals)
         checks_applied = checks_applied or [
             "artifact_contract_validation",
             "semantic_judge",
@@ -223,10 +224,10 @@ class StageOrchestrator:
             and validation.is_valid
             and str(doc.frontmatter.get("state") or "") == "accepted_for_next_stage"
             and not _is_valid_until_expired(str(doc.frontmatter.get("valid_until") or ""))
-            and not signals.get("recheck_trigger")
-            and not signals.get("force_block")
-            and not signals.get("force_degrade")
-            and bool(signals.get("allow_reuse", True))
+            and not incoming_signals.get("recheck_trigger")
+            and not incoming_signals.get("force_block")
+            and not incoming_signals.get("force_degrade")
+            and bool(incoming_signals.get("allow_reuse", True))
         ):
             artifact = dict(doc.frontmatter)
             payload = {
@@ -295,7 +296,7 @@ class StageOrchestrator:
         inherited_epistemic_status = ""
         freshness_expired = False
         refresh_info: Dict[str, str] = {}
-        waive_ready = _has_complete_waive(signals)
+        waive_ready = _has_complete_waive(incoming_signals)
         if doc is not None and validation.is_valid:
             graph = build_and_persist_evidence_graph(
                 workspace_path=workspace_path,
@@ -329,13 +330,13 @@ class StageOrchestrator:
                     doc.frontmatter["updated_at"] = _utc_now_iso()
                     doc.frontmatter["gate_status"] = "block"
 
-            if freshness_expired or bool(signals.get("recheck_trigger")):
+            if freshness_expired or bool(incoming_signals.get("recheck_trigger")):
                 refresh_info = register_refresh_event(
                     workspace_path=workspace_path,
                     stage_name=stage_name,
                     artifact_rel_path=str(artifact_path.relative_to(workspace_path)),
                     reason="valid_until expired" if freshness_expired else "context recheck trigger",
-                    trigger=str(signals.get("recheck_trigger") or ("expired_valid_until" if freshness_expired else "manual")),
+                    trigger=str(incoming_signals.get("recheck_trigger") or ("expired_valid_until" if freshness_expired else "manual")),
                 )
 
             write_frontmatter_document(artifact_path, doc)
@@ -382,14 +383,14 @@ class StageOrchestrator:
         semantic_issues: List[Dict[str, str]] = []
         semantic_provider = ""
         semantic_score = None
-        if doc is not None and not signals.get("skip_semantic_checks"):
+        if doc is not None and not incoming_signals.get("skip_semantic_checks"):
             sem = run_semantic_judge(
                 stage_name=stage_name,
                 artifact_path=artifact_path,
                 frontmatter=doc.frontmatter,
                 body_text=doc.body,
                 principles=principles,
-                mode=str(signals.get("semantic_judge_mode") or ""),
+                mode=str(incoming_signals.get("semantic_judge_mode") or ""),
             )
             semantic_result = sem.recommendation
             semantic_provider = sem.provider
@@ -415,11 +416,12 @@ class StageOrchestrator:
             + stage_guard_violations,
             semantic_issues=semantic_issues,
             assurance_issues=assurance_issues,
-            signals=signals,
+            signals=effective_signals,
         )
-        if matrix.reentry_trigger and not signals.get("recheck_trigger"):
-            signals = dict(signals)
-            signals["recheck_trigger"] = matrix.reentry_trigger
+        computed_recheck_trigger = ""
+        if matrix.reentry_trigger and not incoming_signals.get("recheck_trigger"):
+            computed_recheck_trigger = matrix.reentry_trigger
+            effective_signals["recheck_trigger"] = matrix.reentry_trigger
             refresh_info = register_refresh_event(
                 workspace_path=workspace_path,
                 stage_name=stage_name,
@@ -441,8 +443,8 @@ class StageOrchestrator:
                 assurance_result=assurance_result,
                 matrix_outcome=matrix.outcome,
                 freshness_expired=freshness_expired,
-                has_recheck_trigger=bool(signals.get("recheck_trigger")),
-                signals=signals,
+                has_recheck_trigger=bool(effective_signals.get("recheck_trigger")),
+                signals=effective_signals,
                 rationale=rationale,
             )
             if gate_result == "pass" and contract_route in {"degrade", "sanitize"}:
@@ -456,9 +458,9 @@ class StageOrchestrator:
 
         if validation.is_valid and doc is not None and matrix.waive_used:
             waive_context = {
-                "policy_id": str(signals.get("waive_policy_id") or ""),
-                "owner": str(signals.get("waive_owner") or ""),
-                "rationale": str(signals.get("waive_rationale") or matrix.waive_note),
+                "policy_id": str(incoming_signals.get("waive_policy_id") or ""),
+                "owner": str(incoming_signals.get("waive_owner") or ""),
+                "rationale": str(incoming_signals.get("waive_rationale") or matrix.waive_note),
             }
             if prev_state == "expired":
                 artifact["state"] = "waived"
@@ -517,7 +519,7 @@ class StageOrchestrator:
         )
         checks_abstained: List[str] = []
 
-        if signals.get("skip_semantic_checks"):
+        if incoming_signals.get("skip_semantic_checks"):
             checks_abstained.append("semantic_judge")
 
         payload = {
@@ -531,7 +533,9 @@ class StageOrchestrator:
             "rationale": rationale or "",
             "timestamp": _utc_now_iso(),
             "freshness_basis": artifact.get("valid_until", ""),
-            "recheck_trigger": signals.get("recheck_trigger", ""),
+            "recheck_trigger": str(effective_signals.get("recheck_trigger") or ""),
+            "incoming_recheck_trigger": str(incoming_signals.get("recheck_trigger") or ""),
+            "computed_recheck_trigger": computed_recheck_trigger,
             "stage_name": stage_name,
             "workspace_id": workspace_id,
             "artifact_path": str(artifact_path.relative_to(workspace_path)),
@@ -597,7 +601,9 @@ class StageOrchestrator:
                 "to_state": next_state,
                 "duration_ms": round((perf_counter() - started_at) * 1000, 3),
                 "reused_artifact": False,
-                "recheck_trigger": signals.get("recheck_trigger", ""),
+                "recheck_trigger": str(effective_signals.get("recheck_trigger") or ""),
+                "incoming_recheck_trigger": str(incoming_signals.get("recheck_trigger") or ""),
+                "computed_recheck_trigger": computed_recheck_trigger,
                 "waive_used": matrix.waive_used,
             },
         )

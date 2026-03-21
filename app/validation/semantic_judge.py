@@ -31,6 +31,59 @@ class SemanticJudgeResult:
     provider: str
 
 
+STRUCTURAL_ISSUE_CODES = {
+    "BODY_TOO_SHORT",
+    "PLACEHOLDER_CONTENT",
+}
+
+EVIDENTIARY_ISSUE_CODES = {
+    "MISSING_SOURCE_REFS",
+    "MISSING_EVIDENCE_REFS",
+    "UNANCHORED_NUMERIC_CLAIMS",
+    "CROSS_CASE_CONTAMINATION",
+    "SEMANTIC_DOMAIN_DRIFT",
+    "FPF_BOUNDARY_SOUP",
+    "CHR_TARGET_PRESENTED_AS_FACT",
+}
+
+
+def _issue_bucket(issue: SemanticIssue) -> str:
+    if issue.code in STRUCTURAL_ISSUE_CODES:
+        return "structural"
+    if issue.code in EVIDENTIARY_ISSUE_CODES or issue.code.startswith(("FPF_", "CHR_")):
+        return "evidentiary"
+    return "principle"
+
+
+def _recommendation_from_issues(issues: List[SemanticIssue]) -> str:
+    by_bucket = {"structural": [], "evidentiary": [], "principle": []}
+    for issue in issues:
+        by_bucket[_issue_bucket(issue)].append(issue)
+
+    if any(issue.severity == "high" for issue in issues):
+        return "block"
+
+    structural_medium = sum(1 for issue in by_bucket["structural"] if issue.severity == "medium")
+    evidentiary_medium = any(issue.severity == "medium" for issue in by_bucket["evidentiary"])
+    principle_medium = any(issue.severity == "medium" for issue in by_bucket["principle"])
+
+    if evidentiary_medium or principle_medium or structural_medium >= 2:
+        return "degrade"
+    return "pass"
+
+
+def _score_from_issues(issues: List[SemanticIssue]) -> float:
+    penalties = {
+        "structural": {"high": 0.22, "medium": 0.05, "low": 0.02},
+        "evidentiary": {"high": 0.25, "medium": 0.10, "low": 0.03},
+        "principle": {"high": 0.18, "medium": 0.07, "low": 0.02},
+    }
+    score = 1.0
+    for issue in issues:
+        score -= penalties[_issue_bucket(issue)].get(issue.severity, 0.0)
+    return round(max(0.0, score), 3)
+
+
 def _contains_placeholder(text: str) -> bool:
     low = text.lower()
     markers = ["todo", "tbd", "lorem ipsum", "fixme", "...", "заполнить"]
@@ -162,20 +215,11 @@ def _local_rule_judge(
             if not any(h in body.lower() for h in separation_hints):
                 issues.append(SemanticIssue("EPISTEMIC_LAYERS_BLURRED", "Facts and hypotheses are not clearly separated", "medium"))
 
-    high_count = sum(1 for i in issues if i.severity == "high")
-    med_count = sum(1 for i in issues if i.severity == "medium")
-
-    if high_count > 0:
-        recommendation = "block"
-    elif med_count > 0:
-        recommendation = "degrade"
-    else:
-        recommendation = "pass"
-
-    score = max(0.0, 1.0 - 0.25 * high_count - 0.1 * med_count)
+    recommendation = _recommendation_from_issues(issues)
+    score = _score_from_issues(issues)
     return SemanticJudgeResult(
         is_valid=recommendation != "block",
-        score=round(score, 3),
+        score=score,
         recommendation=recommendation,
         issues=issues,
         provider="local-rules",

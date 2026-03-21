@@ -370,6 +370,27 @@ class SolutionFactoryPipelineTests(unittest.TestCase):
         self.assertIn("## traceability", txt)
         self.assertIn("selected_solutions", out)
 
+    def test_parity_and_selection_store_raw_llm_outputs(self):
+        run_solution_portfolio(self.root, self.ref.workspace_id, llm_mode="local")
+        run_parity_tradeoff(self.root, self.ref.workspace_id, llm_mode="local")
+        run_conflict_router(self.root, self.ref.workspace_id, llm_mode="local")
+        with patch(
+            "app.pipeline.selection_engine.assess_decision_readiness",
+            return_value={"insufficient_for_decision": False, "missing_dimensions": [], "gap_hits": 0, "numeric_signals": 12},
+        ):
+            run_selection_engine(self.root, self.ref.workspace_id, llm_mode="local")
+
+        debug_dir = self.ref.path / "analysis" / "debug" / "llm_raw"
+        self.assertTrue((debug_dir / "parity_plan.raw.md").is_file())
+        self.assertTrue((debug_dir / "parity_report.raw.md").is_file())
+        self.assertTrue((debug_dir / "tradeoff_table.raw.md").is_file())
+        self.assertTrue((debug_dir / "selected_solutions.raw.md").is_file())
+
+        parity_plan = read_frontmatter_document(self.ref.path / "solutions" / "ParityPlan.md").body
+        self.assertIn("## assumptions", parity_plan)
+        self.assertIn("## evaluation_window", parity_plan)
+        self.assertIn("## indicators_in_scope", parity_plan)
+
     def test_s4_t4_selection_stays_provisional_when_decision_readiness_is_low(self):
         with patch(
             "app.pipeline.selection_engine.assess_decision_readiness",

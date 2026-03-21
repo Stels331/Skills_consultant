@@ -8,10 +8,12 @@ from typing import Dict, List
 
 VALID_EVENT_TYPES = {
     "claim_created",
+    "claim_updated",
     "claim_promoted",
     "claim_degraded",
     "constraint_compiled",
     "conflict_marked",
+    "conflict_resolved",
     "projection_emitted",
 }
 

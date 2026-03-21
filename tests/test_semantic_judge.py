@@ -3,10 +3,18 @@ import tempfile
 from pathlib import Path
 
 from app.principles.library import Principle
-from app.validation.semantic_judge import run_semantic_judge
+from app.validation.semantic_judge import SemanticIssue, _recommendation_from_issues, _score_from_issues, run_semantic_judge
 
 
 class SemanticJudgeTests(unittest.TestCase):
+    def test_structural_and_principle_scoring_are_separated(self):
+        issues = [
+            SemanticIssue("BODY_TOO_SHORT", "too short", "medium"),
+            SemanticIssue("ANTI_GOODHART_MISSING", "missing anti-goodhart section", "medium"),
+        ]
+        self.assertEqual(_recommendation_from_issues(issues), "degrade")
+        self.assertLess(_score_from_issues(issues), 0.9)
+
     def test_local_semantic_block_for_missing_source_refs(self):
         result = run_semantic_judge(
             stage_name="intake",

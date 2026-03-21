@@ -291,6 +291,8 @@ updated_at: 2026-03-03T12:00:00+00:00
         )
         self.assertEqual(payload["validation_matrix"]["reentry_trigger"], "impact_target_not_achieved")
         self.assertEqual(payload["recheck_trigger"], "impact_target_not_achieved")
+        self.assertEqual(payload["incoming_recheck_trigger"], "")
+        self.assertEqual(payload["computed_recheck_trigger"], "impact_target_not_achieved")
 
     def test_reporting_surfaces_rejected_alternative_classes(self):
         selected = self.ref.path / "solutions" / "SelectedSolutions.md"

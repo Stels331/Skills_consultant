@@ -46,8 +46,9 @@ def sync_artifact_to_epistemic_store(
         return
 
     graph = load_graph(graph_path, workspace_id)
-    merged, previous_nodes, current_nodes = merge_graph_entities(graph, nodes, edges)
+    merged, previous_nodes, current_nodes, node_diffs = merge_graph_entities(graph, nodes, edges)
     save_graph(graph_path, merged)
+    diffs_by_node_id = {str(item["node_id"]): item for item in node_diffs}
 
     for node in nodes:
         node_id = str(node["id"])
@@ -69,6 +70,21 @@ def sync_artifact_to_epistemic_store(
                 ),
             )
         else:
+            diff = diffs_by_node_id.get(node_id)
+            if diff and diff.get("change_type") == "updated":
+                append_event(
+                    ledger_path,
+                    build_event(
+                        event_type="claim_updated",
+                        workspace_id=workspace_id,
+                        stage=stage,
+                        target_id=node_id,
+                        payload={
+                            "artifact_rel": artifact_rel,
+                            "changed_fields": diff["changed_fields"],
+                        },
+                    ),
+                )
             previous_status = str(previous.get("epistemic_status") or "inferred")
             if EPI_RANK.get(current_status, 0) > EPI_RANK.get(previous_status, 0):
                 append_event(

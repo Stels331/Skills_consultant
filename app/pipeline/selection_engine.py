@@ -25,6 +25,12 @@ SELECTED_RE = re.compile(r"^\s*[-*+]\s+(?:\*\*)?[`'\"]?(sol_[a-z0-9_]+)[`'\"]?(?
 INLINE_SELECTED_RE = re.compile(r"\b(sol_[a-z0-9_]+)\b", re.IGNORECASE)
 
 
+def _write_raw_llm_output(workspace: Path, artifact_name: str, raw_text: str) -> None:
+    path = workspace / "analysis" / "debug" / "llm_raw" / artifact_name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(raw_text, encoding="utf-8")
+
+
 def _parse_portfolio_candidates(body: str) -> Dict[str, Dict[str, str]]:
     candidates: Dict[str, Dict[str, str]] = {}
     current = ""
@@ -401,6 +407,7 @@ def run_selection_engine(project_root: Path, workspace_id: str, llm_mode: str = 
         },
         mode=llm_mode,
     )
+    _write_raw_llm_output(workspace, "selected_solutions.raw.md", selected)
     candidates = _parse_portfolio_candidates(portfolio_text)
     selected_ids = _extract_selected_ids(selected)
 

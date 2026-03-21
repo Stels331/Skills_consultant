@@ -106,6 +106,12 @@ def _validate_parity_artifact(kind: str, body: str, allowed_ids: Set[str]) -> bo
     return True
 
 
+def _write_raw_llm_output(workspace: Path, artifact_name: str, raw_text: str) -> None:
+    path = workspace / "analysis" / "debug" / "llm_raw" / artifact_name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(raw_text, encoding="utf-8")
+
+
 def run_parity_tradeoff(project_root: Path, workspace_id: str, llm_mode: str = "local") -> Dict[str, object]:
     workspace = project_root / "cases" / workspace_id
     out_dir = workspace / "solutions"
@@ -132,6 +138,7 @@ def run_parity_tradeoff(project_root: Path, workspace_id: str, llm_mode: str = "
         },
         mode=llm_mode,
     )
+    _write_raw_llm_output(workspace, "parity_plan.raw.md", parity_plan)
     parity_plan = soften_unanchored_claims(parity_plan)
     if not _validate_parity_artifact("parity_plan", parity_plan, allowed_id_set):
         print("  [WARN] Parity Plan failed validation. Falling back to canonical parity plan.")
@@ -147,6 +154,7 @@ def run_parity_tradeoff(project_root: Path, workspace_id: str, llm_mode: str = "
         },
         mode=llm_mode,
     )
+    _write_raw_llm_output(workspace, "parity_report.raw.md", parity_report)
     parity_report = soften_unanchored_claims(parity_report)
     if not _validate_parity_artifact("parity_report", parity_report, allowed_id_set):
         print("  [WARN] Parity Report failed validation. Falling back to canonical parity report.")
@@ -162,6 +170,7 @@ def run_parity_tradeoff(project_root: Path, workspace_id: str, llm_mode: str = "
         },
         mode=llm_mode,
     )
+    _write_raw_llm_output(workspace, "tradeoff_table.raw.md", tradeoff)
     tradeoff = soften_unanchored_claims(tradeoff)
     if not _validate_parity_artifact("tradeoff_table", tradeoff, allowed_id_set):
         print("  [WARN] Tradeoff Table failed validation. Falling back to canonical tradeoff table.")
