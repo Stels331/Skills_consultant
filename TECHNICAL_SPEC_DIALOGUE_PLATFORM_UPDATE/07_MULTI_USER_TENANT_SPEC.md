@@ -178,6 +178,8 @@ Authorization должен проверяться на уровнях:
 
 Даже если billing не включен в первой версии, модель должна быть готова к нему.
 
+Для MVP billing readiness означает placeholder-level readiness, а не обязательную реализацию полной invoice/subscription логики.
+
 Минимальные сущности:
 
 - `subscriptions`

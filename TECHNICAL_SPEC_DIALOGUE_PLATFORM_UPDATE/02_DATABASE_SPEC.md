@@ -153,10 +153,20 @@
 - `status`
 - `format`
 - `payload_jsonb`
+- `parse_metadata_jsonb`
+- `artifact_trust_level`
 - `summary_text`
 - `file_path`
 - `created_at`
 - `updated_at`
+
+Для contract-sensitive artifacts canonical storage должен поддерживать:
+
+- `parse_metadata_jsonb`
+- `artifact_trust_level`
+- field-level provenance / trust metadata inside payload or linked audit event
+
+Это требуется для downstream handling degraded artifacts и для согласованности с file/frontmatter representation.
 
 ### 3.4. claims
 
@@ -165,6 +175,7 @@
 Поля:
 
 - `id`
+- `organization_id`
 - `workspace_id`
 - `workspace_version_id`
 - `claim_key`
@@ -247,6 +258,7 @@
 - `id`
 - `organization_id`
 - `workspace_id`
+- `workspace_version_id`
 - `session_id`
 - `role`
 - `message_type`
@@ -315,6 +327,16 @@
 ### 3.11. retrieval_chunks
 
 Хранит chunks для retrieval.
+
+Политика dialogue retrieval должна быть двухслойной:
+
+- typed graph retrieval — primary;
+- section/BM25 text retrieval — supplementary only.
+
+Правило:
+
+- text retrieval не может быть единственным answer-grade grounding source при `0` typed claims;
+- text retrieval используется только для contextual support, а не как замена claim-grade evidence.
 
 Поля:
 
@@ -451,6 +473,8 @@ create table artifacts (
   status text not null,
   format text not null,
   payload_jsonb jsonb not null default '{}'::jsonb,
+  parse_metadata_jsonb jsonb not null default '{}'::jsonb,
+  artifact_trust_level text not null default 'trusted',
   summary_text text not null default '',
   file_path text,
   created_at timestamptz not null default now(),
@@ -524,6 +548,7 @@ create table dialogue_messages (
   id uuid primary key,
   organization_id uuid not null references organizations(id),
   workspace_id uuid not null references workspaces(id),
+  workspace_version_id uuid references workspace_versions(id),
   session_id uuid not null references dialogue_sessions(id),
   role text not null,
   message_type text not null,
@@ -575,7 +600,31 @@ create table governance_events (
   target_type text not null,
   target_id text not null,
   payload_jsonb jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  check (
+    event_type in (
+      'workspace_created',
+      'artifact_created',
+      'artifact_updated',
+      'claim_created',
+      'claim_updated',
+      'claim_promoted',
+      'claim_degraded',
+      'claim_linked',
+      'dialogue_started',
+      'user_question_added',
+      'assistant_answer_generated',
+      'answer_blocked_by_validator',
+      'clarification_requested',
+      'clarification_accepted',
+      'model_reentry_started',
+      'model_reentry_finished',
+      'projection_emitted',
+      'projection_refreshed',
+      'stage_recomputed',
+      'workspace_exported'
+    )
+  )
 );
 ```
 
@@ -700,7 +749,15 @@ Append-only события должны покрывать:
 - `model_reentry_started`
 - `model_reentry_finished`
 - `projection_emitted`
+- `projection_refreshed`
+- `stage_recomputed`
 - `workspace_exported`
+
+Допускается существование информационного graph-native класса:
+
+- `duplicate_claim_cluster`
+
+`duplicate_claim_cluster` фиксирует дублирование или adjacent epistemic restatement и не считается unresolved contradiction для selection path.
 
 ## 7. Data rules
 
@@ -777,6 +834,17 @@ Append-only события должны покрывать:
 3. На время миграции поддерживать dual-write.
 4. Перевести orchestrator/read-model на чтение из БД.
 5. Оставить file exports как secondary layer.
+
+### 9.1. Dual-write exit criteria
+
+Dual-write должен быть временным режимом.
+
+Его можно отключать только если одновременно выполнены условия:
+
+- DB read model используется всеми runtime-critical services;
+- file exports подтверждены как reconstructable from DB;
+- regression suite подтверждает parity DB-first vs export-materialized outputs на согласованном наборе кейсов;
+- governance/events больше не зависят от file-first write path.
 
 ## 10. Почему PostgreSQL
 

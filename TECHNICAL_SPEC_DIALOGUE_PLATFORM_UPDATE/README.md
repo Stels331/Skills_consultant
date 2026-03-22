@@ -12,6 +12,9 @@
 - `06_LLM_ROUTING_POLICY_SPEC.md` — policy выбора моделей, routing tiers, budget profiles, fallback и optional OmniRoute integration.
 - `07_MULTI_USER_TENANT_SPEC.md` — регистрация, аккаунты, организации, роли, tenant isolation, billing readiness и позиционирование `open-saas` как reference layer.
 - `08_AUTH_BILLING_AND_TENANT_ER_MODEL.md` — точная ER-модель users/organizations/memberships/workspace permissions/subscriptions и их связь с case platform.
+- `09_DIALOGUE_RETRIEVAL_ARCHITECTURE.md` — graph-first retrieval для диалогового слоя, `QuestionRouter`, supplementary BM25 по секциям, `GroundingBundle`, versioning и FPF-aware answer grounding.
+- `10_DIALOGUE_LAYER_IMPLEMENTATION_PLAN.md` — поэтапный план внедрения диалогового слоя: router, graph retrieval, BM25 indexing, grounding bundle, answer validation, session/version binding и clarification-driven model updates.
+- `11_DIALOGUE_MODEL_UPDATE_AND_REENTRY_SPEC.md` — как система принимает недостающую информацию от пользователя, типизирует её, записывает в граф, запускает partial async re-entry, ведет version-aware диалог и строит diff изменений из ledger.
 
 Назначение обновления:
 

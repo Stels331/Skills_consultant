@@ -33,6 +33,7 @@
 - добавить dual-write для новых кейсов;
 - настроить event tables и governance writes.
 - подготовить Docker packaging foundation.
+- определить dual-write exit criteria.
 
 Definition of done:
 
@@ -97,10 +98,12 @@ Definition of done:
 
 - dialogue sessions/messages;
 - retrieval service;
+- QuestionRouter;
 - quota preflight checks;
 - prompt builder;
 - answer schema;
 - FPF response validator;
+- graph-first retrieval + supplementary BM25 policy;
 - базовый dialogue API.
 - LLM adapter layer для нескольких провайдеров.
 - базовый policy routing tier model.
@@ -124,10 +127,13 @@ Definition of done:
 
 - question queue;
 - clarification UI/API;
+- typed_input_classifier;
+- input_acceptance_check;
 - typed answer ingestion;
 - model update engine;
 - re-entry planner;
 - async re-entry jobs and worker flow;
+- workspace version status API;
 - diff visualization.
 
 Definition of done:
@@ -137,6 +143,7 @@ Definition of done:
 - модель обновляется;
 - affected stages rechecked без полного rerun;
 - re-entry выполняется асинхронно и наблюдаем через job status.
+- диалог остается version-aware во время re-entry.
 
 ### Этап 5. Multi-case isolation
 

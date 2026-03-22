@@ -102,6 +102,22 @@
 - какие решения/ограничения могут измениться;
 - diff между предыдущей и текущей моделью.
 
+Diff должен строиться не произвольно, а из event types:
+
+- `claim_created`
+- `claim_updated`
+- `claim_promoted`
+- `claim_degraded`
+- `projection_refreshed`
+- `stage_recomputed`
+
+Панель также должна показывать version state:
+
+- `current_published_version`
+- `pending_version`
+- `reentry_status`
+- `affected_stages`
+
 ### 3.7. Governance Log Panel
 
 Показывает:
@@ -224,6 +240,15 @@
 - показывается progress re-entry;
 - потом diff updated model;
 - затем ответ в диалоге помечается как refreshed.
+
+Если re-entry еще выполняется, UI должен явно показывать:
+
+- `current_published_version`
+- `pending_version`
+- `reentry_status`
+- список `affected_stages`
+
+Пока `reentry_status = in_progress`, ответы строятся по published version с обязательным disclaimer.
 
 ## 8. Multi-case isolation в UI
 

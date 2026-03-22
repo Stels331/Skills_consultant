@@ -159,12 +159,24 @@
 
 Ответы пользователя не пишутся просто как свободный текст в историю. Они должны быть типизированы как:
 
-- `source_fact`
-- `assumption`
-- `confirmed_assumption`
-- `normative_target`
-- `decision_constraint`
-- `interpretation`
+- промежуточные user-origin types:
+  - `user_asserted_fact`
+  - `user_declared_constraint`
+  - `user_hypothesis`
+  - `user_normative_target`
+- и только затем, после lawful acceptance/promotion:
+  - `source_fact`
+  - `confirmed_assumption`
+  - `normative_target`
+  - `decision_constraint`
+  - `interpretation`
+
+Обязательная последовательность:
+
+- `QuestionRouter` решает, является ли ввод ordinary question или `clarification_provided`;
+- `typed_input_classifier` присваивает промежуточный type;
+- `input_acceptance_check` решает, можно ли писать ввод в graph;
+- только после этого выполняется graph write.
 
 ### 6.5. Re-entry only for affected stages
 
@@ -174,6 +186,17 @@
 - какие projections устарели;
 - какие стадии должны быть rechecked;
 - какие решения должны быть downgraded или blocked.
+
+`ReentryPlanner` не должен опираться только на hardcoded mapping по `node_type`.
+Планирование должно идти через artifact lineage traversal:
+
+- updated node -> dependent projections -> dependent stages -> stale outputs.
+
+Во время async re-entry диалог должен оставаться version-aware:
+
+- ответы строятся по `current_published_version`;
+- `pending_version` не используется silently;
+- пользователь получает явный disclaimer, если пересчет еще идет.
 
 ### 6.6. Provider abstraction before gateway dependence
 

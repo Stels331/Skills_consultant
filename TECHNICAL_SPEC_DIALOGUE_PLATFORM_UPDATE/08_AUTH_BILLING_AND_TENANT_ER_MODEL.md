@@ -11,6 +11,12 @@
 - billing/subscription;
 - связи account layer с case/dialogue/claim model.
 
+Примечание по scope:
+
+- auth/tenant model входит в core platform architecture;
+- billing model на текущем этапе фиксируется как placeholder/readiness layer;
+- детальная invoice lifecycle implementation не является частью MVP-critical scope.
+
 ## 2. Базовые сущности
 
 ### 2.1. users
@@ -219,21 +225,15 @@
 
 ### 4.5. invoices
 
-Назначение:
+`invoices` остаются optional placeholder entity для post-MVP billing expansion.
 
-- локальный реестр invoice-related данных.
-
-Поля:
+Для первой версии достаточно зафиксировать:
 
 - `id`
 - `organization_id`
 - `subscription_id`
 - `provider_invoice_ref`
 - `status`
-- `amount_total`
-- `currency`
-- `issued_at`
-- `paid_at`
 - `created_at`
 
 ## 5. Связи между сущностями

@@ -20,7 +20,10 @@
 - `DialogueSessionRepository`
 - `QuestionQueueRepository`
 - `GovernanceEventRepository`
+- `QuestionRouter`
 - `RetrievalService`
+- `TypedInputClassifier`
+- `InputAcceptanceService`
 - `PromptBuilder`
 - `DialogueOrchestrator`
 - `FPFResponseValidator`
@@ -33,6 +36,7 @@
 - `DeploymentHealthService`
 - `QuotaEnforcementService`
 - `EmbeddingLifecycleManager`
+- `SectionContractGuard`
 
 ### 2.2. Обязанности компонентов
 
@@ -40,17 +44,58 @@
 
 - принимает пользовательский вопрос;
 - получает active workspace and session;
-- инициирует retrieval;
+- вызывает `QuestionRouter`;
+- направляет `clarification_provided` в `ModelUpdateEngine`, а не в ordinary retrieval path;
+- инициирует retrieval только для ordinary Q&A classes;
 - вызывает prompt builder;
 - получает answer draft от LLM;
 - запускает FPF validation;
 - сохраняет ответ и связанные события.
 
+`QuestionRouter`:
+
+- классифицирует ввод в:
+  - `constraint_query`
+  - `problem_query`
+  - `solution_query`
+  - `report_query`
+  - `evidence_query`
+  - `clarification_needed`
+  - `clarification_provided`;
+- возвращает confidence и safe fallback route;
+- при низкой уверенности предпочитает `evidence_query` или `clarification_needed`.
+
 `RetrievalService`:
 
+- использует typed graph retrieval как primary path;
+- использует text retrieval только как supplementary layer;
+- не должен строить answer-grade grounding из text-only retrieval при `0` typed claims;
 - извлекает claims и chunks только текущего кейса;
 - формирует ranked grounding bundle;
 - учитывает signal types: facts, constraints, assumptions, open unknowns, conflicts.
+- должен строить grounding bundle с явным разделением:
+  - `typed_claims` (primary, verified)
+  - `text_fragments` (secondary, supplementary only)
+  - `graph_version`
+  - `workspace_version`
+
+`TypedInputClassifier`:
+
+- классифицирует свободный пользовательский ввод в промежуточные user-origin types:
+  - `user_asserted_fact`
+  - `user_declared_constraint`
+  - `user_hypothesis`
+  - `user_normative_target`.
+
+`InputAcceptanceService`:
+
+- обеспечивает последовательность `classify -> accept_check -> write`;
+- проверяет, что ввод:
+  - не является вопросом в форме утверждения;
+  - не является условной конструкцией, несовместимой с fact-grade записью;
+  - не противоречит stable claims без explicit escalation path;
+  - достаточно конкретен для typed node;
+- при сомнении не пишет node в graph, а возвращает clarification.
 
 `FPFResponseValidator`:
 
@@ -59,6 +104,12 @@
 - проверяет uncertainty routing;
 - проверяет anti-cross-case contamination;
 - определяет `pass`, `degrade`, `block`.
+
+`Conflict/duplication handling`:
+
+- true contradictions materialize as `conflict_case`;
+- duplicate or adjacent epistemic restatements may materialize as `duplicate_claim_cluster`;
+- `duplicate_claim_cluster` носит informational характер и не должен блокировать selection path.
 
 `ClarificationEngine`:
 
@@ -69,15 +120,17 @@
 
 `ModelUpdateEngine`:
 
-- принимает typed answer пользователя;
+- принимает только accepted typed input;
 - создает/обновляет claims;
+- пишет промежуточные user-origin claims до lawful promotion;
 - пишет governance event;
 - обновляет projections;
 - передает данные в re-entry planner.
 
 `ReentryPlanner`:
 
-- определяет affected stages;
+- определяет affected stages через artifact lineage traversal:
+  - updated node -> dependent projections -> dependent stages -> stale outputs;
 - создает async re-entry tasks;
 - логирует downgrade/block decisions.
 
@@ -125,6 +178,12 @@
 - инициирует retry до fallback;
 - записывает `parse_metadata` и `artifact_trust_level`.
 
+`SectionContractGuard`:
+
+- выполняет pre-gate contract validation до записи артефакта на диск;
+- инициирует repair retry до orchestrator gate;
+- снижает количество post-write `BLOCK` из-за structural contract violations.
+
 ## 3. Dialogue runtime flow
 
 ### 3.1. Ответ на вопрос пользователя
@@ -132,6 +191,8 @@
 ```text
 UserQuestion
  -> load active workspace/session
+ -> QuestionRouter.classify()
+ -> if clarification_provided: ModelUpdateEngine path
  -> retrieve workspace-grounded context
  -> build prompt bundle
  -> run quota preflight
@@ -154,6 +215,16 @@ Validator/Retrieval detects uncertainty
  -> ReentryPlanner creates async job
  -> worker executes re-entry
  -> updated model becomes active after job completion
+ -> pending version becomes published
+```
+
+### 3.2.1. Dialogue behavior during async re-entry
+
+Если `reentry_status = in_progress`:
+
+- диалог должен отвечать по `current_published_version`;
+- ответ обязан содержать disclaimer о том, что пересчет еще идет;
+- `pending_version` не должен silently использоваться как active model.
 
 ### 3.3. Embedding lifecycle flow
 
@@ -177,7 +248,7 @@ Prompt должен состоять из:
 - workspace metadata;
 - case summary;
 - selected grounding claims;
-- selected artifact excerpts;
+- selected artifact excerpts, явно помеченные как supplementary, если они не claim-grade;
 - current question;
 - response schema.
 
@@ -341,10 +412,16 @@ raw llm output
 
 ### 6.2. Answer typing
 
-Пользовательский ответ должен иметь тип:
+Пользовательский ответ сначала должен иметь промежуточный user-origin type:
+
+- `user_asserted_fact`
+- `user_declared_constraint`
+- `user_hypothesis`
+- `user_normative_target`
+
+Только после acceptance + lawful validation допустимы promotion paths в:
 
 - `source_fact`
-- `assumption`
 - `confirmed_assumption`
 - `normative_target`
 - `decision_constraint`
@@ -353,8 +430,10 @@ raw llm output
 ### 6.3. Acceptance rules
 
 - ответ не должен добавляться в модель без typing
+- перед записью обязателен `input_acceptance_check`
 - ответ должен иметь source or provenance
 - если ответ создает hard constraint, validator должен проверить lawful promotion
+- `classify -> accept_check -> write to graph` является обязательной последовательностью
 
 ## 7. Re-entry and model refresh
 
@@ -369,21 +448,32 @@ raw llm output
 
 ### 7.2. Triggering rules
 
-Примеры:
+`ReentryPlanner` не должен опираться только на hardcoded mapping по `node_type`.
 
-- новый fact о бизнес-ограничении -> `characterization`, `problem_factory`, `solution_factory`
-- новый target -> `characterization`, `solution_factory`, `reporting`
-- resolved conflict -> `problem_factory`, `solution_factory`
-- stale evidence refreshed -> affected stage + `reporting`
+Правильный порядок:
+
+- найти projections, которые используют updated node;
+- найти stages, зависящие от этих projections;
+- найти materialized outputs, которые теперь stale;
+- запланировать только затронутые recomputation targets.
 
 ### 7.3. Result handling
 
 После re-entry система должна:
 
 - обновить projections;
-- обновить active model version;
+- обновить active published model version;
 - записать governance events;
 - показать diff пользователю.
+
+Diff должен строиться из event types:
+
+- `claim_created`
+- `claim_updated`
+- `claim_promoted`
+- `claim_degraded`
+- `projection_refreshed`
+- `stage_recomputed`
 
 ### 7.4. Async execution model
 
@@ -429,10 +519,30 @@ Re-entry считается асинхронной операцией.
 - `POST /api/workspaces/{workspaceId}/reentry/plan`
 - `POST /api/workspaces/{workspaceId}/reentry/execute`
 
+`POST /api/workspaces/{workspaceId}/reentry/execute` должен быть асинхронным endpoint.
+
+Он обязан:
+
+- создавать `reentry_job`;
+- возвращать `reentry_job_id`, а не ждать completion;
+- не блокировать request до завершения partial re-entry.
+
 ### 8.5.1. Re-entry job API
 
 - `GET /api/workspaces/{workspaceId}/reentry-jobs`
 - `GET /api/workspaces/{workspaceId}/reentry-jobs/{jobId}`
+
+### 8.5.2. Workspace version state API
+
+- `GET /api/workspaces/{workspaceId}/model-version-status`
+
+Endpoint должен возвращать:
+
+- `current_published_version`
+- `pending_version`
+- `reentry_status`
+- `affected_stages`
+- `reentry_started_at`
 
 ### 8.6. Operations API
 
@@ -572,3 +682,4 @@ OmniRoute допускается как optional centralized gateway для:
 - routing decision первично принадлежит policy layer приложения;
 - OmniRoute используется как transport/router, а не как замена grounding, validation или case isolation;
 - provider diagnostics должны различать direct mode и gateway mode.
+- OmniRoute остается optional infrastructure layer и не является частью MVP-critical acceptance path.

@@ -258,6 +258,11 @@ Rule:
 - `cheap -> balanced` или `balanced -> premium`;
 - повторный retry после `premium` запрещен;
 - escalation допустима только если quota policy и budget profile это разрешают.
+- escalation выполняется только как structured retry loop:
+  - initial model response
+  - validator block due to reasoning quality
+  - one retry on next allowed tier
+  - if retry still blocked, outcome = `block` или `needs_clarification`, без дальнейших escalation.
 
 ### 9.2. Fallback rules
 
@@ -278,6 +283,9 @@ Fallback не допускается, если:
 ### 10.1. Роль OmniRoute
 
 OmniRoute рассматривается как optional gateway, а не как core dependency MVP.
+
+Для MVP достаточно adapter-compatible gateway mode.
+Детальная operational optimization через OmniRoute считается post-MVP concern и не должна раздувать acceptance scope первой версии.
 
 ### 10.2. Когда использовать OmniRoute
 
