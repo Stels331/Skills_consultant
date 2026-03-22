@@ -23,7 +23,7 @@
 - `QuestionRouter`
 - `RetrievalService`
 - `TypedInputClassifier`
-- `InputAcceptanceService`
+- `InputAcceptanceCheck`
 - `PromptBuilder`
 - `DialogueOrchestrator`
 - `FPFResponseValidator`
@@ -87,7 +87,7 @@
   - `user_hypothesis`
   - `user_normative_target`.
 
-`InputAcceptanceService`:
+`InputAcceptanceCheck`:
 
 - обеспечивает последовательность `classify -> accept_check -> write`;
 - проверяет, что ввод:
@@ -448,7 +448,7 @@ raw llm output
 
 ### 7.2. Triggering rules
 
-`ReentryPlanner` не должен опираться только на hardcoded mapping по `node_type`.
+`ReentryPlanner` не должен опираться только на hardcoded mapping по `node_type`. re-entry планируется через artifact lineage traversal, описанный в документе 11.
 
 Правильный порядок:
 
@@ -517,14 +517,15 @@ Re-entry считается асинхронной операцией.
 ### 8.5. Re-entry API
 
 - `POST /api/workspaces/{workspaceId}/reentry/plan`
-- `POST /api/workspaces/{workspaceId}/reentry/execute`
+- `POST /api/workspaces/{workspaceId}/reentry/execute`  → { task_id }
+- `GET  /api/workspaces/{workspaceId}/reentry/{taskId}` → { status, affected_stages }
 
 `POST /api/workspaces/{workspaceId}/reentry/execute` должен быть асинхронным endpoint.
 
 Он обязан:
 
 - создавать `reentry_job`;
-- возвращать `reentry_job_id`, а не ждать completion;
+- возвращать `{ task_id }`, а не ждать completion;
 - не блокировать request до завершения partial re-entry.
 
 ### 8.5.1. Re-entry job API
@@ -534,7 +535,7 @@ Re-entry считается асинхронной операцией.
 
 ### 8.5.2. Workspace version state API
 
-- `GET /api/workspaces/{workspaceId}/model-version-status`
+- `GET /api/workspaces/{workspaceId}/version-state`
 
 Endpoint должен возвращать:
 

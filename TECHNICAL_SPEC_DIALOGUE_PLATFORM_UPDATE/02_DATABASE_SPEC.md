@@ -491,13 +491,12 @@ create table claims (
   claim_type text not null,
   statement text not null,
   epistemic_status text not null,
-  confidence_score numeric(4,3),
+  confidence_score numeric(4,3) check (confidence_score between 0 and 1),
   source_kind text,
   source_ref text,
   attributes_jsonb jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  check (confidence_score is null or (confidence_score >= 0 and confidence_score <= 1)),
   unique(workspace_id, claim_key)
 );
 
@@ -510,14 +509,13 @@ create table claim_versions (
   claim_type text not null,
   statement text not null,
   epistemic_status text not null,
-  confidence_score numeric(4,3),
+  confidence_score numeric(4,3) check (confidence_score between 0 and 1),
   source_kind text,
   source_ref text,
   attributes_jsonb jsonb not null default '{}'::jsonb,
   change_reason text not null default '',
   changed_by_actor text not null default '',
   created_at timestamptz not null default now(),
-  check (confidence_score is null or (confidence_score >= 0 and confidence_score <= 1)),
   unique(claim_id, version_no)
 );
 
@@ -552,6 +550,7 @@ create table dialogue_messages (
   session_id uuid not null references dialogue_sessions(id),
   role text not null,
   message_type text not null,
+  question_class text,
   message_text text not null,
   grounding_jsonb jsonb not null default '{}'::jsonb,
   fpf_validation_jsonb jsonb not null default '{}'::jsonb,
@@ -601,30 +600,16 @@ create table governance_events (
   target_id text not null,
   payload_jsonb jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
-  check (
-    event_type in (
-      'workspace_created',
-      'artifact_created',
-      'artifact_updated',
-      'claim_created',
-      'claim_updated',
-      'claim_promoted',
-      'claim_degraded',
-      'claim_linked',
-      'dialogue_started',
-      'user_question_added',
-      'assistant_answer_generated',
-      'answer_blocked_by_validator',
-      'clarification_requested',
-      'clarification_accepted',
-      'model_reentry_started',
-      'model_reentry_finished',
-      'projection_emitted',
-      'projection_refreshed',
-      'stage_recomputed',
-      'workspace_exported'
-    )
-  )
+  check (event_type in (
+  'workspace_created','artifact_created','artifact_updated',
+  'claim_created','claim_updated','claim_promoted','claim_degraded',
+  'claim_linked','dialogue_started','user_question_added',
+  'assistant_answer_generated','answer_blocked_by_validator',
+  'clarification_requested','clarification_accepted',
+  'model_reentry_started','model_reentry_finished',
+  'projection_emitted','projection_refreshed',
+  'stage_recomputed','workspace_exported'
+))
 );
 ```
 
@@ -737,6 +722,7 @@ Append-only события должны покрывать:
 - `artifact_created`
 - `artifact_updated`
 - `claim_created`
+- `claim_updated`
 - `claim_promoted`
 - `claim_degraded`
 - `claim_linked`
@@ -841,10 +827,7 @@ Dual-write должен быть временным режимом.
 
 Его можно отключать только если одновременно выполнены условия:
 
-- DB read model используется всеми runtime-critical services;
-- file exports подтверждены как reconstructable from DB;
-- regression suite подтверждает parity DB-first vs export-materialized outputs на согласованном наборе кейсов;
-- governance/events больше не зависят от file-first write path.
+- dual-write отключается когда 100% reads переведены на БД и file-based reads удалены из orchestrator
 
 ## 10. Почему PostgreSQL
 
