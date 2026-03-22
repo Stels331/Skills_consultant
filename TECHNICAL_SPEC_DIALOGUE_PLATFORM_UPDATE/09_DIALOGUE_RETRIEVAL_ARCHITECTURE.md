@@ -88,6 +88,22 @@ Its job is to classify the user question into one of:
 - `evidence_query`
 - `clarification_needed`
 
+Recommended canonical type:
+
+```python
+QuestionClass = Literal[
+    "constraint_query",
+    "problem_query",
+    "solution_query",
+    "report_query",
+    "evidence_query",
+    "clarification_needed",
+]
+```
+
+Implementation must use a shared enum or `Literal`-equivalent contract for these values.
+Free-form strings are not acceptable for production implementation.
+
 ### 4.1 Clarification Is Not Retrieval
 
 If the user message is actually a case update or a clarification, the system must not run retrieval first.
@@ -128,7 +144,7 @@ Add a dialogue-oriented projection type, for example:
 ```python
 def build_dialogue_projection(
     workspace_path: Path,
-    question_class: str,
+    question_class: QuestionClass,
     top_k: int = 20,
 ) -> DialogueProjection:
     ...

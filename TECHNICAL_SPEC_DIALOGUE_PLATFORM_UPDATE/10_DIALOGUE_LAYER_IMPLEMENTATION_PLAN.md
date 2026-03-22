@@ -33,6 +33,8 @@ The first usable version must already be:
 Recommended new modules:
 
 - `app/dialogue/question_router.py`
+- `app/dialogue/typed_input_classifier.py`
+- `app/dialogue/input_acceptance_check.py`
 - `app/dialogue/dialogue_projection.py`
 - `app/dialogue/section_indexer.py`
 - `app/dialogue/bm25_retriever.py`
@@ -107,6 +109,30 @@ Acceptance criteria:
 - indexing is section-based, not file-based;
 - retrieval is strict by `workspace_id`;
 - index can be rebuilt after re-entry.
+
+### Phase 2.5. Typed Dialogue Input Boundary
+
+Purpose:
+
+- prevent raw user clarifications from entering the graph without controlled typing and acceptance.
+
+Tasks:
+
+- implement `typed_input_classifier`
+- implement `input_acceptance_check`
+- define intermediate user-origin types
+- define rejection/clarification path for non-acceptable updates
+
+Outputs:
+
+- `typed_input_classifier.py`
+- `input_acceptance_check.py`
+
+Acceptance criteria:
+
+- free-text clarification does not bypass typing;
+- conditional or ambiguous inputs are rejected or clarified before graph write;
+- user-origin intermediate types are consistently produced.
 
 ### Phase 3. Grounding Bundle
 

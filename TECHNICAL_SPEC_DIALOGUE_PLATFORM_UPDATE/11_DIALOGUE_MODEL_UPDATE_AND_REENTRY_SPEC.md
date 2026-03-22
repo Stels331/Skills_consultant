@@ -193,6 +193,18 @@ def plan_reentry(updated_node, graph, projection_registry, materialized_artifact
     ...
 ```
 
+`ProjectionRegistry`:
+
+- registry of projection kinds and their dependency contracts;
+- knows which node/claim categories participate in which projections;
+- allows `ReentryPlanner` to resolve `updated node -> dependent projections`.
+
+`MaterializedArtifactIndex`:
+
+- runtime index of already materialized outputs and the stages that produced them;
+- knows which stages consume which projection types;
+- allows `ReentryPlanner` to resolve `dependent projections -> affected stages -> stale outputs`.
+
 ### 9.3 Reentry Plan Contents
 
 `ReentryPlan` should contain:
