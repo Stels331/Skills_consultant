@@ -124,5 +124,5 @@
 
 - Worker integration test: job берет workspace lock, обновляет status и публикует новую версию после успешного recompute.
 - Version-aware dialogue test: во время `in_progress` ответы строятся по `current_published_version` и содержат disclaimer.
-- Diff generation test: panel data строится из ledger events и корректно показывает созданные, обновленные, продвинутые и деградированные claims.
+- Diff generation test: panel data строится из ledger events и корректно показывает `claim_created`, `claim_updated`, `claim_promoted`, `claim_degraded`, `projection_refreshed`, `stage_recomputed`.
 - Failure recovery test: при падении worker `pending_version` не публикуется silently, job получает failure status.

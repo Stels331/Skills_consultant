@@ -10,7 +10,7 @@
 - authorization проверяет tenant boundary до workspace boundary;
 - claims, claim versions и relations живут в БД с immutable history;
 - validators и projections читают canonical DB read model;
-- embedding lifecycle готовит retrieval freshness после изменений модели.
+- подготовлена projection infrastructure, на которую позже опирается `ReentryPlanner`.
 
 ## Задачи
 
@@ -65,10 +65,12 @@
 - relation graph собирается без обращения к файловому traversal;
 - true contradiction и duplicate cluster различаются явно.
 
-### S2-T5. Реализовать projections и migration validators на DB read model
+### S2-T5. Реализовать projections, `ProjectionRegistry` и migration validators на DB read model
 
 Описание:
 - materialize dialogue-friendly и validator-friendly projections из canonical БД;
+- реализовать `ProjectionRegistry` как registry dependency contracts между node/claim categories и projection kinds;
+- зафиксировать projection metadata, достаточную для последующего `updated node -> dependent projections`;
 - перевести validators на repositories/projections вместо прямого чтения файлов;
 - обеспечить детерминированную пересборку projections.
 
@@ -76,18 +78,19 @@
 - validators работают без legacy graph traversal;
 - projections можно пересчитать из БД с тем же результатом;
 - projection metadata хранит version/freshness context.
+- `ProjectionRegistry` доступен как явный deliverable для Sprint 5, а не как скрытая зависимость.
 
-### S2-T6. Реализовать embedding lifecycle foundation
+### S2-T6. Реализовать `MaterializedArtifactIndex` foundation
 
 Описание:
-- `embedding_jobs`, stale/fresh revision markers, source revision tracking;
-- active retrieval set переключается только после успешного пересчета;
-- подготовить очереди и фоновые джобы для будущего retrieval слоя.
+- реализовать `MaterializedArtifactIndex` как runtime/read-model индекс артефактов, stages и их projection dependencies;
+- зафиксировать связь `projection_type -> consuming stages -> materialized outputs`;
+- подготовить интерфейс, которым позже воспользуется `ReentryPlanner`.
 
 Критерии приемки:
-- изменение claim или artifact создает embedding job;
-- stale chunks не используются как active retrieval set;
-- worker безопасно повторяет failed job.
+- можно вычислить `dependent projections -> affected stages -> stale outputs` без hardcoded stage map;
+- индекс пересобирается детерминированно;
+- `MaterializedArtifactIndex` доступен как явный deliverable для Sprint 5.
 
 ## Тесты спринта
 
@@ -120,9 +123,10 @@
 - Projection rebuild test: полный rebuild projections из БД дает стабильный результат на одном и том же dataset.
 - Validator parity test: migrated validator outcome совпадает с legacy validator на контрольном наборе кейсов.
 - Freshness test: после обновления claim старый projection помечается stale до пересборки.
+- Projection registry dependency test: `ProjectionRegistry` корректно находит projection kinds по типу измененного node/claim.
 
 ### Для S2-T6
 
-- Embedding job creation test: изменение claim/artifact создает job и новую revision.
-- Active set switch test: retrieval chunks меняются на свежую ревизию только после успешного job completion.
-- Retry test: failed embedding job можно безопасно повторить без удвоения active chunks.
+- Artifact index traversal test: `MaterializedArtifactIndex` возвращает stages и outputs для заданного projection type.
+- Deterministic rebuild test: повторная сборка индекса не меняет dependency graph без входных изменений.
+- Reentry dependency contract test: индекс совместим с `ReentryPlanner` и не требует hardcoded `node_type -> stage`.

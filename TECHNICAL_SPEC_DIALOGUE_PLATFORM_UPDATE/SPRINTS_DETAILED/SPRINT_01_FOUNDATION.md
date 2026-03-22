@@ -20,6 +20,11 @@
 Описание:
 - реализовать таблицы `users`, `organizations`, `memberships`, `workspaces`, `workspace_versions`, `artifacts`, `claims`, `claim_versions`, `claim_relations`, `dialogue_sessions`, `dialogue_messages`, `question_queue`, `validation_runs`, `governance_events`, `retrieval_chunks`, `embedding_jobs`, `reentry_jobs`, `quota_ledger`;
 - добавить обязательные поля `organization_id` и `workspace_id` во все case-bound сущности;
+- синхронизировать SQL/DDl со спецификациями `09-11` до старта реализации, включая:
+  - добавление отсутствующих `organization_id` в case-bound таблицы;
+  - добавление `workspace_version_id` и `question_class` в `dialogue_messages`;
+  - исправление типов полей наподобие `confidence_score`;
+  - сверку `version-aware dialogue` и `re-entry` полей со сценариями Sprint 3-5;
 - определить ключи, уникальные ограничения, enum-поля статусов и индексы под retrieval и governance trail.
 
 Артефакты:
@@ -29,6 +34,7 @@
 
 Критерии приемки:
 - схема соответствует `02_DATABASE_SPEC.md` и `08_AUTH_BILLING_AND_TENANT_ER_MODEL.md`;
+- схема дополнительно синхронизирована с runtime/API требованиями `09_DIALOGUE_RETRIEVAL_ARCHITECTURE.md`, `10_DIALOGUE_LAYER_IMPLEMENTATION_PLAN.md`, `11_DIALOGUE_MODEL_UPDATE_AND_REENTRY_SPEC.md`;
 - все связи tenant -> workspace -> dialogue/claims выражены внешними ключами;
 - есть индексы для `organization_id`, `workspace_id`, `session_id`, `claim_type`, `status`, `created_at`.
 
@@ -102,6 +108,7 @@
 - новый workspace появляется и в БД, и в экспортируемой файловой структуре;
 - расхождения между DB и export фиксируются как ошибки синхронизации;
 - повторная materialization детерминирована.
+- формализованы измеримые `dual-write exit criteria`, которые будут пересмотрены в Sprint 7 перед cutover decision.
 
 ### S1-T6. Подготовить Docker foundation для API
 
@@ -128,6 +135,7 @@
 - Migration schema test: создание чистой БД поднимает все таблицы и внешние ключи без пропусков.
 - Constraint test: попытка создать `workspace` без `organization_id` или `dialogue_message` без `session_id` завершается ошибкой схемы.
 - Index presence test: smoke-проверка существования критичных индексов через introspection.
+- Schema sync regression test: DDL содержит `workspace_version_id`, `question_class`, корректные tenant fields и согласованный тип `confidence_score`.
 
 ### Для S1-T2
 
@@ -152,6 +160,7 @@
 - Dual-write integration test: создание нового workspace записывает canonical state в БД и materialized export на диск.
 - Determinism test: повторная materialization без изменений не меняет export diff.
 - Sync alarm test: искусственное расхождение DB/export приводит к диагностируемому error event.
+- Exit criteria test: для dual-write зафиксированы измеримые показатели расхождения, полноты export и rollback readiness.
 
 ### Для S1-T6
 

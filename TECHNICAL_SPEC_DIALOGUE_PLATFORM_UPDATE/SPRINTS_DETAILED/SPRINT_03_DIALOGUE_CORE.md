@@ -9,6 +9,7 @@
 - пользователь может задать вопрос по конкретному workspace;
 - вопрос проходит classification before retrieval;
 - retrieval строит grounding bundle из typed claims и supplementary text;
+- BM25 section indexing появляется раньше embedding-based freshness machinery;
 - provider/model выбираются через policy tiers;
 - вызов LLM невозможен без quota preflight reservation;
 - ответ и его grounding сохраняются в dialogue history.
@@ -62,6 +63,7 @@
 - индекс строится по секциям, а не по целому файлу;
 - BM25 не подменяет graph-first retrieval;
 - text fragments всегда помечены как supplementary only.
+- BM25 index физически и логически namespace-scoped по `organization_id` и `workspace_id`.
 
 ### S3-T5. Реализовать `GroundingBundle` и prompt builder
 
@@ -75,7 +77,19 @@
 - version metadata входит в grounding bundle;
 - prompt builder не пропускает данные из другого workspace.
 
-### S3-T6. Реализовать `LLMProviderAdapter`, routing policy tiers и quota preflight
+### S3-T6. Реализовать embedding lifecycle foundation
+
+Описание:
+- `embedding_jobs`, stale/fresh revision markers, source revision tracking;
+- active retrieval set переключается только после успешного пересчета;
+- подготовить очереди и фоновые джобы для будущего embedding-aware retrieval и freshness controls.
+
+Критерии приемки:
+- изменение claim или artifact создает embedding job;
+- stale chunks не используются как active retrieval set;
+- worker безопасно повторяет failed job.
+
+### S3-T7. Реализовать `LLMProviderAdapter`, routing policy tiers и quota preflight
 
 Описание:
 - единый adapter для direct mode и optional gateway mode;
@@ -112,6 +126,7 @@
 
 - Section indexing test: один markdown с несколькими секциями индексируется как несколько `SectionDoc`.
 - BM25 scope test: поиск ограничен `workspace_id`.
+- BM25 namespace test: индексы разных `organization_id/workspace_id` физически не переиспользуются между кейсами.
 - Supplementary-only test: text fragments помечаются так, чтобы prompt builder не воспринимал их как verified claims.
 
 ### Для S3-T5
@@ -121,6 +136,12 @@
 - Leak prevention test: попытка подмешать fragment другого workspace отбрасывается guard-логикой.
 
 ### Для S3-T6
+
+- Embedding job creation test: изменение claim/artifact создает job и новую revision.
+- Active set switch test: retrieval chunks меняются на свежую ревизию только после успешного job completion.
+- Retry test: failed embedding job можно безопасно повторить без удвоения active chunks.
+
+### Для S3-T7
 
 - Adapter contract test: direct mode и gateway mode возвращают единый normalized response shape.
 - Policy mapping test: task class и risk level выбирают корректный tier по policy.

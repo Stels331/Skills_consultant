@@ -8,6 +8,7 @@
 - зависимости между БД, tenant layer, retrieval, validation, UI и re-entry не разорваны;
 - каждая задача привязана к конкретному результату и проверяется тестами;
 - тесты включают unit, integration, contract, security и e2e сценарии там, где это критично.
+- SQL/DDl план синхронизирован с требованиями файлов `09-11`, чтобы Sprint 1 не стартовал с устаревшей схемой.
 
 Источники требований:
 
@@ -38,3 +39,11 @@
 1. Сначала закрыть Sprint 1-2, потому что без canonical storage и tenant-aware authorization диалоговый слой нельзя безопасно запускать.
 2. Затем реализовать Sprint 3-5 как непрерывную цепочку `question -> grounded answer -> clarification -> re-entry`.
 3. После этого зафиксировать изоляцию Sprint 6 и довести систему до pilot-ready состояния в Sprint 7.
+
+Уточнения после ревизии плана:
+
+- `ProjectionRegistry` и `MaterializedArtifactIndex` добавлены как deliverables слоя projections до запуска `ReentryPlanner`.
+- `SectionContractGuard` включен в roadmap как pre-gate слой для contract-sensitive pipeline runners.
+- `GET /api/workspaces/{workspaceId}/version-state` вынесен в API contracts до полной реализации re-entry.
+- `embedding lifecycle` перенесен ближе к retrieval sprint, чтобы не опережать первую BM25 реализацию.
+- `dual-write` теперь имеет не только критерии входа, но и formal exit review/cutover decision в финальном спринте.

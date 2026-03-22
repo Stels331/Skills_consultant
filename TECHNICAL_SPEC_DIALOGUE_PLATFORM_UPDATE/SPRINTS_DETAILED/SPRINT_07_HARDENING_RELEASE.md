@@ -50,30 +50,33 @@
 - worker получает доступ к очереди и БД без ручных правок;
 - rollback deployment documented и воспроизводим.
 
-### S7-T4. Реализовать provider diagnostics, fallback tests и optional gateway integration
+### S7-T4. Реализовать provider diagnostics и fallback tests
 
 Описание:
 - диагностические endpoints или internal checks по configured providers;
 - direct mode и gateway mode проверяются одинаковыми контрактами;
 - fallback поведение прозрачно для ops и governance trail;
-- optional OmniRoute integration не ломает внутренний provider abstraction.
+- optional OmniRoute/gateway integration рассматривается как post-pilot extension и не блокирует готовность спринта.
 
 Критерии приемки:
 - проблемный provider локализуется без ручного дебага кода;
 - fallback не нарушает quota policy и routing policy;
-- gateway mode можно включить/выключить конфигурацией.
+- direct/gateway mode можно включить/выключить конфигурацией, если gateway включен в текущий scope;
+- отсутствие OmniRoute не блокирует закрытие Sprint 7.
 
 ### S7-T5. Собрать pilot readiness пакет
 
 Описание:
 - финальный acceptance checklist;
 - smoke suite на happy path, degrade path, block path, clarification path, re-entry path и isolation path;
+- formal review `dual-write exit criteria` и решение `keep dual-write / cut over / postpone cutover`;
 - release notes и known limitations для пилота.
 
 Критерии приемки:
 - pilot scope и ограничения сформулированы письменно;
 - критический smoke suite зеленый;
 - есть решение о go/no-go на основе измеримых критериев.
+- есть формальное решение по `dual-write` с зафиксированными метриками и rollback условиями.
 
 ## Тесты спринта
 

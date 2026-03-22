@@ -65,12 +65,13 @@
 
 Описание:
 - подготовить системный набор негативных сценариев на mixed retrieval, mixed prompt context, session bleed, question queue bleed, worker namespace collisions;
-- включить suite в CI как release-blocking.
+- добавить suite в CI как release-blocking gate с явной конфигурацией pre-merge и pre-release запусков.
 
 Критерии приемки:
 - любой обнаруженный cross-case leak падает как blocking regression;
 - suite охватывает backend, worker и UI;
 - результаты воспроизводимы на двух и более workspaces одной и разных организаций.
+- есть явный CI deliverable: workflow/job configuration, которая запускает isolation suite автоматически.
 
 ## Тесты спринта
 
@@ -84,6 +85,7 @@
 
 - Namespace query test: SQL/ORM smoke-набор подтверждает фильтрацию по tenant и workspace на всех case-bound repository calls.
 - Cache key test: retrieval index и prompt cache включают `organization_id` и `workspace_id`.
+- BM25 isolation regression test: section index одного workspace не может вернуть документы другого workspace даже при одинаковых section titles/query terms.
 - Worker collision test: параллельные jobs разных workspaces не блокируют друг друга одним глобальным lock.
 
 ### Для S6-T3
@@ -103,3 +105,4 @@
 - Cross-case regression pack: один и тот же пользователь с двумя кейсами не получает ни history bleed, ни retrieval bleed.
 - Cross-tenant regression pack: пользователь из tenant A не может увидеть кейсы tenant B даже через прямые API вызовы.
 - Release gate test: isolation suite обязателен для merge/release pipeline.
+- CI wiring test: workflow действительно запускает suite на pull request и перед релизом, а не существует только как локальный script.
