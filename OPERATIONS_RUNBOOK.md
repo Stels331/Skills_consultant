@@ -1,5 +1,14 @@
 # OPERATIONS RUNBOOK
 
+## Environment
+Все operational команды ниже предполагают, что проект уже запущен из локального виртуального окружения, созданного через `uv`:
+
+```bash
+cd "/Users/stas/Documents/Системное Мышление/Системное мышление/Skills/FPF-skill_2/electronic_consultant_v3_old"
+uv venv .venv
+source .venv/bin/activate
+```
+
 ## Daily Operations
 1. Run integration suite: `python3 scripts/run_integration_suite.py`.
 2. Check pilot gaps: `governance/pilot_gap_register.md`.

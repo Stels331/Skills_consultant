@@ -192,6 +192,32 @@ Definition of done:
 - есть метрики, логи и error handling;
 - система готова к pilot rollout.
 
+### Этап 7. Decision intelligence and solution assurance
+
+Цель:
+
+- превратить recommendations в explicit decision contracts с assurance, refresh lifecycle и outcome-aware historical reuse.
+
+Работы:
+
+- ввести `ProblemFrame`, `DecisionOption`, `DecisionComparison`, `DecisionRecord`;
+- связать решения с claims/artifacts/projections/governance events;
+- добавить decision-aware retrieval по историческим solution patterns;
+- добавить `DecisionOutcome` и historical outcome normalization;
+- реализовать assurance score с freshness/weakest-link/dependency penalties;
+- добавить outcome-aware historical modifier как bounded secondary factor;
+- добавить review_due, stale decision flags и explicit waivers;
+- встроить decision assurance в dialogue/UI/API.
+
+Definition of done:
+
+- рекомендации представлены не только текстом, но и decision contract;
+- пользователь видит basis, rejected alternatives и review conditions;
+- stale evidence снижает decision assurance;
+- historical solution reuse управляемо и аудируемо;
+- historical solution reuse учитывает explicit outcome history, а не только similarity;
+- re-entry обновляет decision assurance и review state.
+
 ## 3. Предлагаемая разбивка по спринтам
 
 ### Sprint 1
@@ -251,6 +277,30 @@ Definition of done:
 - worker/service topology validation
 - optional OmniRoute integration
 - provider diagnostics and fallback tests
+
+### Sprint 8
+
+- decision domain model
+- problem frames
+- decision options and comparisons
+- decision contracts
+- decision lifecycle governance events
+
+### Sprint 9
+
+- decision assurance engine
+- stale evidence and decay policy
+- review triggers
+- waivers and overrides
+- assurance-aware validator and API contracts
+
+### Sprint 10
+
+- decision-aware retrieval
+- historical decision reuse
+- decision console UX
+- operator review workflow
+- end-to-end explainability and contamination-safe reuse
 
 ## 4. Основные риски
 

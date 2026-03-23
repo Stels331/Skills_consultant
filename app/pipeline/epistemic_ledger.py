@@ -11,6 +11,8 @@ VALID_EVENT_TYPES = {
     "claim_updated",
     "claim_promoted",
     "claim_degraded",
+    "projection_refreshed",
+    "stage_recomputed",
     "constraint_compiled",
     "conflict_marked",
     "conflict_resolved",

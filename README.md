@@ -2,6 +2,27 @@
 
 `Electronic Consultant v3` — это локальный Python-проект для структурированного разбора сложных бизнес-, операционных, управленческих и архитектурных кейсов. Система принимает неструктурированное описание ситуации, прогоняет его через FPF-aware pipeline и выпускает набор артефактов для принятия решений: от нормализованного кейса и evidence graph до problem portfolio, solution portfolio, ADR, runbook и итоговой отчетности.
 
+## Quickstart
+
+Базовый локальный запуск во всех инструкциях проекта предполагает одно и то же окружение:
+
+```bash
+cd "/Users/stas/Documents/Системное Мышление/Системное мышление/Skills/FPF-skill_2/electronic_consultant_v3_old"
+uv venv .venv
+source .venv/bin/activate
+```
+
+После активации `.venv` можно запускать:
+
+- `python3 run_case.py "/путь/к/кейсу.docx"` для полного анализа документа
+- `python3 -m app.api_server` для web/API режима
+- `python3 -m unittest ...` для тестов
+
+Если нужна пошаговая инструкция:
+
+- [START.md](/Users/stas/Documents/Системное%20Мышление/Системное%20мышление/Skills/FPF-skill_2/electronic_consultant_v3_old/START.md) — полный сценарий запуска
+- [START_UI.md](/Users/stas/Documents/Системное%20Мышление/Системное%20мышление/Skills/FPF-skill_2/electronic_consultant_v3_old/START_UI.md) — сценарий `документ -> браузер -> диалог`
+
 Проект ушел от ранней версии "workspace manager + валидаторы" и стал полноценным аналитическим конвейером с оркестрацией стадий, контрактами артефактов, evidence-based governance и защитой от типовых ошибок вроде cross-case contamination, unlawful promotion гипотез в constraints и смешения стратегического, операционного и market-контекстов.
 
 ## Задача проекта
@@ -17,6 +38,10 @@
 
 Итоговая ценность для пользователя: на выходе появляется не ответ модели в свободной форме, а проверяемый пакет управленческих артефактов, который можно использовать для обсуждения, пилота, архитектурного проектирования и аудита.
 
+Следующий целевой слой развития проекта: `decision intelligence`. Это означает, что система должна уметь хранить и переиспользовать не только claims/evidence, но и сами decision contracts: problem frame, candidate options, comparison rationale, selected decision, review triggers и assurance breakdown.
+
+Следующий шаг после этого слоя: `outcome-aware decision reuse`. Это означает, что historical retrieval должен учитывать не только similarity, но и то, к каким фактическим результатам приводили прошлые решения: были ли они подтверждены, ушли ли в re-entry, были ли retired или остались стабильными.
+
 ## Workflow
 
 Базовый пользовательский сценарий:
@@ -26,6 +51,23 @@
 3. Pipeline поэтапно строит артефакты анализа.
 4. Оркестратор проверяет stage gates, контракты, semantic/assurance сигналы и freshness.
 5. Система сохраняет evidence, governance logs и итоговые отчеты.
+
+## Документация
+
+Канонические и рабочие документы теперь разложены так:
+
+- `TECHNICAL_SPEC_DIALOGUE_PLATFORM_UPDATE/` — основной пакет актуальных ТЗ, roadmap и sprint-документов по canonical/dialogue/decision evolution.
+- `docs/` — рабочая проектная документация по migration, deployment, dual-write и related operational topics.
+- `docs/reference/FPF-Spec.md` — внешний/опорный FPF reference, который используется как conceptual background, а не как текущий проектный master-spec.
+- `docs/archive/RECAP.md` — исторический recap проекта.
+- `docs/archive/RUNBOOK_ANTIGRAVITY_SPRINT_LOOP.md` — архивный runbook старого sprint-loop процесса.
+
+В корне проекта intentionally оставлены только runtime entrypoints и release-critical документы, которые используются кодом или release package:
+
+- `run_case.py`
+- `RELEASE_NOTES_v3.md`
+- `OPERATIONS_RUNBOOK.md`
+- `GO_NO_GO_CHECKLIST.md`
 
 Фактическая последовательность стадий:
 
@@ -111,7 +153,17 @@
 - governance-логи сохраняются append-only;
 - projections позволяют строить lightweight views без потери трассируемости.
 
-### 6. Rule-driven + LLM-assisted approach
+### 6. Decision intelligence as internal extension
+
+Проект развивается в сторону decision-oriented reasoning внутри собственного `canonical_db`, а не через внешнюю интеграцию готовых decision systems. Это означает:
+
+- problem framing и solution options становятся first-class entities;
+- рекомендации оформляются как explicit decision contracts;
+- reliability решения зависит от freshness и качества supporting evidence;
+- stale evidence и weakest-link должны понижать trust к решению и инициировать review/re-entry.
+- historical outcome signals должны участвовать в ранжировании reused decision patterns как bounded, explainable factor, а не как скрытая эвристика.
+
+### 7. Rule-driven + LLM-assisted approach
 
 LLM используется как усилитель отдельных стадий, но не как единственный источник логики. Архитектура сочетает:
 
@@ -180,6 +232,12 @@ LLM используется как усилитель отдельных ста
 - `scripts/run_pilot.py`
 - `scripts/prepare_release_package.py`
 - `tests/`
+
+### Dialogue и canonical platform update
+
+- `app/canonical_db/` — centralized canonical model, repositories, projections, dialogue backend, clarification and re-entry flows.
+- `app/dialogue_api.py` — case-grounded dialogue API, evidence/open-questions/version-state endpoints.
+- `TECHNICAL_SPEC_DIALOGUE_PLATFORM_UPDATE/` — пакет ТЗ по dialogue platform update и следующему decision-intelligence слою.
 
 ## Структура артефактов кейса
 
@@ -253,4 +311,6 @@ make run-typization WORKSPACE_ID=case_YYYYMMDD_NNN
 
 ## Текущее позиционирование проекта
 
-`Electronic Consultant v3` — это не чат-бот и не генератор "советов по тексту". Это файловая, audit-ready, FPF-aware аналитическая система поддержки решений, которая превращает сложный кейс в воспроизводимый набор артефактов для анализа, выбора решений, внедрения и последующего контроля.
+`Electronic Consultant v3` — это не чат-бот и не генератор "советов по тексту". Это файловая и canonical-db-ориентированная, audit-ready, FPF-aware аналитическая система поддержки решений, которая превращает сложный кейс в воспроизводимый набор артефактов для анализа, выбора решений, внедрения и последующего контроля.
+
+В ближайшем слое развития система должна стать decision-intelligence platform: не только отвечать по кейсу, но и хранить problem frames, сравнение альтернатив, decision contracts, assurance и review lifecycle внутри самого проекта.

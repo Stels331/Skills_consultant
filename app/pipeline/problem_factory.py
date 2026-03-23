@@ -8,12 +8,12 @@ from typing import Dict, List
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
 from app.pipeline.epistemic_projection import emit_projection
-from app.pipeline.epistemic_sanitizer import soften_unanchored_claims
+from app.pipeline.epistemic_sanitizer import harden_generated_artifact
 from app.pipeline.epistemic_store import sync_artifact_to_epistemic_store
 from app.pipeline.section_contract_guard import (
     build_repair_prompt,
     load_required_sections,
-    repair_sections_with_retry,
+    SectionContractGuard,
 )
 
 
@@ -113,7 +113,7 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         mode=llm_mode,
     )
     archive_body = _sanitize_problem_artifact_body(archive_body)
-    archive_body = soften_unanchored_claims(archive_body)
+    archive_body = harden_generated_artifact(archive_body, stage_name="problem_factory", workspace_path=workspace)
     archive_fm = build_frontmatter(
         artifact_id=f"{workspace_id}__problem_archive",
         artifact_type="problem_archive",
@@ -148,7 +148,7 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         mode=llm_mode,
     )
     portfolio_body = _sanitize_problem_artifact_body(portfolio_body)
-    portfolio_body = soften_unanchored_claims(portfolio_body)
+    portfolio_body = harden_generated_artifact(portfolio_body, stage_name="problem_factory", workspace_path=workspace)
     portfolio_fm = build_frontmatter(
         artifact_id=f"{workspace_id}__problem_portfolio",
         artifact_type="problem_portfolio",
@@ -181,7 +181,8 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         },
         mode=llm_mode,
     )
-    section_check = repair_sections_with_retry(
+    guard = SectionContractGuard()
+    section_check = guard.validate_before_write(
         body=card_body,
         required_sections=load_required_sections(project_root, "selected_problem_card"),
         repair_fn=lambda missing: generate_markdown_with_skill(
@@ -190,13 +191,13 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
             mode=llm_mode,
         ),
     )
-    if section_check.outcome == "failed":
+    if section_check.route == "block":
         raise ValueError(
             f"SECTION_CONTRACT_VIOLATED_AFTER_REPAIR: selected_problem_card, missing={section_check.missing_sections}"
         )
     card_body = section_check.body
     card_body = _sanitize_problem_artifact_body(card_body)
-    card_body = soften_unanchored_claims(card_body)
+    card_body = harden_generated_artifact(card_body, stage_name="problem_factory", workspace_path=workspace)
     card_fm = build_frontmatter(
         artifact_id=f"{workspace_id}__selected_problem_card",
         artifact_type="selected_problem_card",
@@ -206,6 +207,13 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         evidence_refs=["viewpoints/conflicts_index.md:L1"],
         next_expected_artifacts=["problems/ComparisonAcceptanceSpec.md"],
     )
+    card_fm["parse_metadata"] = {
+        "parse_quality": section_check.audit.parse_quality,
+        "artifact_trust_level": section_check.audit.artifact_trust_level,
+        "retry_attempted": bool(section_check.audit.repair_attempts),
+        "retry_outcome": section_check.audit.guard_outcome,
+        "repair_attempts": section_check.audit.repair_attempts,
+    }
     write_markdown_artifact(out_dir / "SelectedProblemCard.md", card_fm, card_body)
     sync_artifact_to_epistemic_store(
         workspace_path=workspace,
@@ -228,7 +236,7 @@ def run_problem_factory(project_root: Path, workspace_id: str, llm_mode: str = "
         mode=llm_mode,
     )
     spec_body = _sanitize_problem_artifact_body(spec_body)
-    spec_body = soften_unanchored_claims(spec_body)
+    spec_body = harden_generated_artifact(spec_body, stage_name="problem_factory", workspace_path=workspace)
     spec_fm = build_frontmatter(
         artifact_id=f"{workspace_id}__comparison_acceptance_spec",
         artifact_type="comparison_acceptance_spec",

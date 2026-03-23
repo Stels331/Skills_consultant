@@ -41,13 +41,16 @@
 
 Описание:
 - проверять, что answer grounding, citations, prompt fragments и lineage references принадлежат активному workspace;
+- предусмотреть расширение validator contract на будущие decision entities: `DecisionOption`, `DecisionRecord`, `DecisionEvidenceLink`, historical pattern refs;
 - блокировать mixed-context payload до возврата в UI;
 - логировать contamination attempts как high-severity governance events.
 
 Критерии приемки:
 - любой reference из чужого workspace переводит ответ в `block`;
 - contamination фиксируется в audit trail;
-- validator работает и для ordinary answers, и для model update responses.
+- validator работает и для ordinary answers, и для model update responses;
+- contract validator допускает дальнейшее расширение на decision-wave без смены security semantics;
+- extensibility contract задокументирован и покрыт unit test на plugin point для decision entities.
 
 ### S6-T4. Реализовать workspace switch UX safeguards
 
@@ -86,6 +89,7 @@
 - Namespace query test: SQL/ORM smoke-набор подтверждает фильтрацию по tenant и workspace на всех case-bound repository calls.
 - Cache key test: retrieval index и prompt cache включают `organization_id` и `workspace_id`.
 - BM25 isolation regression test: section index одного workspace не может вернуть документы другого workspace даже при одинаковых section titles/query terms.
+- Future vector isolation placeholder test: decision-pattern/vector retrieval layer обязан будет проходить аналогичную namespace-isolation проверку при включении в scope.
 - Worker collision test: параллельные jobs разных workspaces не блокируют друг друга одним глобальным lock.
 
 ### Для S6-T3
@@ -93,6 +97,7 @@
 - Contamination validator test: чужой claim/artifact ref в answer payload дает `block`.
 - Prompt leak test: искусственная подмена supplementary fragment из другого workspace отсекается до LLM call или на validator step.
 - Governance severity test: contamination incident пишет audit event с high-severity marker.
+- Validator extension-point test: decision entity checker подключается без ослабления existing contamination semantics.
 
 ### Для S6-T4
 

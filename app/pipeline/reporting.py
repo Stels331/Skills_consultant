@@ -9,8 +9,7 @@ from typing import Dict, List, Optional, Tuple
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
 from app.pipeline.epistemic_projection import emit_projection
-from app.pipeline.epistemic_sanitizer import detect_unanchored_claim_lines, soften_unanchored_claims
-from app.pipeline.epistemic_sanitizer import soften_unanchored_claims
+from app.pipeline.epistemic_sanitizer import detect_unanchored_claim_lines, harden_generated_artifact, soften_unanchored_claims
 from app.validation.artifact_contract_validator import read_frontmatter_document
 
 
@@ -918,7 +917,9 @@ def compose_analytical_full_report(project_root: Path, workspace_id: str, llm_mo
         _validate_analytical_sections(body)
     body = _augment_analytical_report(body, artifacts)
     if detect_unanchored_claim_lines(body):
-        body = soften_unanchored_claims(body)
+        body = harden_generated_artifact(body, stage_name="reporting", workspace_path=workspace)
+    else:
+        body = harden_generated_artifact(body, stage_name="reporting", workspace_path=workspace)
 
     fm = build_frontmatter(
         artifact_id=f"{workspace_id}__analytical_full_report",
@@ -982,7 +983,9 @@ def compose_executive_summary(project_root: Path, workspace_id: str, llm_mode: O
         _validate_executive_sections(body)
     body = _augment_executive_summary(body, artifacts, missing)
     if detect_unanchored_claim_lines(body):
-        body = soften_unanchored_claims(body)
+        body = harden_generated_artifact(body, stage_name="reporting", workspace_path=workspace)
+    else:
+        body = harden_generated_artifact(body, stage_name="reporting", workspace_path=workspace)
 
     fm = build_frontmatter(
         artifact_id=f"{workspace_id}__executive_summary",

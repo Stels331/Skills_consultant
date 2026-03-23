@@ -1,6 +1,12 @@
 .DS_Store
 **/.DS_Store
 
+# Local environments and secrets
+.env
+.env.*
+.uv/
+.venv/
+
 __pycache__/
 **/__pycache__/
 *.pyc
@@ -16,6 +22,11 @@ __pycache__/
 /ОПИС_ПРОЄКТУ_Shot.md
 /Слайдомет.pdf
 /Слайдомет.pdf
+/START
+/START_UI
+/START.md
+/START_UI.md
 
 # Runtime case workspaces
 /cases/case_*/
+/canonical.sqlite3

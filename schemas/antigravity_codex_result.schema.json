@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "commit": {
+      "type": ["string", "null"]
+    },
+    "blocker": {
+      "type": ["string", "null"]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "test_report": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": ["commit", "blocker", "summary", "test_report"],
+  "additionalProperties": false
+}

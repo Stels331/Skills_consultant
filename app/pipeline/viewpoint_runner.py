@@ -9,7 +9,7 @@ from app.pipeline.domain_profiler import build_domain_profile
 from app.pipeline.section_contract_guard import (
     build_repair_prompt,
     load_required_sections,
-    repair_sections_with_retry,
+    SectionContractGuard,
 )
 
 
@@ -129,7 +129,8 @@ def run_viewpoints(project_root: Path, workspace_id: str, llm_mode: str = "local
         }
         skill_prompt = _load_viewpoint_skill(project_root, viewpoint) + VIEWPOINT_EPISTEMIC_GUARD + VIEWPOINT_OUTPUT_CONTRACT
         body = generate_markdown_with_skill(system_skill_prompt=skill_prompt, user_payload=payload, mode=llm_mode)
-        section_check = repair_sections_with_retry(
+        guard = SectionContractGuard()
+        section_check = guard.validate_before_write(
             body=body,
             required_sections=required_sections,
             repair_fn=lambda missing: generate_markdown_with_skill(
@@ -138,7 +139,7 @@ def run_viewpoints(project_root: Path, workspace_id: str, llm_mode: str = "local
                 mode=llm_mode,
             ),
         )
-        if section_check.outcome == "failed":
+        if section_check.route == "block":
             raise ValueError(f"SECTION_CONTRACT_VIOLATED_AFTER_REPAIR: viewpoint:{viewpoint}, missing={section_check.missing_sections}")
         body = section_check.body
 
@@ -157,6 +158,13 @@ def run_viewpoints(project_root: Path, workspace_id: str, llm_mode: str = "local
             epistemic_status="inferred",
             next_expected_artifacts=["characterization/CharacterizationPassport.md"],
         )
+        frontmatter["parse_metadata"] = {
+            "parse_quality": section_check.audit.parse_quality,
+            "artifact_trust_level": section_check.audit.artifact_trust_level,
+            "retry_attempted": bool(section_check.audit.repair_attempts),
+            "retry_outcome": section_check.audit.guard_outcome,
+            "repair_attempts": section_check.audit.repair_attempts,
+        }
 
         target = out_dir / f"{viewpoint}.md"
         write_markdown_artifact(target, frontmatter, body)

@@ -2,6 +2,7 @@ import unittest
 import tempfile
 from pathlib import Path
 
+from app.pipeline.epistemic_sanitizer import harden_generated_artifact
 from app.principles.library import Principle
 from app.validation.semantic_judge import (
     SemanticIssue,
@@ -152,6 +153,64 @@ class SemanticJudgeTests(unittest.TestCase):
         )
         self.assertEqual(result.recommendation, "block")
         self.assertTrue(any(i.code == "CHR_TARGET_PRESENTED_AS_FACT" for i in result.issues))
+
+    def test_problem_factory_hardening_prevents_goldilocks_degrade(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            (workspace / "analysis").mkdir(parents=True, exist_ok=True)
+            (workspace / "analysis" / "domain_profile.json").write_text(
+                """
+{
+  "allowed_ontological_domains": ["industrial_transformation"],
+  "domain_axes": [{"axis": "industrial_transformation"}]
+}
+""".strip()
+                + "\n",
+                encoding="utf-8",
+            )
+            artifact = workspace / "problems" / "SelectedProblemCard.md"
+            artifact.parent.mkdir(parents=True, exist_ok=True)
+            body = "\n".join(
+                [
+                    "## facts",
+                    "- Система рассчитана на 700 кВт/ч и становится убыточной.",
+                    "",
+                    "## chr_targets",
+                    "- Маржа должна быть положительной.",
+                    "",
+                    "## derived_thresholds",
+                    "- Cash runway минимум 3 месяца.",
+                    "",
+                    "## anti_goodhart_conditions",
+                    "- Не считать фиктивные сделки.",
+                    "",
+                    "## hypotheses_to_validate",
+                    "- Клиент согласится платить премию.",
+                ]
+            )
+            hardened = harden_generated_artifact(body, stage_name="problem_factory", workspace_path=workspace)
+            result = run_semantic_judge(
+                stage_name="problem_factory",
+                artifact_path=artifact,
+                frontmatter={
+                    "epistemic_status": "hypothesis",
+                    "source_refs": ["problems/ProblemPortfolio.md:L1"],
+                    "evidence_refs": ["viewpoints/conflicts_index.md:L1"],
+                },
+                body_text=hardened,
+                principles=[
+                    Principle(
+                        principle_id="GOLDILOCKS_PROBLEM",
+                        title="Goldilocks",
+                        scope_stages=["problem_factory"],
+                        description="",
+                        checklist=[],
+                        source_path="/tmp/p.md",
+                    )
+                ],
+                mode="local",
+            )
+        self.assertFalse(any(i.code == "GOLDILOCKS_INCOMPLETE" for i in result.issues))
 
 
 if __name__ == "__main__":

@@ -18,6 +18,10 @@ from app.pipeline.solution_factory import run_solution_factory
 from app.pipeline.reporting import run_reporting
 from app.router.orchestrator import StageOrchestrator
 from app.state.workspace_manager import WorkspaceManager
+from app.canonical_db.domain import Organization, User, Workspace, WorkspaceVersion
+from app.canonical_db.migration_runner import upgrade
+from app.canonical_db.runtime import repository_bundle
+from app.canonical_db.service import DualWriteWorkspaceService
 
 def read_document(file_path: Path) -> str:
     """Универсальная читалка файлов, включая .docx через textutil"""
@@ -73,7 +77,57 @@ def main():
     manager = WorkspaceManager(root)
     today_str = datetime.now().strftime("%Y%m%d")
     workspace_id = manager.generate_workspace_id(today_str)
-    ref = manager.create_workspace(workspace_id)
+    use_canonical = os.environ.get("USE_CANONICAL_DB", "0") == "1"
+    if use_canonical:
+        bundle = repository_bundle()
+        connection = bundle["factory"]()
+        try:
+            upgrade(connection, target="head")
+        finally:
+            connection.close()
+        user = User(
+            id="system-user",
+            email="system@example.local",
+            password_hash="not-used",
+            display_name="System",
+        )
+        organization = Organization(
+            id="default-org",
+            name="Default Organization",
+            slug="default-org",
+            owner_user_id=user.id,
+        )
+        bundle["users"].upsert(user)
+        bundle["organizations"].upsert(organization)
+        workspace = Workspace(
+            id=workspace_id,
+            organization_id=organization.id,
+            workspace_key=workspace_id,
+            title=workspace_id,
+            case_type="analysis_case",
+            status="active",
+            current_stage="intake",
+            active_model_version=0,
+            created_by_user_id=user.id,
+            metadata={"created_from": "run_case.py"},
+        )
+        version = WorkspaceVersion(
+            id=f"{workspace_id}:v0",
+            organization_id=organization.id,
+            workspace_id=workspace_id,
+            version_no=0,
+            version_label="v0",
+            change_reason="workspace_bootstrap",
+            created_by=user.id,
+        )
+        DualWriteWorkspaceService(
+            workspace_repo=bundle["workspaces"],
+            governance_repo=bundle["governance"],
+            materializer=bundle["materializer"],
+        ).create_workspace(workspace, version, root / "cases")
+        ref = manager.load_workspace(workspace_id)
+    else:
+        ref = manager.create_workspace(workspace_id)
     
     print(f"==========================================")
     print(f"📂 Запуск разбора: {case_file.name}")

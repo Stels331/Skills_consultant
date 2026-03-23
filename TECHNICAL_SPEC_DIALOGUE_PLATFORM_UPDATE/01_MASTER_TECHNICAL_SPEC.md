@@ -33,6 +33,7 @@
 - Поддержать partial re-entry и controlled model updates.
 - Подготовить систему к воспроизводимому деплою в Railway через Docker-based packaging.
 - Поддержать optional LLM gateway layer для policy-based model routing, включая OmniRoute.
+- Подготовить внутренний decision-intelligence layer поверх canonical case model.
 
 ## 3. Основание для обновления
 
@@ -69,6 +70,7 @@
 - API для работы фронтенда и диалогового оркестратора.
 - Контейнеризация сервисов и deployment architecture для Railway.
 - Optional gateway integration для multi-provider LLM routing.
+- Decision contracts, solution comparison and decision assurance.
 
 ### 4.2. Out of scope для первой версии обновления
 
@@ -76,6 +78,7 @@
 - Полноценный external knowledge search поверх интернета.
 - Автоматическая cross-case knowledge transfer.
 - Полная замена всех legacy file readers/writers в один этап.
+- Полностью автономный decision engine без traceable evidence base.
 
 ## 5. Ключевые продуктовые сценарии
 
@@ -113,6 +116,16 @@
 3. Runtime context кейса `A` сбрасывается.
 4. Загружается только dialogue session и retrieval namespace кейса `B`.
 5. Ответы LLM строятся только на основании кейса `B`.
+
+### 5.5. Поиск и выбор решения
+
+1. Пользователь открывает кейс с уже построенной model/evidence base.
+2. Система формирует `ProblemFrame`.
+3. Система подбирает или строит несколько `DecisionOption`.
+4. Варианты сравниваются по явным критериям, ограничениям и trade-offs.
+5. Результат оформляется как `DecisionRecord`, а не только как свободный текст рекомендации.
+6. Пользователь видит basis решения, rejected alternatives, assurance и review conditions.
+7. Исторические похожие решения, если используются, ранжируются не только по similarity, но и по outcome history.
 
 ## 6. Основные архитектурные принципы
 
@@ -198,6 +211,38 @@
 - `pending_version` не используется silently;
 - пользователь получает явный disclaimer, если пересчет еще идет.
 
+### 6.5.1. Decision intelligence above case model
+
+Поверх case model должен быть построен decision layer, где:
+
+- проблема оформляется как `ProblemFrame`;
+- варианты оформляются как `DecisionOption`;
+- сравнение оформляется как `DecisionComparison`;
+- выбранный вариант оформляется как `DecisionRecord`;
+- решение привязано к claims, artifacts, projections и governance trail.
+
+Это не отдельная параллельная система, а расширение canonical platform.
+
+### 6.5.2. Decision assurance and refresh
+
+Рекомендация не должна иметь статичное confidence-число без объяснимой структуры. Над решениями должен появиться assurance layer, который учитывает:
+
+- freshness supporting evidence;
+- weakest link в support chain;
+- contradictions и unresolved unknowns;
+- review triggers после re-entry, expiry или существенного изменения claims.
+
+### 6.5.3. Outcome-aware historical reuse
+
+Для historical decision reuse система должна учитывать не только similarity между кейсами, но и explicit outcome history прошлых решений.
+
+Это означает:
+
+- positive/negative decision outcomes хранятся как first-class canonical entities;
+- outcome signals выводятся из governance/review/re-entry/assurance lifecycle, а не из свободного текста;
+- retrieval и assurance могут использовать bounded historical outcome modifiers;
+- hard evidence, freshness и floor policy остаются сильнее historical outcome heuristics.
+
 ### 6.6. Provider abstraction before gateway dependence
 
 Система должна быть спроектирована так, чтобы vendor routing не был захардкожен в бизнес-логике. Подключение внешнего gateway, включая OmniRoute, допускается только как optional transport/routing layer поверх внутреннего `LLMProviderAdapter`.
@@ -265,6 +310,17 @@
 - формирование clarification requests;
 - controlled model updates.
 
+### 7.3.1. Decision intelligence layer
+
+Отвечает за:
+
+- problem framing;
+- option generation and comparison;
+- decision contract creation;
+- decision evidence linking;
+- historical solution reuse в контролируемом режиме;
+- review lifecycle для ранее принятых решений.
+
 ### 7.4. Retrieval layer
 
 Отвечает за поиск релевантных claims и артефактов только в пределах текущего кейса.
@@ -280,6 +336,13 @@
 - anti-cross-case contamination;
 - contract consistency;
 - freshness / assurance.
+
+Дополнительно слой должен поддерживать:
+
+- decision assurance scoring;
+- stale evidence detection;
+- weakest-link reporting;
+- explicit waivers and review-due events.
 
 ### 7.6. Interface layer
 

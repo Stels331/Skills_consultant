@@ -10,7 +10,8 @@
 - deployment в Docker/Railway воспроизводим для API и worker;
 - health/readiness отражают реальное состояние зависимостей;
 - provider diagnostics и fallback behavior прозрачны;
-- собран release checklist для pilot rollout.
+- собран release checklist для pilot rollout;
+- decision-wave явно помечена как post-pilot scope с отдельным readiness gate.
 
 ## Задачи
 
@@ -43,7 +44,8 @@
 Описание:
 - разнести API и worker процессы;
 - зафиксировать env matrix, secrets, queue/backend services;
-- проверить startup/shutdown semantics и zero-downtime upgrade assumptions.
+- проверить startup/shutdown semantics и zero-downtime upgrade assumptions;
+- зафиксировать assumption для future decision-wave: scheduled jobs для freshness/assurance recompute будут отдельным operational component.
 
 Критерии приемки:
 - API и worker разворачиваются как отдельные сервисы;
@@ -56,7 +58,8 @@
 - диагностические endpoints или internal checks по configured providers;
 - direct mode и gateway mode проверяются одинаковыми контрактами;
 - fallback поведение прозрачно для ops и governance trail;
-- optional OmniRoute/gateway integration рассматривается как post-pilot extension и не блокирует готовность спринта.
+- optional OmniRoute/gateway integration рассматривается как post-pilot extension и не блокирует готовность спринта;
+- зафиксировать known limitation для decision-wave: до отдельного gateway rollout decision-specific prompts работают в supported direct mode/routing mode текущей платформы.
 
 Критерии приемки:
 - проблемный provider локализуется без ручного дебага кода;
@@ -70,13 +73,31 @@
 - финальный acceptance checklist;
 - smoke suite на happy path, degrade path, block path, clarification path, re-entry path и isolation path;
 - formal review `dual-write exit criteria` и решение `keep dual-write / cut over / postpone cutover`;
-- release notes и known limitations для пилота.
+- release notes и known limitations для пилота;
+- явно зафиксировать dependency: decision-wave `Sprint 8-10` стартует только после выбранного режима `dual-write` и documented DB source-of-truth policy.
 
 Критерии приемки:
 - pilot scope и ограничения сформулированы письменно;
 - критический smoke suite зеленый;
 - есть решение о go/no-go на основе измеримых критериев.
 - есть формальное решение по `dual-write` с зафиксированными метриками и rollback условиями.
+
+### S7-T6. Подготовить readiness contract для decision-wave
+
+Описание:
+- определить отдельный go/no-go checklist для `Sprint 8-10`;
+- включить known limitations: provider mode, performance assumptions, historical reuse policy, assurance scheduler dependency, data retention/purge gap;
+- явно зафиксировать performance baseline assumptions для decision-wave:
+  - interactive read path;
+  - bounded similarity-search latency;
+  - async-only heavy recompute path;
+- зафиксировать release-blocking gates для decision-wave regression suites.
+
+Критерии приемки:
+- у decision-wave есть отдельный readiness пакет, а не implicit continuation pilot checklist;
+- CI gates для assurance floor violations и cross-tenant historical reuse определены как release-blocking;
+- dependencies на canonical source-of-truth, provider mode и background scheduling зафиксированы письменно;
+- retention/purge policy явно отмечена как post-pilot known gap.
 
 ## Тесты спринта
 
@@ -109,3 +130,8 @@
 - Full pilot smoke suite: пройти happy, degrade, block, clarification, re-entry и isolation сценарии.
 - Checklist validation test: каждый пункт acceptance checklist привязан к измеримому тесту или артефакту.
 - Go/no-go review test: перед пилотом собран отчет по рискам, open issues и residual limitations.
+
+### Для S7-T6
+
+- Decision-wave readiness checklist test: каждый пункт future-wave checklist привязан к артефакту или regression suite.
+- Release gate definition test: assurance floor violation и cross-tenant reuse tests отмечены как blocking gates.

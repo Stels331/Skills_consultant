@@ -15,6 +15,8 @@
 - `09_DIALOGUE_RETRIEVAL_ARCHITECTURE.md` — graph-first retrieval для диалогового слоя, `QuestionRouter`, supplementary BM25 по секциям, `GroundingBundle`, versioning и FPF-aware answer grounding.
 - `10_DIALOGUE_LAYER_IMPLEMENTATION_PLAN.md` — поэтапный план внедрения диалогового слоя: router, graph retrieval, BM25 indexing, grounding bundle, answer validation, session/version binding и clarification-driven model updates.
 - `11_DIALOGUE_MODEL_UPDATE_AND_REENTRY_SPEC.md` — как система принимает недостающую информацию от пользователя, типизирует её, записывает в граф, запускает partial async re-entry, ведет version-aware диалог и строит diff изменений из ledger.
+- `12_DECISION_INTELLIGENCE_SPEC.md` — как оформить problem frame, decision options, decision contract, historical solution reuse, decision outcomes и decision-aware retrieval внутри canonical platform.
+- `13_DECISION_ASSURANCE_AND_REFRESH_SPEC.md` — как считать надежность решений, учитывать stale evidence, weakest-link, review triggers, outcome-aware modifiers и связь decision assurance с re-entry.
 
 Назначение обновления:
 
@@ -24,3 +26,4 @@
 - привязать ответы модели к evidence и FPF-проверкам;
 - дать пользователю возможность достраивать модель кейса через controlled clarification flow.
 - зафиксировать contract-first parse boundary для LLM-generated artifacts с `parse_quality`, `FieldTrust`, retry-before-fallback и degraded-artifact blocking.
+- подготовить следующий слой `decision intelligence`, где рекомендации оформляются как decision contracts с assurance, refresh lifecycle и outcome-aware historical reuse.

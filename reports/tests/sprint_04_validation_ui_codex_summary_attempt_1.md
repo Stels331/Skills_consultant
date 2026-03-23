@@ -1,0 +1,8 @@
+# Sprint 04 Codex Summary
+
+- Добавлен [app/validation/dialogue_validator.py](/Users/stas/Documents/Системное%20Мышление/Системное%20мышление/Skills/FPF-skill_2/electronic_consultant_v3_old/app/validation/dialogue_validator.py) с `FPFResponseValidator`, reason codes и явным escalation contract.
+- Усилен [app/pipeline/section_contract_guard.py](/Users/stas/Documents/Системное%20Мышление/Системное%20мышление/Skills/FPF-skill_2/electronic_consultant_v3_old/app/pipeline/section_contract_guard.py): теперь это не только utility, а pre-gate guard с audit metadata.
+- `SectionContractGuard` встроен до записи в [app/pipeline/problem_factory.py](/Users/stas/Documents/Системное%20Мышление/Системное%20мышление/Skills/FPF-skill_2/electronic_consultant_v3_old/app/pipeline/problem_factory.py) и [app/pipeline/viewpoint_runner.py](/Users/stas/Documents/Системное%20Мышление/Системное%20мышление/Skills/FPF-skill_2/electronic_consultant_v3_old/app/pipeline/viewpoint_runner.py).
+- Добавлен API/UI слой [app/dialogue_api.py](/Users/stas/Documents/Системное%20Мышление/Системное%20мышление/Skills/FPF-skill_2/electronic_consultant_v3_old/app/dialogue_api.py) и подключение маршрутов в [app/api_server.py](/Users/stas/Documents/Системное%20Мышление/Системное%20мышление/Skills/FPF-skill_2/electronic_consultant_v3_old/app/api_server.py).
+- Реализованы контракты `/api/dialogue/ask`, history, evidence, open-questions, `GET /api/workspaces/{workspaceId}/version-state` и минимальный case-first single-case UI shell.
+- Добавлен тестовый набор [tests/test_sprint_04_validation_ui.py](/Users/stas/Documents/Системное%20Мышление/Системное%20мышление/Skills/FPF-skill_2/electronic_consultant_v3_old/tests/test_sprint_04_validation_ui.py).

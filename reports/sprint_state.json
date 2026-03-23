@@ -1,0 +1,9 @@
+{
+  "current_sprint": "SPRINT_10_DECISION_RETRIEVAL_UX",
+  "status": "completed",
+  "attempt": 1,
+  "last_commit": "14261efcc215a858e648b3fda9c64c239ce217db",
+  "codex_summary_path": "reports/tests/sprint_10_decision_retrieval_ux_codex_summary_attempt_1.md",
+  "test_report_path": "reports/tests/sprint_10_decision_retrieval_ux_test_report_attempt_1.md",
+  "acceptance_notes_path": "reports/reviews/sprint_10_manual_acceptance.md"
+}

@@ -8,7 +8,7 @@ from typing import Dict, List, Literal, Tuple
 
 from app.llm.client import generate_markdown_with_skill
 from app.pipeline.artifact_template import build_frontmatter, write_markdown_artifact
-from app.pipeline.epistemic_sanitizer import detect_unanchored_claim_lines, soften_unanchored_claims
+from app.pipeline.epistemic_sanitizer import detect_unanchored_claim_lines, harden_generated_artifact
 from app.pipeline.epistemic_projection import emit_projection
 
 
@@ -728,7 +728,9 @@ def run_solution_portfolio(project_root: Path, workspace_id: str, llm_mode: str 
         final_body = _canonicalize_candidates(final_parse.candidates)
 
     if detect_unanchored_claim_lines(final_body):
-        final_body = soften_unanchored_claims(final_body)
+        final_body = harden_generated_artifact(final_body, stage_name="solution_factory", workspace_path=workspace)
+    else:
+        final_body = harden_generated_artifact(final_body, stage_name="solution_factory", workspace_path=workspace)
 
     _append_contract_audit(
         workspace,

@@ -1,0 +1,16 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY . /app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV CANONICAL_DB_DSN=sqlite:////app/.codex_data/canonical.db
+ENV CANONICAL_DB_AUTO_UPGRADE=1
+ENV API_HOST=0.0.0.0
+ENV API_PORT=8000
+
+EXPOSE 8000
+
+CMD ["python3", "-m", "app.api_server"]
